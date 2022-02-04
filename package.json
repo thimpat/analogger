@@ -1,0 +1,21 @@
+{
+  "name": "quick-log",
+  "version": "1.0.0",
+  "description": "Some Js Logger",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "demo": "node example/demo-1.cjs",
+    "convert-cjs": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/"
+  },
+  "author": "Patrice Thimothee",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@babel/core": "^7.17.0",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/preset-env": "^7.16.11",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.8.0"
+  }
+}
