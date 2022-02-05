@@ -5,7 +5,7 @@
  * 
  **/    
 const constants = {
-    LOG_CONTEXT: {STANDARD: {}, TEST: {color: "red"}, C1: null, C2: null, C3: null, DEFAULT: {}},
+    LOG_CONTEXT: {STANDARD012345678: {}, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}},
     LOG_TARGETS: {DEV: {}, USER: {user: true}}
 }
 
