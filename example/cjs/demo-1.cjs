@@ -1,7 +1,6 @@
 const {LOG_CONTEXT, LOG_TARGETS} = require("./contexts-def.cjs")
 // const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
 const {anaLogger} = require("../../dist/ana-logger-cjs.min.cjs");
-const {addSomething} = require("my-project");
 
 anaLogger.setContexts(LOG_CONTEXT);
 anaLogger.setTargets(LOG_TARGETS);
@@ -19,9 +18,6 @@ console.error(`Error Before override`);
 anaLogger.overrideError()
 console.error(`Error After override`);
 console.log("==========================");
-
-const result = addSomething(4, 5)
-console.log(result)
 
 anaLogger.log(LOG_CONTEXT.STANDARD012345678, `Basic Log example 2`, "+Something 0", "+Something 1");
 anaLogger.log({context: LOG_CONTEXT.TEST, lid: 100000}, `Test Log example`);
