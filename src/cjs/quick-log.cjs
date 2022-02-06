@@ -11,12 +11,11 @@ class QuickLog
 
     logIndex = 0;
     contexts = [];
-    targets = [];
+    targets = {};
 
     indexColor = 0;
 
     format = ""
-    colors = {};
 
     options = {
         hideHookMessage: false
@@ -27,16 +26,28 @@ class QuickLog
         RIGHT: "RIGHT"
     }
 
+    static ENVIRONMENT_TYPE = {
+        BROWSER : "BROWSER",
+        NODE: "NODE",
+        OTHER: "OTHER"
+    }
+
     constructor()
     {
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER
         this.format = this.onBuildLog.bind(this)
+        this.errorTargetHandler = this.onError.bind(this)
+        this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this)
+
         this.setOptions(this.options)
 
         this.realConsoleLog = console.log
         this.realConsoleInfo = console.info
         this.realConsoleWarn = console.warn
         this.realConsoleError = console.error
+
+        this.ALIGN = QuickLog.ALIGN
+        this.ENVIRONMENT_TYPE = QuickLog.ENVIRONMENT_TYPE
     }
 
     /**
@@ -131,6 +142,20 @@ class QuickLog
         return `[${time}] ${contextName}: (${lid}) ${symbol} ${message}`
     }
 
+    onErrorForUserTarget(context, ...args)
+    {
+        // this.realConsoleLog(`Target => User: Users explicitly see this message`, ...args)
+        this.errorUserTargetHandler(context, ...args)
+    }
+
+    onError(context, ...args)
+    {
+        if (context.target === this.targets.USER)
+        {
+            this.onErrorForUserTarget(context, ...args)
+        }
+    }
+
     /**
      * Forward input to real console log
      * @param args
@@ -161,6 +186,16 @@ class QuickLog
             return false
         }
         this.format = format.bind(this)
+    }
+
+    setErrorHandler(handler)
+    {
+        this.errorTargetHandler = handler.bind(this)
+    }
+
+    setErrorHandlerForUserTarget(handler)
+    {
+        this.errorUserTargetHandler = handler.bind(this)
     }
 
     // ------------------------------------------------
@@ -286,18 +321,9 @@ class QuickLog
         });
     }
 
-    setTargets(targetTable)
+    setTargets(targetTable = {})
     {
-        const arr = Object.keys(targetTable);
-        arr.forEach((key) =>
-        {
-            const targetPassed = targetTable[key] || {};
-            const target = this.allegeProperties(targetPassed, {
-                user: false
-            });
-
-            this.targets[key] = target;
-        });
+        this.targets = Object.assign({}, targetTable, {ALL: "ALL", USER: "USER"})
     }
 
     enableContexts(contextNames)
@@ -340,12 +366,16 @@ class QuickLog
             const text = this.format({...context, message})
             if (this.isBrowser())
             {
-                this.realConsoleLog.log(`%c${text}`, `color: ${context.color}`)
+                context.environnment = QuickLog.ENVIRONMENT_TYPE.BROWSER
+                this.realConsoleLog(`%c${text}`, `color: ${context.color}`)
             }
             else
             {
+                context.environnment = QuickLog.ENVIRONMENT_TYPE.NODE
                 this.realConsoleLog(chalk.hex(context.color)(text));
             }
+
+            this.errorTargetHandler(context, args)
         }
         catch (e)
         {
@@ -427,6 +457,8 @@ class QuickLog
             this.realConsoleLog(`QuickLog: Hook placed on console.log`)
         }
         console.log = this.onDisplayLog.bind(this);
+        console.info = this.onDisplayLog.bind(this);
+        console.warn = this.onDisplayLog.bind(this);
     }
 
     overrideError()
