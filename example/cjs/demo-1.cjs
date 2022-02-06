@@ -5,6 +5,8 @@ const {addSomething} = require("my-project");
 QuickLog.setContexts(LOG_CONTEXT);
 QuickLog.setTargets(LOG_TARGETS);
 
+QuickLog.setOptions({silent: true})
+
 QuickLog.overrideConsole()
 
 // QuickLog.setFormat(

@@ -11,6 +11,10 @@ import {addSomething}  from "my-project";
 QuickLog.setContexts(LOG_CONTEXT);
 QuickLog.setTargets(LOG_TARGETS);
 
+QuickLog.setOptions({silent: true})
+
+QuickLog.overrideConsole()
+
 // QuickLog.setFormat(
 //     function({contextName, id, message})
 //     {
@@ -19,6 +23,7 @@ QuickLog.setTargets(LOG_TARGETS);
 // );
 
 const result = addSomething(4, 5)
+console.log(result)
 
 QuickLog.log(LOG_CONTEXT.STANDARD012345678, `Basic Log example 2`, "+Something 0", "+Something 1");
 QuickLog.log({context: LOG_CONTEXT.TEST, lid: 100000}, `Test Log example`);
@@ -26,5 +31,10 @@ QuickLog.log(LOG_CONTEXT.TEST, `Test Log example`, "+Something 3");
 QuickLog.log(LOG_CONTEXT.C1, `Test Log example C1`);
 QuickLog.log(LOG_CONTEXT.C2, `Test Log example C2`);
 QuickLog.log(LOG_CONTEXT.C3, `Test Log example C3`);
+
+console.log(LOG_CONTEXT.C1, `Test Log example C4`);
+console.log(LOG_CONTEXT.C2, `Test Log example C5`);
+console.log(LOG_CONTEXT.C3, `Test Log example C6`);
+
 QuickLog.log(`Basic Log example 1`);
 alert(result)
