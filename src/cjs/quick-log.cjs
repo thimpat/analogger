@@ -28,8 +28,13 @@ class QuickLog
     constructor()
     {
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER
-        this.format = this.onDisplay.bind(this)
+        this.format = this.onBuildLog.bind(this)
         this.setOptions(this.options)
+
+        this.realConsoleLog = console.log
+        this.realConsoleInfo = console.info
+        this.realConsoleWarn = console.warn
+        this.realConsoleError = console.error
     }
 
     /**
@@ -85,7 +90,7 @@ class QuickLog
     }
 
     /**
-     * Log by default
+     * Format inputs
      * @see Override {@link setFormat}
      * @param contextName
      * @param id
@@ -94,11 +99,11 @@ class QuickLog
      * @param symbol
      * @returns {string}
      */
-    onDisplay({contextName, id, message = "", lid = "", symbol = ""} = {})
+    onBuildLog({contextName, id, message = "", lid = "", symbol = ""} = {})
     {
         // Time
         const date = new Date()
-        let time = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        let time = ('0' + date.getHours()).slice(-2) + ":" + ('0' + date.getMinutes()).slice(-2) + ":" + ('0' + date.getSeconds()).slice(-2);
 
         // Display content in columns
         time = this.truncateMessage(time, {fit: 7})
@@ -109,6 +114,15 @@ class QuickLog
         symbol = this.truncateMessage(symbol, {fit: this.options.symbolLenMax})
 
         return `[${time}] ${contextName}: (${lid}) ${symbol} ${message}`
+    }
+
+    /**
+     * Forward input to real console log
+     * @param args
+     */
+    onDisplayLog(...args)
+    {
+        this.log(...args);
     }
 
     /**
@@ -132,6 +146,21 @@ class QuickLog
     // ------------------------------------------------
     // Log Contexts
     // ------------------------------------------------
+    isContext(context)
+    {
+        if (
+            !(typeof context === 'object' &&
+                !Array.isArray(context) &&
+                context !== null)
+        )
+        {
+            return false
+        }
+
+        return (context.hasOwnProperty("contextName") && context.hasOwnProperty("target"))
+
+    }
+
     generateDefaultContext()
     {
         const defaultContext = {
@@ -255,7 +284,7 @@ class QuickLog
     // ------------------------------------------------
     // Logging methods
     // ------------------------------------------------
-    process(context = {})
+    processLog(context = {})
     {
         try
         {
@@ -267,11 +296,11 @@ class QuickLog
             const text = this.format({...context, message})
             if (this.isBrowser())
             {
-                console.log(`%c${text}`, `color: ${context.color}`)
+                this.realConsoleLog.log(`%c${text}`, `color: ${context.color}`)
             }
             else
             {
-                console.log(chalk.hex(context.color)(text));
+                this.realConsoleLog(chalk.hex(context.color)(text));
             }
             //
             // args[0] = `${context.padEnd(12, " ")}: ${args[0]}`;
@@ -288,7 +317,7 @@ class QuickLog
         catch (e)
         {
             debugger
-            console.error(`QuickLog:`, e)
+            console.error(`QuickLog:`, e.message)
         }
     }
 
@@ -307,7 +336,7 @@ class QuickLog
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext()
-            this.process.apply(this, [defaultContext, options, ...args]);
+            this.processLog.apply(this, [defaultContext, options, ...args]);
             return;
         }
 
@@ -327,7 +356,13 @@ class QuickLog
 
         // let args0 = Array.prototype.slice.call(arguments);
         // args0.unshift(options)
-        this.process.apply(this, [context, ...args]);
+        this.processLog.apply(this, [context, ...args]);
+    }
+
+    overrideConsole()
+    {
+        this.realConsoleLog(`QuickLog: Hook placed on console.log`)
+        console.log = this.onDisplayLog.bind(this);
     }
 
     info()
