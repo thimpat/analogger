@@ -450,17 +450,6 @@ class QuickLog
         this.log(errorContext, ...args0)
     }
 
-    overrideConsole()
-    {
-        if (!this.options.hideHookMessage)
-        {
-            this.realConsoleLog(`QuickLog: Hook placed on console.log`)
-        }
-        console.log = this.onDisplayLog.bind(this);
-        console.info = this.onDisplayLog.bind(this);
-        console.warn = this.onDisplayLog.bind(this);
-    }
-
     overrideError()
     {
         if (!this.options.hideHookMessage)
@@ -468,6 +457,34 @@ class QuickLog
             this.realConsoleLog(`QuickLog: Hook placed on console.error`)
         }
         console.error = this.onDisplayError.bind(this);
+    }
+
+    overrideConsole({log = true, info = true, warn = true, error = false})
+    {
+        if (!this.options.hideHookMessage)
+        {
+            this.realConsoleLog(`QuickLog: Hook placed on console.log`)
+        }
+
+        if (log)
+        {
+            console.log = this.onDisplayLog.bind(this);
+        }
+
+        if (info)
+        {
+            console.info = this.onDisplayLog.bind(this);
+        }
+
+        if (warn)
+        {
+            console.warn = this.onDisplayLog.bind(this);
+        }
+
+        if (error)
+        {
+            this.overrideError()
+        }
     }
 
     info()
