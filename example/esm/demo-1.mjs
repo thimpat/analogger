@@ -10,11 +10,17 @@ import {addSomething}  from "my-project";
 
 QuickLog.setContexts(LOG_CONTEXT);
 QuickLog.setTargets(LOG_TARGETS);
-
 QuickLog.setOptions({silent: false, hideError: false})
 
+console.log("==========================");
+
+console.log(`Log Before override`);
 QuickLog.overrideConsole()
+console.log(`Log After override`);
+console.error(`Error Before override`);
 QuickLog.overrideError()
+console.error(`Error After override`);
+console.log("==========================");
 
 const result = addSomething(4, 5)
 console.log(result)
@@ -35,7 +41,19 @@ console.error(LOG_CONTEXT.ERROR, `Testing Error 2`)
 console.error(`Testing Error 3`)
 console.error(undefined, `Testing Error 4`)
 
-QuickLog.setFormat(
+console.error({context: LOG_CONTEXT.ERROR, target: LOG_TARGETS.USER, lid: 200010}, `Testing Error 4`)
+
+QuickLog.setErrorHandlerForUserTarget(function (context/*, ...args*/)
+{
+    if (context.environnment === QuickLog.ENVIRONMENT_TYPE.BROWSER)
+    {
+        alert(`Users explicitly see this message`)
+    }
+})
+
+console.error({context: LOG_CONTEXT.ERROR, target: LOG_TARGETS.USER, lid: 200020}, `Testing Error that triggers a special handler`)
+
+QuickLog.setLogFormat(
     function({contextName, message})
     {
         return `${contextName}: ${message}`
@@ -47,4 +65,3 @@ console.log(LOG_CONTEXT.C1, `Test Log example C5 with new format`);
 console.log(LOG_CONTEXT.C1, `Test Log example C6 with new format`);
 
 QuickLog.log(`Basic Log example 1`);
-alert(result)
