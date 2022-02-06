@@ -106,7 +106,7 @@ class QuickLog
 
     /**
      * Format inputs
-     * @see Override {@link setFormat}
+     * @see Override {@link setLogFormat}
      * @param contextName
      * @param id
      * @param message
@@ -153,9 +153,9 @@ class QuickLog
      * Set log template
      * @param format
      */
-    setFormat(format)
+    setLogFormat(format)
     {
-        if (typeof format === 'function')
+        if (typeof format !== 'function')
         {
             console.error(`Invalid parameter for setFormat. It is expecting a function or method.`)
             return false

@@ -36,7 +36,7 @@ console.error(`Testing Error 3`)
 console.error(undefined, `Testing Error 4`)
 
 QuickLog.setFormat(
-    function({contextName, id, message})
+    function({contextName, message})
     {
         return `${contextName}: ${message}`
     }
