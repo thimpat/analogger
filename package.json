@@ -2,7 +2,15 @@
   "name": "analogger",
   "version": "1.0.0",
   "description": "Js Logger",
-  "main": "index.js",
+  "main": "src/cjs/ana-logger.cjs",
+  "module": "src/esm/ana-logger.mjs",
+  "type": "module",
+  "exports": {
+    ".":{
+      "require": "./src/cjs/ana-logger.cjs",
+      "import": "./src/esm/ana-logger.mjs"
+    }
+  },
   "scripts": {
     "demo": "node example/cjs/demo-1.cjs",
     "convert-cjs": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/ --input=\"example/**/*.cjs\" --output=example/esm/ --config=\".toesm.js\"",
@@ -12,7 +20,6 @@
   },
   "author": "Patrice Thimothee",
   "license": "MIT",
-  "type": "commonjs",
   "devDependencies": {
     "@babel/core": "^7.17.0",
     "@babel/eslint-parser": "^7.17.0",
@@ -29,7 +36,6 @@
     "chalk-cjs": "npm:chalk@^4.1.2",
     "color-convert": "^2.0.1",
     "color-convert-cjs": "npm:color-convert@^2.0.1",
-    "my-project": "file:../my-project",
     "rgb-hex": "^4.0.0",
     "rgb-hex-cjs": "npm:rgb-hex@^3.0.0",
     "to-esm": "^1.3.4"
