@@ -18,7 +18,9 @@ class QuickLog
     format = ""
     colors = {};
 
-    options = {}
+    options = {
+        hideHookMessage: false
+    }
 
     static ALIGN = {
         LEFT : "LEFT",
@@ -60,7 +62,10 @@ class QuickLog
                    idLenMax = 5,
                    lidLenMax = 5,
                    symbolLenMax = 2,
-                   messageLenMax = 60
+                   messageLenMax = 60,
+                   hideLog = false,
+                   hideHookMessage = false,
+        silent = false
                } = {})
     {
         this.options.contextLenMax = contextLenMax
@@ -68,6 +73,14 @@ class QuickLog
         this.options.lidLenMax = lidLenMax
         this.options.messageLenMax = messageLenMax
         this.options.symbolLenMax = symbolLenMax
+        this.options.hideLog = !!hideLog
+        this.options.hideHookMessage = !!hideHookMessage
+
+        if (silent)
+        {
+            this.options.hideLog = true
+            this.options.hideHookMessage = true
+        }
     }
 
     truncateMessage(input = "", {fit = 0, align = QuickLog.ALIGN.LEFT})
@@ -288,6 +301,11 @@ class QuickLog
     {
         try
         {
+            if (this.options.hideLog)
+            {
+                return
+            }
+
             let args = Array.prototype.slice.call(arguments);
             args.shift();
 
@@ -302,17 +320,6 @@ class QuickLog
             {
                 this.realConsoleLog(chalk.hex(context.color)(text));
             }
-            //
-            // args[0] = `${context.padEnd(12, " ")}: ${args[0]}`;
-            //
-            // const css = this.colors[context];
-            // if (css)
-            // {
-            //     args[0] = `%c${args[0]}`;
-            //     args.splice(1, 0, css);
-            // }
-            //
-            // window.console.log.apply(this, args);
         }
         catch (e)
         {
@@ -361,7 +368,10 @@ class QuickLog
 
     overrideConsole()
     {
-        this.realConsoleLog(`QuickLog: Hook placed on console.log`)
+        if (!this.options.hideHookMessage)
+        {
+            this.realConsoleLog(`QuickLog: Hook placed on console.log`)
+        }
         console.log = this.onDisplayLog.bind(this);
     }
 
