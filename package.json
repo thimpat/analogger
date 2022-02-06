@@ -1,7 +1,7 @@
 {
-  "name": "quick-log",
+  "name": "analogger",
   "version": "1.0.0",
-  "description": "Some Js Logger",
+  "description": "Js Logger",
   "main": "index.js",
   "scripts": {
     "demo": "node example/cjs/demo-1.cjs",

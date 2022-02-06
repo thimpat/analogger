@@ -3,11 +3,11 @@ import {uglify} from "rollup-plugin-uglify";
 export default [
     {
         input  : [
-            "src/esm/quick-log.mjs",
+            "src/esm/ana-logger.mjs",
         ],
         output : [
             {
-                file  : "dist/quick-log-esm.min.mjs",
+                file  : "dist/ana-logger-esm.min.mjs",
                 format: "es"
             },
         ],

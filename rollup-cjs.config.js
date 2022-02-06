@@ -5,11 +5,11 @@ import {uglify} from "rollup-plugin-uglify";
 export default [
     {
         input  : [
-            "src/cjs/quick-log.cjs",
+            "src/cjs/ana-logger.cjs",
         ],
         output : [
             {
-                file  : "dist/quick-log-cjs.min.cjs",
+                file  : "dist/ana-logger-cjs.min.cjs",
                 format: "cjs"
             },
         ],

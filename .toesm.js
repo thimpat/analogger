@@ -9,8 +9,8 @@ module.exports = {
             replace: `const colorConvert = null;`
         },
         {
-            search: "const {quickLog} = require(\"../../dist/quick-log-cjs.min.cjs\");",
-            replace: "const {quickLog} = require(\"../../dist/quick-log-esm.min.mjs\"); /** Replaced **/"
+            search: "const {anaLogger} = require(\"../../dist/ana-logger-cjs.min.cjs\");",
+            replace: "const {anaLogger} = require(\"../../dist/ana-logger-esm.min.mjs\");"
         },
         {
             search: "// alert(result)",

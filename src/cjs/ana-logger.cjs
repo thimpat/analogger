@@ -4,7 +4,7 @@ const rgbHex = require('rgb-hex-cjs');
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
-class QuickLog
+class AnaLogger
 {
     system = ""
 
@@ -45,8 +45,8 @@ class QuickLog
         this.realConsoleWarn = console.warn
         this.realConsoleError = console.error
 
-        this.ALIGN = QuickLog.ALIGN
-        this.ENVIRONMENT_TYPE = QuickLog.ENVIRONMENT_TYPE
+        this.ALIGN = AnaLogger.ALIGN
+        this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE
     }
 
     /**
@@ -95,7 +95,7 @@ class QuickLog
         }
     }
 
-    truncateMessage(input = "", {fit = 0, align = QuickLog.ALIGN.LEFT})
+    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT})
     {
         try
         {
@@ -105,7 +105,7 @@ class QuickLog
                 input = input.substring(0, fit - 3) + "...";
             }
 
-            input = align === QuickLog.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ")
+            input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ")
             return input
         }
         catch (e)
@@ -132,7 +132,7 @@ class QuickLog
 
         // Display content in columns
         time = this.truncateMessage(time, {fit: 7})
-        contextName = this.truncateMessage(contextName, {fit: this.options.contextLenMax, align: QuickLog.ALIGN.RIGHT})
+        contextName = this.truncateMessage(contextName, {fit: this.options.contextLenMax, align: AnaLogger.ALIGN.RIGHT})
         // id = this.truncateMessage(id, {fit: this.options.idLenMax})
         lid = this.truncateMessage(lid, {fit: this.options.lidLenMax})
         message = this.truncateMessage(message, {fit: this.options.messageLenMax})
@@ -365,12 +365,12 @@ class QuickLog
             const text = this.format({...context, message})
             if (this.isBrowser())
             {
-                context.environnment = QuickLog.ENVIRONMENT_TYPE.BROWSER
+                context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER
                 this.realConsoleLog(`%c${text}`, `color: ${context.color}`)
             }
             else
             {
-                context.environnment = QuickLog.ENVIRONMENT_TYPE.NODE
+                context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE
                 this.realConsoleLog(chalk.hex(context.color)(text));
             }
 
@@ -499,4 +499,4 @@ class QuickLog
 
 }
 
-module.exports.quickLog = new QuickLog()
+module.exports.anaLogger = new AnaLogger()
