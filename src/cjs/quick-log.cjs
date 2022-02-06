@@ -64,6 +64,7 @@ class QuickLog
                    symbolLenMax = 2,
                    messageLenMax = 60,
                    hideLog = false,
+                   hideError = false,
                    hideHookMessage = false,
         silent = false
                } = {})
@@ -74,6 +75,7 @@ class QuickLog
         this.options.messageLenMax = messageLenMax
         this.options.symbolLenMax = symbolLenMax
         this.options.hideLog = !!hideLog
+        this.options.hideError = !!hideError
         this.options.hideHookMessage = !!hideHookMessage
 
         if (silent)
@@ -139,6 +141,15 @@ class QuickLog
     }
 
     /**
+     * Forward input to real console log
+     * @param args
+     */
+    onDisplayError(...args)
+    {
+        this.error(...args);
+    }
+
+    /**
      * Set log template
      * @param format
      */
@@ -184,16 +195,25 @@ class QuickLog
         }
 
         defaultContext.id = this.logIndex++;
-        defaultContext.color = COLOR_TABLE[0]
+        defaultContext.color = COLOR_TABLE[1]
         return defaultContext
     }
 
     generateNewContext()
     {
         const newContext = this.generateDefaultContext()
-        newContext.color = COLOR_TABLE[(this.indexColor++) % (COLOR_TABLE.length - 1) + 1];
+        newContext.color = COLOR_TABLE[(this.indexColor++) % (COLOR_TABLE.length - 3) + 2];
         newContext.symbol = ""
         return newContext
+    }
+
+    generateErrorContext()
+    {
+        const errorContext = this.generateDefaultContext()
+        errorContext.color = COLOR_TABLE[0]
+        errorContext.symbol = "v"
+        errorContext.error = true
+        return errorContext
     }
 
     allegeProperties(entry)
@@ -254,6 +274,8 @@ class QuickLog
     setContexts(contextTable)
     {
         const arr = Object.keys(contextTable);
+        contextTable["DEFAULT"] = this.contexts["DEFAULT"] = this.generateDefaultContext()
+        contextTable["ERROR"] = this.contexts["ERROR"] = this.generateErrorContext()
         arr.forEach((key) =>
         {
             const contextPassed = contextTable[key] || {};
@@ -297,6 +319,10 @@ class QuickLog
     // ------------------------------------------------
     // Logging methods
     // ------------------------------------------------
+    /**
+     * Display log following template
+     * @param context
+     */
     processLog(context = {})
     {
         try
@@ -323,11 +349,15 @@ class QuickLog
         }
         catch (e)
         {
-            debugger
             console.error(`QuickLog:`, e.message)
         }
     }
 
+    /**
+     * Check that a parameter (should be the first) uses the expected format.
+     * @param options
+     * @returns {boolean}
+     */
     isExtendedOptionsPassed(options)
     {
         if (typeof options !== "object")
@@ -338,6 +368,11 @@ class QuickLog
         return options.hasOwnProperty("context") || options.hasOwnProperty("target");
     }
 
+    /**
+     * console.log with options set on the first parameter to dictate console log behaviours
+     * @param options
+     * @param args
+     */
     log(options, ...args)
     {
         if (!this.isExtendedOptionsPassed(options))
@@ -366,6 +401,25 @@ class QuickLog
         this.processLog.apply(this, [context, ...args]);
     }
 
+    error(options, ...args)
+    {
+        if (this.options.hideError)
+        {
+            return
+        }
+
+        const errorContext = this.generateErrorContext()
+
+        if (this.isExtendedOptionsPassed(options))
+        {
+            options = Object.assign({}, errorContext, options)
+            return this.log(options, ...args)
+        }
+
+        let args0 = Array.prototype.slice.call(arguments);
+        this.log(errorContext, ...args0)
+    }
+
     overrideConsole()
     {
         if (!this.options.hideHookMessage)
@@ -373,6 +427,15 @@ class QuickLog
             this.realConsoleLog(`QuickLog: Hook placed on console.log`)
         }
         console.log = this.onDisplayLog.bind(this);
+    }
+
+    overrideError()
+    {
+        if (!this.options.hideHookMessage)
+        {
+            this.realConsoleLog(`QuickLog: Hook placed on console.error`)
+        }
+        console.error = this.onDisplayError.bind(this);
     }
 
     info()
@@ -385,10 +448,6 @@ class QuickLog
 
     }
 
-    error()
-    {
-
-    }
 
 }
 

@@ -1,5 +1,6 @@
 const constants = {
     COLOR_TABLE: [
+        "#d2466e",                  // Error context color
         "#FFA07A",                  // Default context color
         "#FF7F50",
         "#FF6347",
