@@ -4,7 +4,6 @@ const rgbHex = require('rgb-hex-cjs');
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
-
 class QuickLog
 {
     system = ""
@@ -459,7 +458,7 @@ class QuickLog
         console.error = this.onDisplayError.bind(this);
     }
 
-    overrideConsole({log = true, info = true, warn = true, error = false})
+    overrideConsole({log = true, info = true, warn = true, error = false} = {})
     {
         if (!this.options.hideHookMessage)
         {
@@ -487,17 +486,17 @@ class QuickLog
         }
     }
 
-    info()
+    info(...args)
     {
-
+        return this.log(...args)
     }
 
-    warn()
+    warn(...args)
     {
-
+        return this.log(...args)
     }
 
 
 }
 
-module.exports = new QuickLog();
+module.exports.quickLog = new QuickLog()

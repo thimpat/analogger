@@ -9,13 +9,13 @@ module.exports = {
             replace: `const colorConvert = null;`
         },
         {
+            search: "const {quickLog} = require(\"../../dist/quick-log-cjs.min.cjs\");",
+            replace: "const {quickLog} = require(\"../../dist/quick-log-esm.min.mjs\"); /** Replaced **/"
+        },
+        {
             search: "// alert(result)",
             replace: "alert(result)"
-        }
-        // {
-        //     search : "const {addSomething} = require(\"my-project\");",
-        //     replace: `import { addSomething } from "#my-project/add.mjs";`
-        // }
+        },
     ],
     replaceEnd  : [
         {
