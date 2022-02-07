@@ -12,10 +12,8 @@
     }
   },
   "scripts": {
-    "lib:update:1": "cd ../to-esm && npm run demo && npm pack && cd ../analogger && npm install ../to-esm/to-esm-1.4.1.tgz",
-    "lib:update": "npm run lib:update:1",
-    "convert-cjs:esm": "npm run lib:update && toesm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/ --input=\"example/**/*.cjs\" --output=example/esm/ --config=\".toesm.cjs\"",
-    "convert-cjs:browser": "npm run lib:update && toesm.cmd --input=\"src/cjs/**/*.cjs\" --input=\"example/**/*.cjs\" --output=src/esm-browser/ --output=example/esm-browser/ --config=\".toesm.cjs\" --solvedep",
+    "convert-cjs:esm": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/ --input=\"example/**/*.cjs\" --output=example/esm/ --config=\".toesm.cjs\"",
+    "convert-cjs:browser": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --input=\"example/**/*.cjs\" --output=src/esm-browser/ --output=example/esm-browser/ --config=\".toesm.cjs\" --solvedep",
     "bundle:prod:cjs": "rollup --config rollup-cjs.config.js",
     "bundle:prod:esm": "rollup --config rollup-esm.config.js",
     "bundle:prod": "npm run convert-cjs:esm && npm run convert-cjs:browser && npm run bundle:prod:cjs && npm run bundle:prod:esm",
@@ -34,7 +32,7 @@
     "rollup": "^2.67.0",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-uglify": "^6.0.4",
-    "to-esm": "file:../to-esm/to-esm-1.4.1.tgz"
+    "to-esm": "^1.5.0"
   },
   "dependencies": {
     "chalk": "^5.0.0",
