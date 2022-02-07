@@ -1,3 +1,4 @@
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import {uglify} from "rollup-plugin-uglify";
 
 export default [
@@ -7,11 +8,12 @@ export default [
         ],
         output : [
             {
-                file  : "dist/ana-logger-esm.min.mjs",
+                file  : "dist/index-esm.min.mjs",
                 format: "es"
             },
         ],
         plugins: [
+            nodeResolve(),
             uglify(),
         ]
     },

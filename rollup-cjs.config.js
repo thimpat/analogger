@@ -9,7 +9,7 @@ export default [
         ],
         output : [
             {
-                file  : "dist/ana-logger-cjs.min.cjs",
+                file  : "dist/index-cjs.min.cjs",
                 format: "cjs"
             },
         ],
@@ -18,7 +18,7 @@ export default [
                 targets: ["dist/*"]
             }),
             commonjs({
-                ignoreDynamicRequires: true,
+                ignoreDynamicRequires: false,
             }),
             uglify(),
         ]

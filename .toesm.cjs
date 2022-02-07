@@ -9,8 +9,8 @@ module.exports = {
             replace: `const colorConvert = null;`
         },
         {
-            search: "const {anaLogger} = require(\"../../dist/ana-logger-cjs.min.cjs\");",
-            replace: "const {anaLogger} = require(\"../../dist/ana-logger-esm.min.mjs\");"
+            search: "const {anaLogger} = require(\"../../dist/index-cjs.min.cjs\");",
+            replace: "const {anaLogger} = require(\"../../dist/index-esm.min.mjs\");"
         },
         {
             search: "// alert(result)",
