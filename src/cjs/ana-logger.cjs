@@ -143,7 +143,6 @@ class AnaLogger
 
     onErrorForUserTarget(context, ...args)
     {
-        // this.realConsoleLog(`Target => User: Users explicitly see this message`, ...args)
         this.errorUserTargetHandler(context, ...args)
     }
 
@@ -300,7 +299,7 @@ class AnaLogger
     }
 
     /**
-     * Load the contexts that will be available.
+     * Load the context names that should be available to the environment.
      * They are defined by the user.
      * @see Context definitions {@link ./example/cjs/contexts-def.cjs}
      * @param contextTable
@@ -496,6 +495,21 @@ class AnaLogger
         return this.log(...args)
     }
 
+    alert(...args)
+    {
+        if (this.isNode())
+        {
+            return this.log(...args)
+        }
+
+        const message = args.join(" | ");
+        alert(message)
+    }
+
+    assert()
+    {
+
+    }
 
 }
 
