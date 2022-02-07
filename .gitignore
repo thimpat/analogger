@@ -85,5 +85,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-/example/esm/
 /src/esm/
+/example/esm/
+/example/esm-browser/
+/src/esm-browser/

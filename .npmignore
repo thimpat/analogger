@@ -66,8 +66,9 @@ out
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-/src/
 /.babelrc
 /.eslintrc.js
 /.gitignore
 /rollup-cjs.config.js
+/rollup-esm.config.js
+/src
