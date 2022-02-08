@@ -213,6 +213,11 @@ class AnaLogger
         this.format = format.bind(this)
     }
 
+    resetLogFormatter()
+    {
+        this.format = this.originalFormatFunction
+    }
+
     setErrorHandler(handler)
     {
         this.errorTargetHandler = handler.bind(this)
