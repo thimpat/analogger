@@ -1,16 +1,21 @@
 const {LOG_CONTEXT, LOG_TARGETS} = require("./contexts-def.cjs")
-const {anaLogger} = require("../../dist/index-cjs.min.cjs");
-// const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
+// const {anaLogger} = require("../../dist/index-cjs.min.cjs");
+const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
+
+anaLogger.keepLogHistory()
 
 anaLogger.setContexts(LOG_CONTEXT);
 anaLogger.setTargets(LOG_TARGETS);
 anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
-anaLogger.setOptions({silent: false, hideError: false})
+anaLogger.setOptions({silent: true})
 
 console.log("==========================");
 anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
 anaLogger.log(LOG_CONTEXT.C2, `Test Log example C2`);
 anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
+
+anaLogger.setOptions({silent: false, hideError: false})
+console.log(anaLogger.getLogHistory())
 
 anaLogger.assert(1 === 1)
 anaLogger.assert(1 === 2)
