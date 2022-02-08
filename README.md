@@ -1,6 +1,6 @@
 
 Analogger is a very simple logger for both Node and the Browser.
-It is a library using both CJS and ESM. 
+It is a library using both CJS and ESM.
 It serves as a packaging example of **hybrid (CJS/ESM) module**.
 
 ## Installation
@@ -45,7 +45,7 @@ import {anaLogger} from "analogger"
 
 ### log() / info() / warn() / error()
 
-Display a message in the terminal or the inspector. Depending on where the process is running. 
+Display a message in the terminal or the inspector, depending on where the process is running.
 
 ```javascript
 anaLogger.log(`I'am some log`);
@@ -61,7 +61,7 @@ anaLogger.error(`I'am some log`);
 anaLogger.alert(`I'am some log`);
 ```
 
-Display the browser native message box if ran from it, otherwise displays the message in the terminal.
+Display the browser native message box if run from it; otherwise, it displays the message in the terminal.
 
 <br/>
 
@@ -76,8 +76,8 @@ console.log(`Log After override`);
 
 Override console.log, console.info and console.warn. If you already have many console.log running in your system,
 it allows hiding them all in one go.
-In this example, the terminal (or inspector) will not show the message "Log After override". All following messages 
-either.  
+In this example, the terminal (or inspector) will not show the message "Log After override". All following messages
+either.
 
 <br/>
 
@@ -108,7 +108,7 @@ anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
 ```
 
 See LOG_CONTEXT.C1 in this example to categorise the functionality we want to monitor.
-For instance, LOG_CONTEXT.INVESTIGATING_TIMER_EFFECT could be a to display output related to something that has to
+For instance, LOG_CONTEXT.INVESTIGATING_TIMER_EFFECT could display output related to something that has to
 do with a timer.
 
 The "Testing log 2" log will not show up in the console or the terminal.
@@ -128,7 +128,7 @@ The "Testing log 2" log will not show up in the console or the terminal.
 
 #### Targets
 
-Targets allow to define some log categories. They can be developpers, roles, etc.
+Targets allow defining some log categories. For example, they can be developers, roles, etc.
 setActiveTarget() allows hiding logs from other devs or roles.
 
 ##### Examples
@@ -158,7 +158,7 @@ anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
 ### assert()
 
 You can set some tests directly in the code. It serves as early feedback.
-It is useful to guarantee that the code is running straight away, rather than waiting on the CI to send its feedback.
+It is helpful to guarantee that the code is running straight away rather than waiting on the CI to send its feedback.
 
 
 ```javascript
