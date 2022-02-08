@@ -1,6 +1,7 @@
 name: Download AnaLogger
 env:
   ANALOGGER_APP_NAME: "release/analogger"
+
 on:
   push:
     branches:
@@ -9,6 +10,7 @@ on:
     paths-ignore:
       - "**.md"
       - ".vscode/**"
+
 jobs:
   set-version:
     runs-on: [self-hosted]

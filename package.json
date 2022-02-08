@@ -26,6 +26,13 @@
     "type": "git",
     "url": "https://github.com/thimpat/analogger.git"
   },
+  "release": {
+    "branches": [
+      "main",
+      "ci",
+      "master"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.17.0",
     "@babel/eslint-parser": "^7.17.0",
