@@ -23,5 +23,3 @@ jobs:
         shell: powershell
         run: |
           npx semantic-release
-      - name: Versioning successful
-        run: echo "Success"
