@@ -1,6 +1,7 @@
 const chalk = require("chalk-cjs");
 const colorConvert = require('color-convert-cjs');
 const rgbHex = require('rgb-hex-cjs');
+const os = require("os");
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
@@ -31,15 +32,18 @@ class AnaLogger
     }
 
     static ENVIRONMENT_TYPE = {
-        BROWSER : "BROWSER",
-        NODE: "NODE",
-        OTHER: "OTHER"
+        BROWSER: "BROWSER",
+        NODE   : "NODE",
+        OTHER  : "OTHER"
     }
+    originalFormatFunction;
 
     constructor()
     {
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER
         this.format = this.onBuildLog.bind(this)
+        this.originalFormatFunction = this.format
+
         this.errorTargetHandler = this.onError.bind(this)
         this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this)
 
@@ -69,9 +73,14 @@ class AnaLogger
         this.logHistory = [];
     }
 
-    getLogHistory()
+    getLogHistory(join = true, symbol = os.EOL)
     {
-        return Object.assign({}, this.logHistory)
+        const history = JSON.parse(JSON.stringify(this.logHistory.slice(0)));
+        if (!join)
+        {
+            return history;
+        }
+        return history.join(symbol);
     }
 
     /**
@@ -403,11 +412,6 @@ class AnaLogger
     {
         try
         {
-            if (this.options.hideLog)
-            {
-                return
-            }
-
             if (!this.isTargetAllowed(context.target))
             {
                 return
@@ -420,22 +424,35 @@ class AnaLogger
 
             let output = ""
             const text = this.format({...context, message})
+
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER
                 output = `%c${text}`
-                this.realConsoleLog(output, `color: ${context.color}`)
             }
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE
                 output = chalk.hex(context.color)(text);
-                this.realConsoleLog(output);
             }
 
             if (this.keepLog)
             {
                 this.logHistory.push(output)
+            }
+
+            if (this.options.hideLog)
+            {
+                return
+            }
+
+            if (this.isBrowser())
+            {
+                this.realConsoleLog(output, `color: ${context.color}`)
+            }
+            else
+            {
+                this.realConsoleLog(output);
             }
 
             this.errorTargetHandler(context, args)
@@ -612,31 +629,34 @@ class AnaLogger
                 if (result !== expected)
                 {
                     this.error(`Asset failed`)
-                    return
+                    return false
                 }
 
                 if (this.options.showPassingTests)
                 {
                     this.log(`SUCCESS: Assert passed`)
                 }
-                return
+                return true
             }
 
             if (condition !== expected)
             {
-                this.error(`Asset failed`)
-                return
+                this.error(`Assert failed`)
+                return false
             }
 
             if (this.options.showPassingTests)
             {
                 this.log(`SUCCESS: Assert passed`)
             }
+            return true
         }
         catch (e)
         {
             this.error(`Unexpected error in assert`)
         }
+
+        return false;
     }
 
 }
