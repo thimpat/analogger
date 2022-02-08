@@ -72,3 +72,5 @@ out
 /rollup-cjs.config.js
 /rollup-esm.config.js
 /src
+/docs
+/example
