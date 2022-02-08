@@ -97,18 +97,18 @@ A context allows grouping the logs by functionality by assigning them some colou
 ##### Examples
 
 ```javascript
-const LOG_CONTEXT = {STANDARD: null, TEST: {color: "#B18904"}, C1: null, C2: null, C3: null, DEFAULT: {}}
+const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
-anaLogger.setContexts(LOG_CONTEXT);
+anaLogger.setContexts(LOG_CONTEXTS);
 
-anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
-anaLogger.log(LOG_CONTEXT.C2, `Test Log example C2`);
-anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
+anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);
+anaLogger.log(LOG_CONTEXTS.C2, `Test Log example C2`);
+anaLogger.log(LOG_CONTEXTS.C3, `Test Log example C3`);
 ```
 
-See LOG_CONTEXT.C1 in this example to categorise the functionality we want to monitor.
-For instance, LOG_CONTEXT.INVESTIGATING_TIMER_EFFECT could display output related to something that has to
+See LOG_CONTEXTS.C1 in this example to categorise the functionality we want to monitor.
+For instance, LOG_CONTEXTS.INVESTIGATING_TIMER_EFFECT could display output related to something that has to
 do with a timer.
 
 The "Testing log 2" log will not show up in the console or the terminal.
@@ -134,19 +134,19 @@ setActiveTarget() allows hiding logs from other devs or roles.
 ##### Examples
 
 ```javascript
-const LOG_CONTEXT = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
+const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
-anaLogger.setContexts(LOG_CONTEXT);
+anaLogger.setContexts(LOG_CONTEXTS);
 anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                        // <- You are DEV1 
 
-console.log({target: LOG_CONTEXT.DEV1}, `Testing log 1`);           // You will see this
-console.log({target: LOG_CONTEXT.DEV2}, `Testing log 2`);           // You will not see this
-console.log({context: LOG_CONTEXT.DEV3}, `Testing log 3`);          // You will see this    
-console.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXT.ALL
+console.log({target: LOG_TARGETS.DEV1}, `Testing log 1`);           // You will see this
+console.log({target: LOG_TARGETS.DEV2}, `Testing log 2`);           // You will not see this
+console.log({context: LOG_CONTEXTS.STANDARD}, `Testing log 3`);     // You will see this    
+console.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXTS.ALL
 
 
-anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);               // You will see this
+anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will see this
 ```
 
 <br/><br/>
