@@ -29,7 +29,9 @@
   "release": {
     "branches": [
       "main",
-      "ci",
+      {
+        "name": "ci"
+      },
       "master"
     ]
   },
