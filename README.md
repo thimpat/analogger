@@ -87,6 +87,12 @@ Same as above, but for errors (console.error)
 
 <br/>
 
+### removeOverride() | removeOverrideError()
+
+Remove overridden console methods
+
+<br/>
+
 ### setContexts()
 
 #### Contexts

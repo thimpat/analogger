@@ -514,6 +514,35 @@ class AnaLogger
         }
     }
 
+    removeOverrideError()
+    {
+        console.warn = this.realConsoleError;
+    }
+
+    removeOverride({log = true, info = true, warn = true, error = false} = {})
+    {
+        if (log)
+        {
+            console.log = this.realConsoleLog;
+        }
+
+        if (info)
+        {
+            console.info = this.realConsoleInfo;
+        }
+
+        if (warn)
+        {
+            console.warn = this.realConsoleWarn;
+        }
+
+        if (error)
+        {
+            this.removeOverrideError()
+        }
+
+    }
+
     info(...args)
     {
         return this.log(...args)
