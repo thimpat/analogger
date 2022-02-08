@@ -1,6 +1,7 @@
 const chalk = require("chalk-cjs");
 const colorConvert = require('color-convert-cjs');
 const rgbHex = require('rgb-hex-cjs');
+const os = require("os");
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
@@ -16,7 +17,10 @@ class AnaLogger
 
     indexColor = 0;
 
-    format = ""
+    format = "";
+
+    keepLog = false;
+    logHistory = []
 
     options = {
         hideHookMessage: false
@@ -28,15 +32,18 @@ class AnaLogger
     }
 
     static ENVIRONMENT_TYPE = {
-        BROWSER : "BROWSER",
-        NODE: "NODE",
-        OTHER: "OTHER"
+        BROWSER: "BROWSER",
+        NODE   : "NODE",
+        OTHER  : "OTHER"
     }
+    originalFormatFunction;
 
     constructor()
     {
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER
         this.format = this.onBuildLog.bind(this)
+        this.originalFormatFunction = this.format
+
         this.errorTargetHandler = this.onError.bind(this)
         this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this)
 
@@ -49,6 +56,31 @@ class AnaLogger
 
         this.ALIGN = AnaLogger.ALIGN
         this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE
+    }
+
+    keepLogHistory()
+    {
+        this.keepLog = true;
+    }
+
+    releaseLogHistory()
+    {
+        this.keepLog = false;
+    }
+
+    resetLogHistory()
+    {
+        this.logHistory = [];
+    }
+
+    getLogHistory(join = true, symbol = os.EOL)
+    {
+        const history = JSON.parse(JSON.stringify(this.logHistory.slice(0)));
+        if (!join)
+        {
+            return history;
+        }
+        return history.join(symbol);
     }
 
     /**
@@ -188,6 +220,11 @@ class AnaLogger
             return false
         }
         this.format = format.bind(this)
+    }
+
+    resetLogFormatter()
+    {
+        this.format = this.originalFormatFunction
     }
 
     setErrorHandler(handler)
@@ -371,15 +408,10 @@ class AnaLogger
      * Display log following template
      * @param context
      */
-    processLog(context = {})
+    processOutput(context = {})
     {
         try
         {
-            if (this.options.hideLog)
-            {
-                return
-            }
-
             if (!this.isTargetAllowed(context.target))
             {
                 return
@@ -390,16 +422,37 @@ class AnaLogger
 
             const message = args.join(" | ")
 
+            let output = ""
             const text = this.format({...context, message})
+
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER
-                this.realConsoleLog(`%c${text}`, `color: ${context.color}`)
+                output = `%c${text}`
             }
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE
-                this.realConsoleLog(chalk.hex(context.color)(text));
+                output = chalk.hex(context.color)(text);
+            }
+
+            if (this.keepLog)
+            {
+                this.logHistory.push(output)
+            }
+
+            if (this.options.hideLog)
+            {
+                return
+            }
+
+            if (this.isBrowser())
+            {
+                this.realConsoleLog(output, `color: ${context.color}`)
+            }
+            else
+            {
+                this.realConsoleLog(output);
             }
 
             this.errorTargetHandler(context, args)
@@ -435,7 +488,7 @@ class AnaLogger
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext()
-            this.processLog.apply(this, [defaultContext, options, ...args]);
+            this.processOutput.apply(this, [defaultContext, options, ...args]);
             return;
         }
 
@@ -455,7 +508,7 @@ class AnaLogger
 
         // let args0 = Array.prototype.slice.call(arguments);
         // args0.unshift(options)
-        this.processLog.apply(this, [context, ...args]);
+        this.processOutput.apply(this, [context, ...args]);
     }
 
     error(options, ...args)
@@ -576,31 +629,34 @@ class AnaLogger
                 if (result !== expected)
                 {
                     this.error(`Asset failed`)
-                    return
+                    return false
                 }
 
                 if (this.options.showPassingTests)
                 {
                     this.log(`SUCCESS: Assert passed`)
                 }
-                return
+                return true
             }
 
             if (condition !== expected)
             {
-                this.error(`Asset failed`)
-                return
+                this.error(`Assert failed`)
+                return false
             }
 
             if (this.options.showPassingTests)
             {
                 this.log(`SUCCESS: Assert passed`)
             }
+            return true
         }
         catch (e)
         {
             this.error(`Unexpected error in assert`)
         }
+
+        return false;
     }
 
 }

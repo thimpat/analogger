@@ -169,3 +169,22 @@ anaLogger.assert(1 === 2)
 anaLogger.assert(()=>true, true)
 anaLogger.assert((a, b)=> a === b, true, 2, 2)
 ```
+
+<br/><br/>
+
+###
+
+When an error is detected and should be seen by your app consumers explicitly (for instance, display a dialogue box
+to them), you can hook your logic.
+
+```javascript
+    anaLogger.setErrorHandlerForUserTarget(function (context/*, ...args*/)
+    {
+        // Detect whether we are in a browser
+        if (context.environnment === anaLogger.ENVIRONMENT_TYPE.BROWSER)
+        {
+            // When an error is detected in the Browser, the Browser will see this message
+            anaLogger.alert(`Users explicitly see this message`)
+        }
+    })
+```
