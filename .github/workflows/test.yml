@@ -1,4 +1,4 @@
-name: Versioning AnaLogger
+name: Test
 env:
   ANALOGGER_APP_NAME: "release/analogger"
 on:
