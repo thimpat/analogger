@@ -134,23 +134,19 @@ setActiveTarget() allows hiding logs from other devs or roles.
 ##### Examples
 
 ```javascript
-anaLogger.setActiveTarget(LOG_TARGETS.DEV1);
-console.log({target: LOG_CONTEXT.DEV1}, `Testing log 1`)
-console.log({target: LOG_CONTEXT.DEV2}, `Testing log 2`)
-console.log({context: LOG_CONTEXT.DEV3}, `Testing log 3`)
-console.log(`Testing log 4`)
-```
-
-
-```javascript
 const LOG_CONTEXT = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
 anaLogger.setContexts(LOG_CONTEXT);
+anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                        // <- You are DEV1 
 
-anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
-anaLogger.log(LOG_CONTEXT.C2, `Test Log example C2`);
-anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
+console.log({target: LOG_CONTEXT.DEV1}, `Testing log 1`);           // You will see this
+console.log({target: LOG_CONTEXT.DEV2}, `Testing log 2`);           // You will not see this
+console.log({context: LOG_CONTEXT.DEV3}, `Testing log 3`);          // You will see this    
+console.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXT.ALL
+
+
+anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);               // You will see this
 ```
 
 <br/><br/>
