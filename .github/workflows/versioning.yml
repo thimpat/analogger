@@ -1,4 +1,4 @@
-name: Versioning AnaLogger
+name: Build
 env:
   ANALOGGER_APP_NAME: "release/analogger"
 on:

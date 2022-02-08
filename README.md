@@ -1,4 +1,7 @@
 
+![example workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)
+![example workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)
+
 Analogger is a very simple logger for both Node and the Browser.
 It is a library using both CJS and ESM.
 It serves as a packaging example of **hybrid (CJS/ESM) module**.
