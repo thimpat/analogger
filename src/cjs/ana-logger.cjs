@@ -12,6 +12,8 @@ class AnaLogger
     contexts = [];
     targets = {};
 
+    activeTarget = null;
+
     indexColor = 0;
 
     format = ""
@@ -76,6 +78,7 @@ class AnaLogger
                    hideLog = false,
                    hideError = false,
                    hideHookMessage = false,
+                   showPassingTests = true,
         silent = false
                } = {})
     {
@@ -87,6 +90,7 @@ class AnaLogger
         this.options.hideLog = !!hideLog
         this.options.hideError = !!hideError
         this.options.hideHookMessage = !!hideHookMessage
+        this.options.showPassingTests = !!showPassingTests
 
         if (silent)
         {
@@ -223,7 +227,7 @@ class AnaLogger
         const defaultContext = {
             name       : "DEFAULT",
             contextName: "DEFAULT",
-            target     : "DEV",
+            target     : "ALL",
             symbol     : "⚡"
         }
 
@@ -324,6 +328,11 @@ class AnaLogger
         this.targets = Object.assign({}, targetTable, {ALL: "ALL", USER: "USER"})
     }
 
+    setActiveTarget(target)
+    {
+        this.activeTarget = target
+    }
+
     enableContexts(contextNames)
     {
         this.contexts.forEach((context) =>
@@ -339,6 +348,21 @@ class AnaLogger
     {
     }
 
+    isTargetAllowed(target)
+    {
+        if (!target || !this.activeTarget)
+        {
+            return true;
+        }
+
+        if (target === this.targets.ALL)
+        {
+            return true;
+        }
+
+        return this.activeTarget === target;
+    }
+
 
     // ------------------------------------------------
     // Logging methods
@@ -352,6 +376,11 @@ class AnaLogger
         try
         {
             if (this.options.hideLog)
+            {
+                return
+            }
+
+            if (!this.isTargetAllowed(context.target))
             {
                 return
             }
@@ -506,9 +535,43 @@ class AnaLogger
         alert(message)
     }
 
-    assert()
+    assert(condition, expected = true)
     {
+        let result;
 
+        try
+        {
+            if (typeof condition === 'function')
+            {
+                result = condition()
+                if (result !== expected)
+                {
+                    this.error(`Asset failed`)
+                    return
+                }
+
+                if (this.options.showPassingTests)
+                {
+                    this.log(`SUCCESS: Assert passed`)
+                }
+                return
+            }
+
+            if (condition !== expected)
+            {
+                this.error(`Asset failed`)
+                return
+            }
+
+            if (this.options.showPassingTests)
+            {
+                this.log(`SUCCESS: Assert passed`)
+            }
+        }
+        catch (e)
+        {
+            this.error(`Unexpected error in assert`)
+        }
     }
 
 }
