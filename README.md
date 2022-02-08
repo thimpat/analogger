@@ -162,5 +162,8 @@ It is helpful to guarantee that the code is running straight away rather than wa
 
 
 ```javascript
-anaLogger.asset((a, b)=> a === b, true)
+anaLogger.assert(1 === 1)
+anaLogger.assert(1 === 2)
+anaLogger.assert(()=>true, true)
+anaLogger.assert((a, b)=> a === b, true, 2, 2)
 ```

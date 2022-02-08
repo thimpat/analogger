@@ -16,6 +16,8 @@ anaLogger.assert(1 === 1)
 anaLogger.assert(1 === 2)
 anaLogger.assert(()=>true, true)
 
+anaLogger.assert((a, b)=> a === b, true, 2, 2)
+
 console.log(`Log Before override`);
 anaLogger.overrideConsole()
 console.log(`Log After override`);

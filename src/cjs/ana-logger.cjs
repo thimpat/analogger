@@ -535,7 +535,7 @@ class AnaLogger
         alert(message)
     }
 
-    assert(condition, expected = true)
+    assert(condition, expected = true, ...args)
     {
         let result;
 
@@ -543,7 +543,7 @@ class AnaLogger
         {
             if (typeof condition === 'function')
             {
-                result = condition()
+                result = condition(...args)
                 if (result !== expected)
                 {
                     this.error(`Asset failed`)
