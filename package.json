@@ -37,6 +37,7 @@
     "rollup": "^2.67.0",
     "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-uglify": "^6.0.4",
+    "semantic-release": "^19.0.2",
     "to-esm": "^1.6.2"
   },
   "dependencies": {
