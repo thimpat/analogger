@@ -1,6 +1,7 @@
 
 Analogger is a very simple logger for both Node and the Browser.
-It is a library using both CJS and ESM. It serves as an example of a packaging hybrid (CJS/ESM) package.
+It is a library using both CJS and ESM. 
+It serves as a packaging example of **hybrid (CJS/ESM) module**.
 
 ## Installation
 
@@ -22,15 +23,11 @@ const {anaLogger}  = require("analogger");
 import {anaLogger} from "./node_modules/analogger/dist/index-esm.min.mjs";
 ```
 
-or
+### With a bundler or a transpiler
 
 ```javascript
 import {anaLogger} from "analogger"
 ```
-
-Depending on whether you use a bundler.
-
-### Usages
 
 <br/>
 
@@ -40,9 +37,62 @@ Depending on whether you use a bundler.
 
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_2.png)
 
-#### Log contexts
+<br/>
 
-A context allows grouping the logs by functionality (role) by assigning them some colour.
+## API
+
+<br/>
+
+### log() / info() / warn() / error()
+
+Display a message in the terminal or the inspector. Depending on where the process is running. 
+
+```javascript
+anaLogger.log(`I'am some log`);
+anaLogger.info(`I'am some log`);
+anaLogger.warn(`I'am some log`);
+anaLogger.error(`I'am some log`);
+```
+<br/>
+
+### alert()
+
+```javascript
+anaLogger.alert(`I'am some log`);
+```
+
+Display the browser native message box if ran from it, otherwise displays the message in the terminal.
+
+<br/>
+
+### overrideConsole() | setOptions()
+
+```javascript
+anaLogger.setOptions({silent: true, hideError: false})
+console.log(`Log Before override`);
+anaLogger.overrideConsole()
+console.log(`Log After override`);
+```
+
+Override console.log, console.info and console.warn. If you already have many console.log running in your system,
+it allows hiding them all in one go.
+In this example, the terminal (or inspector) will not show the message "Log After override". All following messages 
+either.  
+
+<br/>
+
+### overrideError()
+
+Same as above, but for errors (console.error)
+
+<br/>
+
+### setContexts()
+
+#### Contexts
+
+A context allows grouping the logs by functionality by assigning them some colour.
+
 
 ##### Examples
 
@@ -74,17 +124,21 @@ The "Testing log 2" log will not show up in the console or the terminal.
 
 <br/>
 
-#### Log targets
+### setTargets() / setActiveTarget()
 
-Log targets are the targets of the logs. For instance, having something like:
+#### Targets
+
+Targets allow to define some log categories. They can be developpers, roles, etc.
+setActiveTarget() allows hiding logs from other devs or roles.
 
 ##### Examples
 
 ```javascript
-anaLogger.setTarget(LOG_TARGETS.DEV1);
+anaLogger.setActiveTarget(LOG_TARGETS.DEV1);
 console.log({target: LOG_CONTEXT.DEV1}, `Testing log 1`)
 console.log({target: LOG_CONTEXT.DEV2}, `Testing log 2`)
-console.log({context: LOG_CONTEXT.DEV1}, `Testing log 3`)
+console.log({context: LOG_CONTEXT.DEV3}, `Testing log 3`)
+console.log(`Testing log 4`)
 ```
 
 
@@ -101,6 +155,12 @@ anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
 
 <br/><br/>
 
-### Log options
+### assert()
 
-anaLogger.setOptions({silent: false, hideError: false})
+You can set some tests directly in the code. It serves as early feedback.
+It is useful to guarantee that the code is running straight away, rather than waiting on the CI to send its feedback.
+
+
+```javascript
+anaLogger.asset((a, b)=> a === b, true)
+```
