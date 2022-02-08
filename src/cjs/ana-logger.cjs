@@ -16,7 +16,10 @@ class AnaLogger
 
     indexColor = 0;
 
-    format = ""
+    format = "";
+
+    keepLog = false;
+    logHistory = []
 
     options = {
         hideHookMessage: false
@@ -49,6 +52,26 @@ class AnaLogger
 
         this.ALIGN = AnaLogger.ALIGN
         this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE
+    }
+
+    keepLogHistory()
+    {
+        this.keepLog = true;
+    }
+
+    releaseLogHistory()
+    {
+        this.keepLog = false;
+    }
+
+    resetLogHistory()
+    {
+        this.logHistory = [];
+    }
+
+    getLogHistory()
+    {
+        return Object.assign({}, this.logHistory)
     }
 
     /**
@@ -371,7 +394,7 @@ class AnaLogger
      * Display log following template
      * @param context
      */
-    processLog(context = {})
+    processOutput(context = {})
     {
         try
         {
@@ -390,16 +413,24 @@ class AnaLogger
 
             const message = args.join(" | ")
 
+            let output = ""
             const text = this.format({...context, message})
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER
-                this.realConsoleLog(`%c${text}`, `color: ${context.color}`)
+                output = `%c${text}`
+                this.realConsoleLog(output, `color: ${context.color}`)
             }
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE
-                this.realConsoleLog(chalk.hex(context.color)(text));
+                output = chalk.hex(context.color)(text);
+                this.realConsoleLog(output);
+            }
+
+            if (this.keepLog)
+            {
+                this.logHistory.push(output)
             }
 
             this.errorTargetHandler(context, args)
@@ -435,7 +466,7 @@ class AnaLogger
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext()
-            this.processLog.apply(this, [defaultContext, options, ...args]);
+            this.processOutput.apply(this, [defaultContext, options, ...args]);
             return;
         }
 
@@ -455,7 +486,7 @@ class AnaLogger
 
         // let args0 = Array.prototype.slice.call(arguments);
         // args0.unshift(options)
-        this.processLog.apply(this, [context, ...args]);
+        this.processOutput.apply(this, [context, ...args]);
     }
 
     error(options, ...args)
