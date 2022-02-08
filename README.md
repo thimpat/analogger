@@ -36,9 +36,9 @@ Depending on whether you use a bundler.
 
 ### Preview
 
-![img_1.png](docs/images/img_3.png)
+![img_1.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_3.png)
 
-![img.png](docs/images/img_2.png)
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_2.png)
 
 #### Log contexts
 
@@ -65,11 +65,11 @@ The "Testing log 2" log will not show up in the console or the terminal.
 
 **Preview In a terminal (NodeJs)**
 
-![img.png](docs/images/img.png)
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img.png)
 
 **Preview In a browser (ESM)**
 
-![img_1.png](docs/images/img_1.png)
+![img_1.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_1.png)
 
 
 <br/>
