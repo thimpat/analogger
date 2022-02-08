@@ -1,14 +1,20 @@
 const {LOG_CONTEXT, LOG_TARGETS} = require("./contexts-def.cjs")
-const {anaLogger} = require("../../dist/index-cjs.min.cjs");
+// const {anaLogger} = require("../../dist/index-cjs.min.cjs");
+const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
 
 anaLogger.setContexts(LOG_CONTEXT);
 anaLogger.setTargets(LOG_TARGETS);
+anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
 anaLogger.setOptions({silent: false, hideError: false})
 
 console.log("==========================");
 anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
 anaLogger.log(LOG_CONTEXT.C2, `Test Log example C2`);
 anaLogger.log(LOG_CONTEXT.C3, `Test Log example C3`);
+
+anaLogger.assert(1 === 1)
+anaLogger.assert(1 === 2)
+anaLogger.assert(()=>true, true)
 
 console.log(`Log Before override`);
 anaLogger.overrideConsole()
@@ -19,7 +25,13 @@ console.error(`Error After override`);
 console.log("==========================");
 
 anaLogger.log(LOG_CONTEXT.STANDARD, `Basic Log example 2`, "+Something 0", "+Something 1");
+
 anaLogger.log({context: LOG_CONTEXT.TEST, lid: 100000}, `Test Log example`);
+anaLogger.log({context: LOG_CONTEXT.TEST, target: LOG_TARGETS.DEV3, lid: 100001}, `Test Log example with active target`);
+anaLogger.log({context: LOG_CONTEXT.TEST, target: LOG_TARGETS.DEV1, lid: 100002}, `Test Log example with DEV1 target`);
+anaLogger.log({context: LOG_CONTEXT.TEST, target: LOG_TARGETS.DEV2, lid: 100003}, `Test Log example with DEV2 target`);
+anaLogger.log(`Test Log example with DEFAULT target`);
+
 anaLogger.log(LOG_CONTEXT.TEST, `Test Log example`, "+Something 3");
 anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
 anaLogger.log(LOG_CONTEXT.C2, `Test Log example C2`);
