@@ -38,14 +38,14 @@ describe('In the Terminal', function ()
             expect(captured.stdout).to.contain(`Test Log example C1`)
         });
 
-        it('should display some text with colours', function ()
+        it('should display some text with colours', function (done)
         {
             const captured = capcon.captureStdio(function ()
             {
                 anaLogger.log(LOG_CONTEXT.C1, `Test Log example C1`);
+                expect(anaLogger.getLogHistory()).to.contain(`[38;2;255;228;181m`)
+                done()
             })
-
-            expect(captured.stdout).to.contain(`[38;2;255;228;181m`)
         });
 
         it('should hide console output when the console behaviour is overridden', function ()
@@ -66,7 +66,7 @@ describe('In the Terminal', function ()
         {
             const captured1 = capcon.captureStdio(function ()
             {
-                anaLogger.keepLogHistory()
+                anaLogger.keepLogHistory();
                 anaLogger.setOptions({silent: true, hideError: false})
                 anaLogger.log(LOG_CONTEXT.C1, `Test Log example something again`);
             })
