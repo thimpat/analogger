@@ -110,7 +110,7 @@ class AnaLogger
         }
         catch (e)
         {
-            console.error(`QuickLog:`, e)
+            console.error(`AnaLogger:`, e)
         }
     }
 
@@ -264,7 +264,7 @@ class AnaLogger
 
         if (Array.isArray(converted))
         {
-            throw new Error(`QuickLog: Cannot convert Array [${JSON.stringify(converted)}] to context`);
+            throw new Error(`AnaLogger: Cannot convert Array [${JSON.stringify(converted)}] to context`);
         }
 
         if (typeof converted === "string" || converted instanceof String)
@@ -278,7 +278,7 @@ class AnaLogger
             typeof converted !== "object"
         )
         {
-            throw new Error(`QuickLog: Cannot convert Unknown [${JSON.stringify(converted)}] to context`);
+            throw new Error(`AnaLogger: Cannot convert Unknown [${JSON.stringify(converted)}] to context`);
         }
 
         converted = Object.assign({}, defaultContext, converted);
@@ -377,7 +377,7 @@ class AnaLogger
         }
         catch (e)
         {
-            console.error(`QuickLog:`, e.message)
+            console.error(`AnaLogger:`, e.message)
         }
     }
 
@@ -452,7 +452,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog(`QuickLog: Hook placed on console.error`)
+            this.realConsoleLog(`AnaLogger: Hook placed on console.error`)
         }
         console.error = this.onDisplayError.bind(this);
     }
@@ -461,7 +461,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog(`QuickLog: Hook placed on console.log`)
+            this.realConsoleLog(`AnaLogger: Hook placed on console.log`)
         }
 
         if (log)
