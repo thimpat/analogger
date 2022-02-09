@@ -1,0 +1,15 @@
+{
+  "reporter": [
+    "json",
+    "text-summary"
+  ],
+  "exclude": [
+    "coverage/**",
+    "docs/**",
+    "test{,s}/**",
+    "test{,-*}.{js,cjs,mjs,ts}",
+    "lib/browser/**",
+    "package-scripts.js",
+    "scripts/**"
+  ]
+}
