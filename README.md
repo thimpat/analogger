@@ -1,6 +1,7 @@
 
 ![Test workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)
 ![Version workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)
+[![npm version](https://badge.fury.io/js/analogger.svg)](https://badge.fury.io/js/analogger)
 
 Analogger is a very simple logger for both Node and the Browser.
 It is a library using both CJS and ESM.
