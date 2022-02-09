@@ -128,26 +128,25 @@ class AnaLogger
         {
             this.options.hideLog = true
             this.options.hideHookMessage = true
+            this.options.silent = true
         }
+    }
+
+    getOptions()
+    {
+        return this.options
     }
 
     truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT})
     {
-        try
+        input = "" + input
+        if (fit && input.length >= fit + 2)
         {
-            input = "" + input
-            if (fit && input.length >= fit + 2)
-            {
-                input = input.substring(0, fit - 3) + "...";
-            }
+            input = input.substring(0, fit - 3) + "...";
+        }
 
-            input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ")
-            return input
-        }
-        catch (e)
-        {
-            console.error(`AnaLogger:`, e)
-        }
+        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ")
+        return input
     }
 
     /**
@@ -244,7 +243,7 @@ class AnaLogger
     // ------------------------------------------------
     // Log Contexts
     // ------------------------------------------------
-    isContext(context)
+    isContextValid(context)
     {
         if (
             !(typeof context === 'object' &&
@@ -254,9 +253,7 @@ class AnaLogger
         {
             return false
         }
-
         return (context.hasOwnProperty("contextName") && context.hasOwnProperty("target"))
-
     }
 
     generateDefaultContext()
@@ -290,37 +287,11 @@ class AnaLogger
         return errorContext
     }
 
-    allegeProperties(entry)
+    #allegeProperties(entry)
     {
         let converted = entry;
 
         const defaultContext = this.generateNewContext()
-
-        if (!converted)
-        {
-            converted = {
-                contextName: "DEFAULT",
-            };
-        }
-
-        if (Array.isArray(converted))
-        {
-            throw new Error(`AnaLogger: Cannot convert Array [${JSON.stringify(converted)}] to context`);
-        }
-
-        if (typeof converted === "string" || converted instanceof String)
-        {
-            converted = {
-                contextName: converted
-            };
-        }
-
-        if (
-            typeof converted !== "object"
-        )
-        {
-            throw new Error(`AnaLogger: Cannot convert Unknown [${JSON.stringify(converted)}] to context`);
-        }
 
         converted = Object.assign({}, defaultContext, converted);
 
@@ -355,7 +326,7 @@ class AnaLogger
             const contextPassed = contextTable[key] || {};
             contextPassed.contextName = key
             contextPassed.name = key
-            this.contexts[key] = this.allegeProperties(contextPassed);
+            this.contexts[key] = this.#allegeProperties(contextPassed);
             contextTable[key] = this.contexts[key]
         });
     }
@@ -368,21 +339,6 @@ class AnaLogger
     setActiveTarget(target)
     {
         this.activeTarget = target
-    }
-
-    enableContexts(contextNames)
-    {
-        this.contexts.forEach((context) =>
-        {
-        });
-    }
-
-    /**
-     *
-     * @returns {{}}
-     */
-    getActiveLogContexts()
-    {
     }
 
     isTargetAllowed(target)
@@ -478,6 +434,23 @@ class AnaLogger
         return options.hasOwnProperty("context") || options.hasOwnProperty("target");
     }
 
+    convertToContext(options, defaultContext)
+    {
+        let context = options
+        if (options.context && typeof options.context === "object")
+        {
+            const moreOptions = Object.assign({}, options)
+            delete moreOptions.context
+            context = Object.assign({}, options.context, moreOptions)
+        }
+
+        defaultContext = defaultContext || this.generateDefaultContext()
+        context = Object.assign({}, defaultContext, context)
+        delete context.context
+
+        return context
+    }
+
     /**
      * console.log with options set on the first parameter to dictate console log behaviours
      * @param options
@@ -492,22 +465,8 @@ class AnaLogger
             return;
         }
 
-        let context = options
-        if (typeof options.context === "object")
-        {
-            const moreOptions = Object.assign({}, options)
-            delete moreOptions.context
-            context = Object.assign({}, options.context, moreOptions)
-        }
+        let context = this.convertToContext(options)
 
-        if (context.hasOwnProperty("context"))
-        {
-            context = Object.assign({}, this.generateDefaultContext(), context)
-            delete context.context
-        }
-
-        // let args0 = Array.prototype.slice.call(arguments);
-        // args0.unshift(options)
         this.processOutput.apply(this, [context, ...args]);
     }
 
@@ -519,15 +478,10 @@ class AnaLogger
         }
 
         const errorContext = this.generateErrorContext()
-
-        if (this.isExtendedOptionsPassed(options))
-        {
-            options = Object.assign({}, errorContext, options)
-            return this.log(options, ...args)
-        }
+        let context = this.convertToContext(options, errorContext)
 
         let args0 = Array.prototype.slice.call(arguments);
-        this.log(errorContext, ...args0)
+        this.log(context, ...args0)
     }
 
     overrideError()
@@ -614,6 +568,7 @@ class AnaLogger
         }
 
         const message = args.join(" | ");
+
         alert(message)
     }
 

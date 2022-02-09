@@ -1,19 +1,14 @@
 const chai = require("chai");
 var capcon = require('capture-console');
 const {anaLogger} = require("../src/cjs/ana-logger.cjs");
-const {LOG_CONTEXT, LOG_TARGETS} = require("../example/cjs/contexts-def.cjs");
+const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/cjs/contexts-def.cjs");
 const expect = chai.expect;
 
 describe('In the Terminal', function ()
 {
-    const {anaLogger} = require("../src/cjs/ana-logger.cjs");
-
-    const LOG_CONTEXT = {STANDARD: {}, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
-    const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", DEV3: "ME", USER: "USER"}
-
     before(()=>
     {
-        anaLogger.setContexts(LOG_CONTEXT);
+        anaLogger.setContexts(LOG_CONTEXTS);
         anaLogger.setTargets(LOG_TARGETS);
     })
 
@@ -38,7 +33,7 @@ describe('In the Terminal', function ()
             expect(captured.stdout).to.contain(`Test Log example C1`)
         });
 
-        it('should hide console output when the console behaviour is overridden', function ()
+        it('should hide console output when the console behaviour is overridden', function (done)
         {
             const captured = capcon.captureStdio(function ()
             {
@@ -46,6 +41,7 @@ describe('In the Terminal', function ()
                 anaLogger.setOptions({silent: true})
                 anaLogger.overrideConsole()
                 console.log(`Log After override`);
+                done()
             })
 
             expect(captured.stdout).to.contain(`Log Before override`)
@@ -58,7 +54,7 @@ describe('In the Terminal', function ()
             {
                 anaLogger.keepLogHistory();
                 anaLogger.setOptions({silent: true, hideError: false})
-                anaLogger.log(LOG_CONTEXT.C1, `Test Log example something again`);
+                anaLogger.log(LOG_CONTEXTS.C1, `Test Log example something again`);
             })
 
             const captured2 = capcon.captureStdio(function ()
@@ -94,14 +90,25 @@ describe('In the Terminal', function ()
             const captured = capcon.captureStdio(function ()
             {
                 anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
-                anaLogger.log({context: LOG_CONTEXT.TEST, target: LOG_TARGETS.DEV3, lid: 100001}, `Test Log example with active target`);
-                anaLogger.log({context: LOG_CONTEXT.TEST, target: LOG_TARGETS.DEV1, lid: 100002}, `Test Log example with DEV1 target`);
+                anaLogger.log({context: LOG_CONTEXTS.TEST, target: LOG_TARGETS.DEV3, lid: 100001}, `Test Log example with active target`);
+                anaLogger.log({context: LOG_CONTEXTS.TEST, target: LOG_TARGETS.DEV1, lid: 100002}, `Test Log example with DEV1 target`);
                 anaLogger.log(`Test Log example with DEFAULT target`);
             })
 
             expect(captured.stdout).to.contain(`Test Log example with active target`)
             expect(captured.stdout).to.contain(`Test Log example with DEFAULT target`)
             expect(captured.stdout).to.not.contain(`Test Log example with DEV1 target`)
+        });
+
+        it('should not anything when silent mode is enabled', function ()
+        {
+            const captured = capcon.captureStdio(function ()
+            {
+                anaLogger.setOptions({silent: true})
+                anaLogger.log(`Test Log example with DEFAULT target`);
+            })
+
+            expect(captured.stdout).to.not.contain(`Test Log example with DEFAULT target`)
         });
 
 
