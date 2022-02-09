@@ -1,6 +1,6 @@
 const {LOG_CONTEXTS, LOG_TARGETS} = require("./contexts-def.cjs")
-// const {anaLogger} = require("../../dist/index-cjs.min.cjs");
-const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
+const {anaLogger} = require("../../dist/index-cjs.min.cjs");
+// const {anaLogger} = require("../../src/cjs/ana-logger.cjs");
 
 anaLogger.keepLogHistory()
 
