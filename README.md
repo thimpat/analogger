@@ -1,5 +1,5 @@
 
-![Test workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)
+[![Test workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)](https://www.npmjs.com/package/analogger)
 ![nycrc Coverage](https://img.shields.io/nycrc/thimpat/analogger?preferredThreshold=lines)
 ![Version workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)
 [![npm version](https://badge.fury.io/js/analogger.svg)](https://badge.fury.io/js/analogger)
