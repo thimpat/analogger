@@ -151,10 +151,10 @@ const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 anaLogger.setContexts(LOG_CONTEXTS);
 anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                        // <- You are DEV1 
 
-console.log({target: LOG_TARGETS.DEV1}, `Testing log 1`);           // You will see this
-console.log({target: LOG_TARGETS.DEV2}, `Testing log 2`);           // You will not see this
-console.log({context: LOG_CONTEXTS.STANDARD}, `Testing log 3`);     // You will see this    
-console.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXTS.ALL
+anaLogger.log({target: LOG_TARGETS.DEV1}, `Testing log 1`);           // You will see this
+anaLogger.log({target: LOG_TARGETS.DEV2}, `Testing log 2`);           // You will not see this
+anaLogger.log({context: LOG_CONTEXTS.STANDARD}, `Testing log 3`);     // You will see this    
+anaLogger.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXTS.ALL
 
 
 anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will see this
