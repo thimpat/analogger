@@ -1,4 +1,8 @@
 {
+    "lines": 95,
+    "statements": 95,
+    "functions": 95,
+    "branches": 50,
   "reporter": [
     "json",
     "text-summary"
@@ -11,5 +15,6 @@
     "lib/browser/**",
     "package-scripts.js",
     "scripts/**"
-  ]
+  ],
+  "check-coverage": true
 }
