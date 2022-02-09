@@ -175,10 +175,11 @@ anaLogger.assert((a, b)=> a === b, true, 2, 2)
 
 <br/><br/>
 
-###
+### setErrorHandlerForUserTarget()
 
-When an error is detected and should be seen by your app consumers explicitly (for instance, display a dialogue box
-to them), you can hook your logic.
+When an error is detected and should be seen by your app consumers explicitly (for instance, you want to display a 
+dialogue box
+to them), you can set a handler here. All other console.error will be working as usual (logging messages). 
 
 ```javascript
     anaLogger.setErrorHandlerForUserTarget(function (context/*, ...args*/)
@@ -189,5 +190,9 @@ to them), you can hook your logic.
             // When an error is detected in the Browser, the Browser will see this message
             anaLogger.alert(`Users explicitly see this message`)
         }
-    })
+    });
+
+    anaLogger.setActiveTarget(LOG_TARGETS.USER);
+    anaLogger.error({target: LOG_TARGETS.USER}, "Salut user!");     // Display an alert box
+    anaLogger.error("Hi user!");                                    // Log the message to the inspector
 ```

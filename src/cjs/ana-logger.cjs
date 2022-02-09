@@ -1,9 +1,10 @@
 const chalk = require("chalk-cjs");
 const colorConvert = require('color-convert-cjs');
 const rgbHex = require('rgb-hex-cjs');
-const os = require("os");
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
+const EOL =`
+`;
 
 class AnaLogger
 {
@@ -73,7 +74,7 @@ class AnaLogger
         this.logHistory = [];
     }
 
-    getLogHistory(join = true, symbol = os.EOL)
+    getLogHistory(join = true, symbol = EOL)
     {
         const history = JSON.parse(JSON.stringify(this.logHistory.slice(0)));
         if (!join)
@@ -436,6 +437,8 @@ class AnaLogger
 
     convertToContext(options, defaultContext)
     {
+        defaultContext = defaultContext || this.generateDefaultContext()
+        options  = options || defaultContext
         let context = options
         if (options.context && typeof options.context === "object")
         {
@@ -444,7 +447,6 @@ class AnaLogger
             context = Object.assign({}, options.context, moreOptions)
         }
 
-        defaultContext = defaultContext || this.generateDefaultContext()
         context = Object.assign({}, defaultContext, context)
         delete context.context
 
