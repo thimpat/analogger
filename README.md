@@ -41,10 +41,14 @@ import {anaLogger} from "analogger"
 
 ### Preview
 
+#### Terminal
 ![img_1.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_3.png)
 
+#### Inspector
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_2.png)
 
+#### DOM
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_4.png)
 <br/>
 
 ## API
@@ -73,7 +77,26 @@ Display the browser native message box if run from it; otherwise, it displays th
 
 <br/>
 
-### overrideConsole() | setOptions()
+### setOptions()
+
+
+| **Options**        | **default** | **Description**                                                                    | 
+|--------------------|-------------|------------------------------------------------------------------------------------|
+| silent             | false       | _No log will be displayed (only errors)_                                           |
+| hideError          | false       | _Hide errors from console_                                                         |              
+| hideHookMessage    | false       | _Hide the automatic message shown when some native console methods are overridden_ |
+| showPassingTests   | true        | _Show Live test results_                                                           |           
+| logToDom           | undefined       | _display log in a DOM container_                                                   |
+
+
+```javascript
+// No hook alert message + Log messages in the div #analogger
+anaLogger.setOptions({hideHookMessage: true, logToDom: "#analogger"})
+```
+
+<br/>
+
+### overrideConsole()
 
 ```javascript
 anaLogger.setOptions({silent: true, hideError: false})
