@@ -63,7 +63,7 @@ const waitForDriverCaptured = () =>
 
 describe('The Browser', async function ()
 {
-    this.timeout(10000);
+    this.timeout(20000);
 
     before(async function ()
     {
@@ -84,7 +84,7 @@ describe('The Browser', async function ()
 
     it('should find the #analogger div in the DOM', async function ()
     {
-        await driver.wait(until.elementLocated(By.id('analogger')), 2000);
+        await driver.wait(until.elementLocated(By.id('analogger')), 10000);
         const element = await driver.findElement(By.id("analogger"))
         expect(await element.isDisplayed()).to.be.true
     });
