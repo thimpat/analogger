@@ -7,7 +7,7 @@ anaLogger.keepLogHistory()
 anaLogger.setContexts(LOG_CONTEXTS);
 anaLogger.setTargets(LOG_TARGETS);
 anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
-anaLogger.setOptions({logToDom: "body"})
+anaLogger.setOptions({logToDom: ".analogger"})
 anaLogger.setOptions({silent: true})
 
 console.log("==========================");

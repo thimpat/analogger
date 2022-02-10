@@ -129,7 +129,7 @@ class AnaLogger
         this.options.showPassingTests = !!showPassingTests
         if (logToDom !== undefined)
         {
-            this.options.logToDom = logToDom
+            this.options.logToDom = logToDom || "#analogger"
         }
 
         if (silent)
@@ -376,17 +376,33 @@ class AnaLogger
             return
         }
 
-        const line = document.createElement("div")
-        line.classList.add("to-esm-line")
-        line.textContent = text
-        const row = document.createElement("span")
-        row.classList.add("to-esm-row")
-        line.append(row)
-
         for (let i = 0; i < this.$containers.length; ++i)
         {
-            const $container = this.$containers[i]
-            $container.append(line)
+            try
+            {
+                const $container = this.$containers[i]
+
+                let $view = $container.querySelector(".analogger-view")
+                if (!$view)
+                {
+                    $view = document.createElement("div")
+                    $view.classList.add("analogger-view")
+                    $container.append($view)
+                }
+
+                const line = document.createElement("div")
+                line.classList.add("to-esm-line")
+                line.textContent = text
+                const row = document.createElement("span")
+                row.classList.add("to-esm-row")
+                line.append(row)
+
+                $view.append(line)
+            }
+            catch (e)
+            {
+                this.realConsoleError(`E546564:`, e)
+            }
         }
     }
 
