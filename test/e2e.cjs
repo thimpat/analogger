@@ -4,6 +4,10 @@ const chrome = require("selenium-webdriver/chrome");
 const chromium = require("chromium");
 require("chromedriver");
 
+const chai = require("chai");
+var capcon = require('capture-console');
+const expect = chai.expect;
+
 async function init()
  {
      let options = new chrome.Options();
@@ -32,10 +36,31 @@ async function takeScreenshot(driver, name)
     });
 }
 
+let driver
+
 (async function ()
 {
-    const driver = await init();
-
-    await driver.quit();
+    driver = await init();
+    driver.quit()
 }())
+
+describe('In the Browser', async function ()
+{
+    before( async()=>
+    {
+    })
+
+    after(async ()=>
+    {
+        // await driver.quit();
+    })
+
+    describe('The example page', function ()
+    {
+        it('should show some logs', function ()
+        {
+            expect(true).to.be.true
+        });
+    });
+});
 
