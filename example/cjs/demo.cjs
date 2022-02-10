@@ -56,7 +56,7 @@ console.error(undefined, `Testing Error 4`)
 
 console.error({context: LOG_CONTEXTS.ERROR, target: LOG_TARGETS.USER, lid: 200010}, `Testing Error 4`)
 
-anaLogger.alert(`Hello from alert`, {aaa: 1012})
+// anaLogger.alert(`Hello from alert`, {aaa: 1012})
 
 anaLogger.setErrorHandlerForUserTarget(function (context/*, ...args*/)
 {
