@@ -18,10 +18,9 @@
     "bundle:prod:esm": "rollup --config rollup-esm.config.js",
     "bundle:prod": "npm run convert-cjs:esm && npm run convert-cjs:browser && npm run bundle:prod:cjs && npm run bundle:prod:esm",
     "test": "nyc mocha --exit --sort",
-    "test:e2e": "mocha test/3-e2e.cjs",
+    "manual:check": "http-server.cmd -p 9877 -o example/index.html ./ ",
     "server:start": "http-server.cmd -p 9880 ./",
-    "check:manual": "http-server.cmd -p 9877 -o example/index.html ./ ",
-    "test:all": "concurrently --success last --kill-others \"npm run server:start\" \"npm run test\"",
+    "test:all": "npm run bundle:prod && concurrently --success last --kill-others --kill-others-on-fail \"npm run server:start\" \"npm run test\"",
     "demo": "npm run bundle:prod && node example/cjs/demo.cjs"
   },
   "author": "Patrice Thimothee",
