@@ -1,7 +1,12 @@
-const fs = require("fs");
+/**
+ * https://www.selenium.dev/selenium/docs/api/javascript/module/selenium-webdriver/
+ */
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
+const {By, until} = require('selenium-webdriver');
 const chromium = require("chromium");
+
+const fs = require("fs");
 require("chromedriver");
 
 const chai = require("chai");
@@ -9,7 +14,7 @@ const expect = chai.expect;
 
 let driver
 
-const webPageTest = "http://127.0.0.1:9876/index.html"
+const webPageTest = "http://127.0.0.1:9880/example/index.html"
 
 async function init()
 {
@@ -53,34 +58,48 @@ const waitForDriverCaptured = () =>
 
 (async function ()
 {
-    const driver = await init()
+    driver = await init()
 }())
 
-describe('In the Browser', async function ()
+describe('The Browser', async function ()
 {
-    this.timeout(30000);
+    this.timeout(10000);
 
     before(async function ()
     {
         await waitForDriverCaptured()
     })
 
-    after(function()
-    {
-        driver.quit()
-    })
-
-    it('should see the correct url', async function ()
+    it('should reach the correct url', async function ()
     {
         const url = await driver.getCurrentUrl()
         expect(url).to.equal(webPageTest)
     });
 
-    it('should show some logs', async function ()
+    it('should load the correct js', async function ()
     {
         const pageSource = await driver.getPageSource()
-        await takeScreenshot(driver, "test");
         expect(pageSource).to.contain("<body>")
     });
+
+    it('should find the #analogger div in the DOM', async function ()
+    {
+        await driver.wait(until.elementLocated(By.id('analogger')), 2000);
+        const element = await driver.findElement(By.id("analogger"))
+        expect(await element.isDisplayed()).to.be.true
+    });
+
+    it('should have the #analogger div containing some specific text', async function ()
+    {
+        const element = driver.findElement(By.id("analogger"))
+        const bodyText = await element.getText();
+        expect(bodyText).to.contain("DEFAULT: Basic Log example 1")
+    });
+
+    after(  async function()
+    {
+        driver.quit()
+    })
+
 });
 
