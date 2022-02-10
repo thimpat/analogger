@@ -3,6 +3,9 @@
 [![nycrc Coverage](https://img.shields.io/nycrc/thimpat/analogger?preferredThreshold=lines)](https://github.com/thimpat/analogger/blob/main/README.md)
 [![Version workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)](https://github.com/thimpat/analogger/blob/main/README.md)
 [![npm version](https://badge.fury.io/js/analogger.svg)](https://www.npmjs.com/package/analogger)
+<img alt="semantic-release" src="https://img.shields.io/badge/semantic--release-19.0.2-e10079?logo=semantic-release">
+
+---
 
 Analogger is a very simple logger for both Node and the Browser.
 It is a library using both CJS and ESM.
