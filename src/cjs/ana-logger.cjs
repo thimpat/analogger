@@ -374,11 +374,6 @@ class AnaLogger
         let index = 0;
         for (let columnName in context)
         {
-            if (!context.hasOwnProperty(columnName))
-            {
-                continue;
-            }
-
             if ("name" === columnName)
             {
                 continue;
