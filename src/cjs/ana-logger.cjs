@@ -116,6 +116,7 @@ class AnaLogger
                    hideHookMessage = false,
                    showPassingTests = true,
                    logToDom = undefined,
+                   logToFile = undefined,
         silent = false
                } = {})
     {
@@ -128,9 +129,22 @@ class AnaLogger
         this.options.hideError = !!hideError
         this.options.hideHookMessage = !!hideHookMessage
         this.options.showPassingTests = !!showPassingTests
+
         if (logToDom !== undefined)
         {
             this.options.logToDom = logToDom || "#analogger"
+        }
+
+        if (logToFile !== undefined)
+        {
+            if (!this.isBrowser())
+            {
+                this.options.logToFile = logToFile || "./analogger.log";
+                // these require won't get compiled by to-esm
+                this.options.logToFile = require("path").resolve(this.options.logToFile)
+                this.logFile = require("fs").createWriteStream(this.options.logToFile, {flags : 'w'});
+                this.EOL = require("os").EOL
+            }
         }
 
         if (silent)
@@ -421,6 +435,11 @@ class AnaLogger
         }
     }
 
+    writeLogToFile(text)
+    {
+        this.logFile.write(text + this.EOL)
+    }
+
     /**
      * Display log following template
      * @param context
@@ -457,6 +476,11 @@ class AnaLogger
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE
                 output = chalk.hex(context.color)(text);
+
+                if (this.options.logToFile)
+                {
+                    this.writeLogToFile(text);
+                }
             }
 
             if (this.keepLog)

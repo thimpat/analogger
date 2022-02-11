@@ -25,7 +25,7 @@
   width: 100%;
 }
 .analogger .analogger-view .to-esm-line {
-  display: inline-block;
+  display: block;
   overflow: hidden;
   white-space: nowrap;
 }

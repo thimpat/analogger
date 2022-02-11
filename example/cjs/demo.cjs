@@ -15,7 +15,7 @@ anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);
 anaLogger.log(LOG_CONTEXTS.C2, `Test Log example C2`);
 anaLogger.log(LOG_CONTEXTS.C3, `Test Log example C3`);
 
-anaLogger.setOptions({silent: false, hideError: false})
+anaLogger.setOptions({silent: false, hideError: false, logToFile: "./logme.log"})
 console.log(anaLogger.getLogHistory())
 
 anaLogger.assert(1 === 1)

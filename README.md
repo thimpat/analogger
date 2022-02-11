@@ -49,6 +49,10 @@ import {anaLogger} from "analogger"
 
 #### DOM
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_4.png)
+
+#### FileSystem
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_5.png)
+
 <br/>
 
 ## API
@@ -80,13 +84,14 @@ Display the browser native message box if run from it; otherwise, it displays th
 ### setOptions()
 
 
-| **Options**        | **default** | **Description**                                                                    | 
-|--------------------|-------------|------------------------------------------------------------------------------------|
-| silent             | false       | _No log will be displayed (only errors)_                                           |
-| hideError          | false       | _Hide errors from console_                                                         |              
-| hideHookMessage    | false       | _Hide the automatic message shown when some native console methods are overridden_ |
-| showPassingTests   | true        | _Show Live test results_                                                           |           
-| logToDom           | undefined       | _display log in a DOM container_                                                   |
+| **Options**      | **default** | **Expect**   | **Description** | 
+|------------------|-------------|--------------|---------------------------------------------------------------------|
+| silent           | false       |  boolean       | _No log will be displayed (only errors)_   |
+| hideError        | false       | boolean | _Hide errors from console_ |              
+| hideHookMessage  | false       | boolean | _Hide the automatic message shown when some native console methods are overridden_ |
+| showPassingTests | true        | boolean | _Show Live test results_ |           
+| logToDom         | undefined       | string (DOM Selector) |_display log in a DOM container_ |
+| logToFile        | undefined       | string (File path) | _write log to a file if running from Node_ |
 
 
 ```javascript
