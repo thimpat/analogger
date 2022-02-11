@@ -1,5 +1,6 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve';
+import {nodeResolve} from "@rollup/plugin-node-resolve";
 import {uglify} from "rollup-plugin-uglify";
+import copy from "rollup-plugin-copy";
 
 export default [
     {
@@ -13,6 +14,15 @@ export default [
             },
         ],
         plugins: [
+            copy({
+                targets: [
+                    {src         : "example/*.css",
+                        dest     : "dist/",
+                        transform: (contents) =>
+                            contents.toString().replace(/\/\*#\s*sourceMappingURL.*\*\//g, "")
+                    },
+                ]
+            }),
             nodeResolve(),
             uglify(),
         ]
