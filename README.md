@@ -3,6 +3,9 @@
 [![nycrc Coverage](https://img.shields.io/nycrc/thimpat/analogger?preferredThreshold=lines)](https://github.com/thimpat/analogger/blob/main/README.md)
 [![Version workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)](https://github.com/thimpat/analogger/blob/main/README.md)
 [![npm version](https://badge.fury.io/js/analogger.svg)](https://www.npmjs.com/package/analogger)
+<img alt="semantic-release" src="https://img.shields.io/badge/semantic--release-19.0.2-e10079?logo=semantic-release">
+
+---
 
 Analogger is a very simple logger for both Node and the Browser.
 It is a library using both CJS and ESM.
@@ -38,10 +41,14 @@ import {anaLogger} from "analogger"
 
 ### Preview
 
+#### Terminal
 ![img_1.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_3.png)
 
+#### Inspector
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_2.png)
 
+#### DOM
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_4.png)
 <br/>
 
 ## API
@@ -70,7 +77,26 @@ Display the browser native message box if run from it; otherwise, it displays th
 
 <br/>
 
-### overrideConsole() | setOptions()
+### setOptions()
+
+
+| **Options**        | **default** | **Description**                                                                    | 
+|--------------------|-------------|------------------------------------------------------------------------------------|
+| silent             | false       | _No log will be displayed (only errors)_                                           |
+| hideError          | false       | _Hide errors from console_                                                         |              
+| hideHookMessage    | false       | _Hide the automatic message shown when some native console methods are overridden_ |
+| showPassingTests   | true        | _Show Live test results_                                                           |           
+| logToDom           | undefined       | _display log in a DOM container_                                                   |
+
+
+```javascript
+// No hook alert message + Log messages in the div #analogger
+anaLogger.setOptions({hideHookMessage: true, logToDom: "#analogger"})
+```
+
+<br/>
+
+### overrideConsole()
 
 ```javascript
 anaLogger.setOptions({silent: true, hideError: false})
