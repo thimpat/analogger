@@ -1,1 +1,1 @@
-// Bump version to fix npm automatic update
+// Bump version to fix failing build
