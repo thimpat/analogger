@@ -76,3 +76,9 @@ out
 /example
 /.github
 /test
+
+.nycrc
+.releaserc
+.eslintrc.cjs
+ci.md
+todo.js
