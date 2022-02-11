@@ -371,38 +371,27 @@ class AnaLogger
     writeLogToDom(text)
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom)
-        if (!this.$containers)
-        {
-            return
-        }
 
         for (let i = 0; i < this.$containers.length; ++i)
         {
-            try
+            const $container = this.$containers[i]
+
+            let $view = $container.querySelector(".analogger-view")
+            if (!$view)
             {
-                const $container = this.$containers[i]
-
-                let $view = $container.querySelector(".analogger-view")
-                if (!$view)
-                {
-                    $view = document.createElement("div")
-                    $view.classList.add("analogger-view")
-                    $container.append($view)
-                }
-
-                const line = document.createElement("div")
-                line.classList.add("to-esm-line")
-                line.textContent = text
-                const row = document.createElement("span")
-                row.classList.add("to-esm-row")
-                line.append(row)
-
-                $view.append(line)
+                $view = document.createElement("div")
+                $view.classList.add("analogger-view")
+                $container.append($view)
             }
-            catch (e)
-            {
-                this.realConsoleError(`E546564:`, e)
-            }
+
+            const line = document.createElement("div")
+            line.classList.add("to-esm-line")
+            line.textContent = text
+            const row = document.createElement("span")
+            row.classList.add("to-esm-row");
+            line.append(row);
+
+            $view.append(line);
         }
     }
 
