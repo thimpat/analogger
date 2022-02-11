@@ -51,7 +51,7 @@ import {anaLogger} from "analogger"
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_4.png)
 
 #### FileSystem
-![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_4.png)
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_5.png)
 
 <br/>
 
