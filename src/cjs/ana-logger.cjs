@@ -3,7 +3,6 @@ const colorConvert = require('color-convert-cjs');
 const rgbHex = require('rgb-hex-cjs');
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
-const fs = require("fs");
 const EOL =`
 `;
 
@@ -140,9 +139,10 @@ class AnaLogger
         {
             if (!this.isBrowser())
             {
-                this.options.logToFile = logToFile || "./analogger.log"
+                this.options.logToFile = logToFile || "./analogger.log";
+                // these require won't get compiled by to-esm
                 this.options.logToFile = require("path").resolve(this.options.logToFile)
-                this.logFile = fs.createWriteStream(this.options.logToFile, {flags : 'w'});
+                this.logFile = require("fs").createWriteStream(this.options.logToFile, {flags : 'w'});
                 this.EOL = require("os").EOL
             }
         }
