@@ -1,20 +1,29 @@
 /**
- * https://www.selenium.dev/selenium/docs/api/javascript/module/selenium-webdriver/
+ * Selenium
  */
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const {By, until} = require('selenium-webdriver');
 const chromium = require("chromium");
 
-const fs = require("fs");
+/**
+ * TEST CONFIGURATION FILE
+ */
+const configTest = require("./0-config.json");
+const webPageTest = configTest.e2e.webPageTest;
+
+/**
+ * Analogger code
+ */
+const {anaLogger} = require("../src/cjs/ana-logger.cjs");
+const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/cjs/contexts-def.cjs");
+
+
 require("chromedriver");
 
 const chai = require("chai");
+const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
 const expect = chai.expect;
-
-let driver
-
-const webPageTest = "http://127.0.0.1:9880/example/index.html"
 
 async function init()
 {
@@ -32,42 +41,14 @@ async function init()
     return driver
 }
 
-async function takeScreenshot(driver, name)
+describe('In the browser', async function ()
 {
-    await driver.takeScreenshot().then((data) =>
-    {
-        fs.writeFileSync(name + ".png", data, "base64");
-    });
-}
-
-const waitForDriverCaptured = () =>
-{
-    return new Promise((resolve) =>
-    {
-        setInterval(() =>
-        {
-            if (!driver)
-            {
-                return
-            }
-
-            resolve(true)
-        }, 500)
-    })
-}
-
-(async function ()
-{
-    driver = await init()
-}())
-
-describe('The Browser', async function ()
-{
+    let driver;
     this.timeout(20000);
 
     before(async function ()
     {
-        await waitForDriverCaptured()
+        driver = await waitForDriverCaptured({driver: driver = await init()})
     })
 
     it('should reach the correct url', async function ()
@@ -84,16 +65,17 @@ describe('The Browser', async function ()
 
     it('should find the #analogger div in the DOM', async function ()
     {
-        await driver.wait(until.elementLocated(By.id('analogger')), 10000);
-        const element = await driver.findElement(By.id("analogger"))
-        expect(await element.isDisplayed()).to.be.true
-    });
+        anaLogger.keepLogHistory()
 
-    it('should have the #analogger div containing some specific text', async function ()
-    {
-        const element = driver.findElement(By.id("analogger"))
-        const bodyText = await element.getText();
-        expect(bodyText).to.contain("DEFAULT: Basic Log example 1")
+        anaLogger.setContexts(LOG_CONTEXTS);
+        anaLogger.setTargets(LOG_TARGETS);
+        anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
+        anaLogger.setOptions({logToDom: ".analogger"})
+        anaLogger.setOptions({silent: true})
+
+        console.log("==========================");
+        anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);
+
     });
 
     after(  async function()

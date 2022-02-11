@@ -1,0 +1,6 @@
+{
+  "e2e":
+  {
+    "webPageTest": "http://127.0.0.1:9880/example/index.html"
+  }
+}
