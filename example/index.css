@@ -24,6 +24,42 @@
   position: relative;
   width: 100%;
 }
+.analogger .analogger-view .to-esm-line {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.analogger .analogger-view .to-esm-line .analogger-col {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(1) {
+  width: 60px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(2) {
+  width: 40px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(3) {
+  width: 20px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(4) {
+  width: 40px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(5) {
+  width: 60px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(6) {
+  width: 60px;
+}
+.analogger .analogger-view .to-esm-line .analogger-col:nth-child(7) {
+  width: auto;
+}
+.analogger .analogger-view .to-esm-line .analogger-col-text {
+  min-width: 200px;
+}
 .analogger .analogger-view::-webkit-scrollbar-thumb {
   border: 5px solid transparent;
   border-radius: 100px;

@@ -11,6 +11,7 @@ class AnaLogger
     system = ""
 
     logIndex = 0;
+    logCounter = 0;
     contexts = [];
     targets = {};
 
@@ -368,7 +369,36 @@ class AnaLogger
     // ------------------------------------------------
     // Logging methods
     // ------------------------------------------------
-    writeLogToDom(text)
+    setColumns($line, context, text)
+    {
+        let index = 0;
+        for (let columnName in context)
+        {
+            if (!context.hasOwnProperty(columnName))
+            {
+                continue;
+            }
+
+            if ("name" === columnName)
+            {
+                continue;
+            }
+
+            const colContent = context[columnName];
+            const $col = document.createElement("span");
+            $col.classList.add(`analogger-col`, `analogger-col-${columnName}`, `analogger-col-${index}`);
+            ++index;
+            $col.textContent = colContent
+            $line.append($col)
+        }
+
+        const $col = document.createElement("span");
+        $col.classList.add(`analogger-col`, `analogger-col-text`, `analogger-col-${index}`);
+        $col.textContent = text
+        $line.append($col)
+    }
+
+    writeLogToDom(context, text)
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom)
 
@@ -384,14 +414,15 @@ class AnaLogger
                 $container.append($view)
             }
 
-            const line = document.createElement("div")
-            line.classList.add("to-esm-line")
-            line.textContent = text
-            const row = document.createElement("span")
-            row.classList.add("to-esm-row");
-            line.append(row);
+            const $line = document.createElement("div")
+            $line.classList.add("to-esm-line")
+            $line.style.color = context.color
+            $line.setAttribute(`data-log-counter`, this.logCounter)
+            $line.setAttribute(`data-log-index`, this.logIndex)
 
-            $view.append(line);
+            this.setColumns($line ,context, text)
+
+            $view.append($line);
         }
     }
 
@@ -416,12 +447,14 @@ class AnaLogger
             let output = ""
             const text = this.format({...context, message})
 
+            ++this.logCounter;
+
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER
                 if (this.options.logToDom)
                 {
-                    this.writeLogToDom(text)
+                    this.writeLogToDom(context, text)
                 }
                 output = `%c${text}`
             }
@@ -515,6 +548,13 @@ class AnaLogger
         if (this.options.hideError)
         {
             return
+        }
+
+        if (!this.isExtendedOptionsPassed(options))
+        {
+            const defaultContext = this.generateErrorContext();
+            this.processOutput.apply(this, [defaultContext, options, ...args]);
+            return;
         }
 
         const errorContext = this.generateErrorContext()

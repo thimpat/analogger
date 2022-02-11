@@ -26,26 +26,76 @@
     position: relative;
     width: 100%;
 
-    //&::before
-    //{
-    //  background: antiquewhite;
-    //  content: "Console";
-    //  display: block;
-    //  font-size: 1rem;
-    //  font-weight: 600;
-    //  line-height: 41px;
-    //  padding-left: 7px;
-    //  position: absolute;
-    //  margin-left: 0px;
-    //  color: #134c87;
-    //  vertical-align: middle;
-    //  width: calc(100%);
-    //  z-index: 9999;
-    //  ::before
-    //  {
-    //    content: "Console2";
-    //  }
-    //}
+    .to-esm-line
+    {
+      display: inline-block;
+      overflow: hidden;
+      white-space: nowrap;
+
+      .analogger-col
+      {
+        display: inline-block;
+        overflow: hidden;
+        padding: 0 4px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .analogger-col:nth-child(1)
+      {
+        width: 60px;
+      }
+
+      .analogger-col:nth-child(2)
+      {
+        width: 40px;
+      }
+
+      .analogger-col:nth-child(3)
+      {
+        width: 20px;
+      }
+
+      .analogger-col:nth-child(4)
+      {
+        width: 40px;
+      }
+
+      .analogger-col:nth-child(5)
+      {
+        width: 60px;
+      }
+
+      .analogger-col:nth-child(6)
+      {
+        width: 60px;
+      }
+
+      .analogger-col:nth-child(7)
+      {
+        width: auto;
+      }
+
+      .analogger-col:nth-child(8)
+      {
+
+      }
+
+      .analogger-col:nth-child(9)
+      {
+
+      }
+
+      .analogger-col:nth-child(10)
+      {
+
+      }
+
+      .analogger-col-text
+      {
+        min-width: 200px;
+      }
+    }
 
     &::-webkit-scrollbar-thumb
     {
