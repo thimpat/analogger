@@ -20,12 +20,19 @@
     "test": "npm run bundle:prod && nyc mocha --exit --sort",
     "server:start": "http-server.cmd -c-1 -s -p 9880 ./ > log.log",
     "manual:check": "http-server.cmd -c-1 -p 9877 -o example/index.html ./ ",
-    "manual:test:all": "concurrently --success first --kill-others \"npm run test\" \"npm run server:start\"",
+    "manual:test": "concurrently --success first --kill-others \"npm run test\" \"npm run server:start\"",
     "demo": "npm run bundle:prod && node example/cjs/demo.cjs"
   },
   "author": "Patrice Thimothee",
   "license": "MIT",
   "homepage": "https://github.com/thimpat/analogger/blob/main/README.md",
+  "keywords": [
+    "console",
+    "log",
+    "error",
+    "log analyser",
+    "productivity"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/thimpat/analogger.git"
