@@ -17,6 +17,7 @@
     "bundle:prod:cjs": "rollup --config rollup-cjs.config.js",
     "bundle:prod:esm": "rollup --config rollup-esm.config.js",
     "bundle:prod": "npm run convert-cjs:esm && npm run convert-cjs:browser && npm run bundle:prod:cjs && npm run bundle:prod:esm",
+    "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
     "test": "npm run bundle:prod && nyc mocha --exit --sort --retries 2",
     "server:start": "http-server.cmd -c-1 -s -p 9880 ./ > log.log",
     "manual:check": "http-server.cmd -c-1 -p 9877 -o example/index.html ./ ",
