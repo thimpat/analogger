@@ -15,8 +15,9 @@ const expect = chai.expect;
  * TEST CONFIGURATION FILE
  */
 const configTest = require("./0-config.json");
-const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
 const webPageTest = configTest.e2e.webPageTest;
+
+const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
 
 async function init()
 {

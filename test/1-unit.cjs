@@ -3,11 +3,19 @@ const assertArrays = require("chai-arrays")
 const expect = chai.expect;
 const sinon = require("sinon");
 
-let alert, sandbox;
+/**
+ * TEST CONFIGURATION FILE
+ */
+const configTest = require("./0-config.json");
+
+
+let alert;
 
 // Arrange
 const myStub = {
-    myMethod: () => { }
+    myMethod: () =>
+    {
+    }
 }
 
 
@@ -28,6 +36,10 @@ describe('AnaLogger', function ()
         anaLogger.setTargets(LOG_TARGETS);
         anaLogger.setActiveTarget(LOG_TARGETS.DEV3)
         anaLogger.removeOverride({error: true})
+    })
+
+    after(() =>
+    {
     })
 
     beforeEach(() =>
@@ -244,6 +256,8 @@ describe('AnaLogger', function ()
 
         describe("in a non-Node environment", function ()
         {
+            let sandbox;
+
             beforeEach(function ()
             {
                 sandbox = sinon.createSandbox();
@@ -451,5 +465,50 @@ describe('AnaLogger', function ()
 
     });
 
+    describe("#writeLogToDom", function ()
+    {
+        it("should fail when there is no DOM", function ()
+        {
+            anaLogger.setOptions({logToDom: "body"})
+            chai.expect(() => anaLogger.writeLogToDom("Hello you - How is it?")).to.throw(`document is not defined`);
+        })
+    })
 
+
+    describe("on the simulated DOM", function ()
+    {
+        let sandbox;
+
+        before(function ()
+        {
+            this.jsdom = require('jsdom-global')()
+
+            sandbox = sinon.createSandbox();
+            sandbox
+                .stub(anaLogger, "isBrowser")
+                .withArgs()
+                .returns(
+                    true
+                );
+        })
+
+        after(function ()
+        {
+            sandbox.restore()
+
+            this.jsdom()
+        })
+
+        describe("#log", function ()
+        {
+            it("should add log to the DOM when the logToDom option is on", function ()
+            {
+                anaLogger.setOptions({logToDom: "body"})
+                anaLogger.log("Hello you - How is it?")
+
+                expect(document.body.textContent).to.contain("Hello you - How is it?")
+            })
+        })
+
+    })
 });
