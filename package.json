@@ -26,6 +26,13 @@
   "author": "Patrice Thimothee",
   "license": "MIT",
   "homepage": "https://github.com/thimpat/analogger/blob/main/README.md",
+  "keywords": [
+    "console",
+    "log",
+    "error",
+    "log analyser",
+    "productivity"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/thimpat/analogger.git"
