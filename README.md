@@ -84,14 +84,14 @@ Display the browser native message box if run from it; otherwise, it displays th
 ### setOptions()
 
 
-| **Options**      | **default** | **Expect**   | **Description** | 
-|------------------|-------------|--------------|---------------------------------------------------------------------|
-| silent           | false       |  boolean       | _No log will be displayed (only errors)_   |
-| hideError        | false       | boolean | _Hide errors from console_ |              
+| **Options**      | **default** | **Expect**   | **Description**                                                                    | 
+|------------------|-------------|--------------|------------------------------------------------------------------------------------|
+| silent           | false       |  boolean       | _No log will be displayed (only errors)_                                           |
+| hideError        | false       | boolean | _Hide errors from console_                                                         |              
 | hideHookMessage  | false       | boolean | _Hide the automatic message shown when some native console methods are overridden_ |
-| showPassingTests | true        | boolean | _Show Live test results_ |           
-| logToDom         | undefined       | string (DOM Selector) |_display log in a DOM container_ |
-| logToFile        | undefined       | string (File path) | _write log to a file if running from Node_ |
+| hidePassingTests | false       | boolean | _Hide Live test results_                                                           |           
+| logToDom         | false       | string (DOM Selector) | _display log in a DOM container_                                                   |
+| logToFile        | false       | string (File path) | _write log to a file if running from Node_                                         |
 
 
 ```javascript
