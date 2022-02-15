@@ -82,3 +82,4 @@ out
 .eslintrc.cjs
 ci.md
 todo.js
+/unrelated/
