@@ -110,28 +110,51 @@ class AnaLogger
                    lidLenMax = 5,
                    symbolLenMax = 2,
                    messageLenMax = 60,
-                   hideLog = false,
-                   hideError = false,
-                   hideHookMessage = false,
-                   showPassingTests = true,
+                   hideLog = undefined,
+                   hideError = undefined,
+                   hideHookMessage = undefined,
+                   hidePassingTests = undefined,
                    logToDom = undefined,
                    logToFile = undefined,
-        silent = false
+        oneConsolePerContext = undefined,
+        silent = undefined
                } = {})
     {
-        this.options.contextLenMax = contextLenMax
-        this.options.idLenMax = idLenMax
-        this.options.lidLenMax = lidLenMax
-        this.options.messageLenMax = messageLenMax
-        this.options.symbolLenMax = symbolLenMax
-        this.options.hideLog = !!hideLog
-        this.options.hideError = !!hideError
-        this.options.hideHookMessage = !!hideHookMessage
-        this.options.showPassingTests = !!showPassingTests
+        this.options.contextLenMax = contextLenMax;
+        this.options.idLenMax = idLenMax;
+        this.options.lidLenMax = lidLenMax;
+        this.options.messageLenMax = messageLenMax;
+        this.options.symbolLenMax = symbolLenMax;
+        this.options.hideHookMessage = !!hideHookMessage;
+
+        if (hidePassingTests !== undefined)
+        {
+            this.options.hidePassingTests = !!hidePassingTests;
+        }
+
+        if (hideHookMessage !== undefined)
+        {
+            this.options.hideHookMessage = !!hideHookMessage;
+        }
+
+        if (hideLog !== undefined)
+        {
+            this.options.hideLog = !!hideLog;
+        }
+
+        if (hideError !== undefined)
+        {
+            this.options.hideError = !!hideError;
+        }
+
+        if (oneConsolePerContext !== undefined)
+        {
+            this.options.oneConsolePerContext = !!oneConsolePerContext;
+        }
 
         if (logToDom !== undefined)
         {
-            this.options.logToDom = logToDom || "#analogger"
+            this.options.logToDom = logToDom || "#analogger";
         }
 
         if (logToFile !== undefined)
@@ -721,4 +744,4 @@ class AnaLogger
 
 }
 
-module.exports.anaLogger = new AnaLogger()
+module.exports.anaLogger = new AnaLogger();
