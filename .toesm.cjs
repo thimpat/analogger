@@ -1,20 +1,13 @@
+const os = require("os");
 module.exports = {
     replaceStart: [
         {
-            search : /const\s+chalk\s*=\s*require\(.chalk-cjs.\)[;]?/g,
-            replace: `const chalk = null;`
-        },
-        {
-            search : "const colorConvert = require('color-convert-cjs');",
+            search : "const colorConvert = require(\"color-convert-cjs\");",
             replace: `const colorConvert = null;`
         },
         {
-            search: "const {anaLogger} = require(\"../../dist/index-cjs.min.cjs\");",
-            replace: "const {anaLogger} = require(\"../../dist/index-esm.min.mjs\");"
-        },
-        {
-            search: "// alert(result)",
-            replace: "alert(result)"
+            search : /const\s+chalk\s*=\s*require\(.chalk-cjs.\)[;]?/g,
+            replace: `${os.EOL}const chalk = null;${os.EOL}`
         },
     ],
     replaceEnd  : [

@@ -12,17 +12,21 @@
     }
   },
   "scripts": {
-    "convert-cjs:esm": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/ --input=\"example/**/*.cjs\" --output=example/esm/ --config=\".toesm.cjs\"",
-    "convert-cjs:browser": "toesm.cmd --input=\"src/cjs/**/*.cjs\" --input=\"example/**/*.cjs\" --output=src/esm-browser/ --output=example/esm-browser/ --config=\".toesm.cjs\" --solvedep",
+    "convert-cjs:esm": "to-esm.cmd --input=\"src/cjs/**/*.cjs\" --output=src/esm/ --input=\"example/**/*.cjs\" --output=example/esm/ --config=\".toesm.cjs\"",
+    "clean:browser": "rimraf generated",
+    "build:browser:importmap": "to-esm.cmd --input=\"example/cjs/demo.cjs\" --output=generated/browser/ --config=\".toesm.cjs\" --html=example/index.html",
+    "build:browser": "to-esm.cmd --input=\"example/cjs/demo.cjs\" --output=generated/browser/ --config=\".toesm.cjs\"",
     "bundle:prod:cjs": "rollup --config rollup-cjs.config.js",
     "bundle:prod:esm": "rollup --config rollup-esm.config.js",
-    "bundle:prod": "npm run convert-cjs:esm && npm run convert-cjs:browser && npm run bundle:prod:cjs && npm run bundle:prod:esm",
+    "bundle:prod": "npm run convert-cjs:esm && npm run build:browser && npm run bundle:prod:cjs && npm run bundle:prod:esm",
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
     "test": "npm run bundle:prod && nyc mocha --exit --sort --retries 2",
     "server:start": "http-server.cmd -c-1 -s -p 9880 ./ > log.log",
     "manual:check": "http-server.cmd -c-1 -p 9877 -o example/index.html ./ ",
     "manual:test": "concurrently --success first --kill-others \"npm run test\" \"npm run server:start\"",
-    "demo": "npm run bundle:prod && node example/cjs/demo.cjs"
+    "demo:terminal": "npm run convert-cjs:esm && node example/cjs/demo.cjs",
+    "demo:browser": "npm run clean:browser && npm run build:browser && node example/cjs/demo.cjs",
+    "demo:browser:importmap": "npm run clean:browser && npm run build:browser:importmap && node example/cjs/demo.cjs"
   },
   "author": "Patrice Thimothee",
   "license": "MIT",
@@ -63,6 +67,7 @@
     "jsdom-global": "3.0.2",
     "mocha": "^9.2.0",
     "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.67.0",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-delete": "^2.0.0",
@@ -70,13 +75,14 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^1.6.8"
+    "to-esm": "^2.0.2"
   },
   "dependencies": {
     "chalk": "^5.0.0",
     "chalk-cjs": "npm:chalk@^4.1.2",
     "color-convert": "^2.0.1",
     "color-convert-cjs": "npm:color-convert@^2.0.1",
+    "node_modules-path": "^2.0.5",
     "rgb-hex": "^4.0.0",
     "rgb-hex-cjs": "npm:rgb-hex@^3.0.0"
   }
