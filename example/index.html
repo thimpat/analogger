@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script type="importmap">{
+    "imports": {
+        "rgb-hex": "../../node_modules/rgb-hex/index.js",
+        "to-ansi": "../../node_modules/to-ansi/index.mjs"
+    }
+}</script>
+
     <meta charset="UTF-8">
     <title>Demo</title>
     <link rel="stylesheet" href="index.css">
-    <script type="importmap">{
-    "imports": {
-        "rgb-hex": "../../node_modules/rgb-hex/index.js"
-    }
-}</script>
 </head>
 <body>
 <div id="analogger" class="analogger">
@@ -16,7 +18,6 @@
 <div id="analogger2" class="analogger">
 
 </div>
-
 <script type="module" src="../generated/browser/demo.mjs"></script>
 </body>
 </html>
