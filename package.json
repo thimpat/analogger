@@ -80,7 +80,7 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.4.1"
+    "to-esm": "^2.4.2"
   },
   "dependencies": {
     "chalk": "^5.0.0",
