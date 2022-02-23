@@ -70,7 +70,7 @@ out
 /.eslintrc.js
 /.gitignore
 /rollup-cjs.config.js
-/rollup-esm.config.js
+/rollup-esm-terminal.config.js
 /src
 /docs
 /example
@@ -82,3 +82,5 @@ out
 .eslintrc.cjs
 ci.md
 todo.js
+/unrelated/
+test-log.txt

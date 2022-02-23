@@ -25,7 +25,7 @@ const constants = {
         NODE: "NODE"
     }
 
-}
+}; 
 
-module.exports.COLOR_TABLE = constants.COLOR_TABLE
-module.exports.SYSTEM = constants.SYSTEM
+module.exports.COLOR_TABLE = constants.COLOR_TABLE;
+module.exports.SYSTEM = constants.SYSTEM;

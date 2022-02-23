@@ -18,7 +18,9 @@ jobs:
         uses: thimpat/analogger/.github/actions/checkout@main
       - name: Install dependencies
         shell: powershell
-        run: npm install
+        run: |
+          npm install to-esm -g
+          npm install
       - name: Upgrade version
         shell: powershell
         run: |

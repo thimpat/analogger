@@ -3,13 +3,15 @@
  */
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
-const {By, until} = require('selenium-webdriver');
+const {By, until} = require("selenium-webdriver");
 const chromium = require("chromium");
 
 require("chromedriver");
 
 const chai = require("chai");
 const expect = chai.expect;
+
+let driver;
 
 /**
  * TEST CONFIGURATION FILE
@@ -32,50 +34,49 @@ async function init()
 
     await driver.get(webPageTest);
 
-    return driver
+    return driver;
 }
 
 
-describe('The Browser', async function ()
+describe("The Browser", async function ()
 {
-    let driver;
     this.timeout(20000);
 
     before(async function ()
     {
-        driver = await waitForDriverCaptured({driver: driver = await init()})
-    })
-
-    it('should reach the correct url', async function ()
-    {
-        const url = await driver.getCurrentUrl()
-        expect(url).to.equal(webPageTest)
+        driver = await waitForDriverCaptured({driver: driver = await init()});
     });
 
-    it('should load the correct js', async function ()
+    it("should reach the correct url", async function ()
     {
-        const pageSource = await driver.getPageSource()
-        expect(pageSource).to.contain("<body>")
+        const url = await driver.getCurrentUrl();
+        expect(url).to.equal(webPageTest);
     });
 
-    it('should find the #analogger div in the DOM', async function ()
+    it("should load the correct js", async function ()
     {
-        await driver.wait(until.elementLocated(By.id('analogger')), 10000);
-        const element = await driver.findElement(By.id("analogger"))
-        expect(await element.isDisplayed()).to.be.true
+        const pageSource = await driver.getPageSource();
+        expect(pageSource).to.contain("<body>");
     });
 
-    it('should have the #analogger div containing some specific text', async function ()
+    it("should find the #analogger div in the DOM", async function ()
     {
-        const element = driver.findElement(By.id("analogger"))
+        await driver.wait(until.elementLocated(By.id("analogger")), 10000);
+        const element = await driver.findElement(By.id("analogger"));
+        expect(await element.isDisplayed()).to.be.true;
+    });
+
+    it("should have the #analogger div containing some specific text", async function ()
+    {
+        const element = driver.findElement(By.id("analogger"));
         const bodyText = await element.getText();
-        expect(bodyText).to.contain("DEFAULT: Basic Log example 1")
+        expect(bodyText).to.contain("DEFAULT: Basic Log example 1");
     });
 
     after(  async function()
     {
-        driver.quit()
-    })
+        driver.quit();
+    });
 
 });
 
