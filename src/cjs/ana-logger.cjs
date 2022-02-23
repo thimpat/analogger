@@ -1,9 +1,24 @@
-const chalk = require("chalk-cjs");
+/** to-esm-browser: remove **/
+const path = require("path");
+const fs = require("fs");
+const os = require("os");
+/** to-esm-browser: end-remove **/
+
+/** to-esm-browser: skip **/
+console.log("Skip this 1");
+/** to-esm-browser: end-skip **/
+
+const toAnsi = require("to-ansi");
 const rgbHex = require("rgb-hex-cjs");
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
 const EOL =`
 `;
+
+/** to-esm-browser: skip **/
+console.log("Skip this 2");
+/** to-esm-browser: end-skip **/
+
 
 class AnaLogger
 {
@@ -504,7 +519,7 @@ class AnaLogger
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE;
-                output = chalk.hex(context.color)(text);
+                output = toAnsi.getTextFromHex(text, {fg: context.color});
 
                 if (this.options.logToFile)
                 {
