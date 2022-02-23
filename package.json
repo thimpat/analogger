@@ -13,7 +13,7 @@
   },
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
-    "test": "npm run bundle:prod:all && nyc mocha --exit --sort --retries 2",
+    "test": "npm run build:esm:browser && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort --retries 2",
     "server:start": "http-server.cmd -c-1 -s -p 9880 ./ > log.log",
     "manual:check": "http-server.cmd -c-1 -p 9877 -o example/index.html ./ ",
     "manual:test": "concurrently --success first --kill-others \"npm run test\" \"npm run server:start\"",
@@ -36,7 +36,8 @@
     "*** In the Browser with importmap-2 ****": "# Generate ESM code with import map",
     "*** In the Browser with importmap-3 ****": "# ----------------------------------------------------------------------------------------------------------",
     "build:browser:importmap": "npm run build:esm:browser -- --html=example/index.html",
-    "demo:browser:importmap": "npm run build:browser:importmap && node example/cjs/demo.cjs"
+    "demo:browser:importmap": "npm run build:browser:importmap && node example/cjs/demo.cjs",
+    "quick:run": "node example/cjs/demo.cjs"
   },
   "author": "Patrice Thimothee",
   "license": "MIT",

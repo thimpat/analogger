@@ -96,6 +96,11 @@ describe("AnaLogger", function ()
             const options = anaLogger.getOptions();
             expect(options.silent).to.be.true;
         });
+
+        it("should throw an exception when called with no parameter", function ()
+        {
+            chai.expect(() => anaLogger.setOptions()).to.throw("Cannot read properties of null (reading 'contextLenMax')");
+        });
     });
 
     describe("#log()", function ()
@@ -413,6 +418,37 @@ describe("AnaLogger", function ()
         });
     });
 
+    describe("#setErrorHandlerForUserTarget()", function ()
+    {
+        it("should replace the error manager targeting the user", function ()
+        {
+            anaLogger.resetOptions();
+            anaLogger.setActiveTarget(LOG_TARGETS.USER);
+            anaLogger.setErrorHandlerForUserTarget(
+                myStub.myMethod
+            );
+
+            anaLogger.error({
+                context: LOG_CONTEXTS.ERROR,
+                target : LOG_TARGETS.USER,
+                lid    : 200020
+            }, "Test Error Log");
+            expect(myStub.myMethod).to.have.been.called;
+        });
+
+        it("should replace the error manager targeting the user", function ()
+        {
+            anaLogger.setActiveTarget(LOG_TARGETS.USER);
+            anaLogger.setErrorHandlerForUserTarget(
+                myStub.myMethod
+            );
+
+            anaLogger.error("Test Error Log");
+            expect(myStub.myMethod).to.have.been.called;
+        });
+
+    });
+
     describe("#setErrorHandler()", function ()
     {
         it("should replace the error manager", function ()
@@ -435,32 +471,6 @@ describe("AnaLogger", function ()
         {
             anaLogger.setActiveTarget(LOG_TARGETS.USER);
             anaLogger.setErrorHandler(
-                myStub.myMethod
-            );
-
-            anaLogger.error("Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
-        });
-
-    });
-
-    describe("#setErrorHandlerForUserTarget()", function ()
-    {
-        it("should replace the error manager targetting the user", function ()
-        {
-            anaLogger.setActiveTarget(LOG_TARGETS.USER);
-            anaLogger.setErrorHandlerForUserTarget(
-                myStub.myMethod
-            );
-
-            anaLogger.error("Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
-        });
-
-        it("should replace the error manager targeting the user", function ()
-        {
-            anaLogger.setActiveTarget(LOG_TARGETS.USER);
-            anaLogger.setErrorHandlerForUserTarget(
                 myStub.myMethod
             );
 
