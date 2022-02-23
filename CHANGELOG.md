@@ -1,3 +1,5 @@
+# [1.8.0](https://github.com/thimpat/analogger/compare/v1.7.0...v1.8.0) (2022-02-23)
+
 # [1.7.0](https://github.com/thimpat/analogger/compare/v1.6.2...v1.7.0) (2022-02-11)
 
 ## [1.6.2](https://github.com/thimpat/analogger/compare/v1.6.1...v1.6.2) (2022-02-11)
