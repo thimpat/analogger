@@ -4,21 +4,12 @@ const fs = require("fs");
 const os = require("os");
 /** to-esm-browser: end-remove **/
 
-/** to-esm-browser: skip **/
-console.log("Skip this 1");
-/** to-esm-browser: end-skip **/
-
 const toAnsi = require("to-ansi");
 const rgbHex = require("rgb-hex-cjs");
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 
 const EOL =`
 `;
-
-/** to-esm-browser: skip **/
-console.log("Skip this 2");
-/** to-esm-browser: end-skip **/
-
 
 class AnaLogger
 {
@@ -58,6 +49,13 @@ class AnaLogger
 
     constructor()
     {
+        if (AnaLogger.Instance)
+        {
+            return AnaLogger.Instance;
+        }
+
+        AnaLogger.Instance = this;
+
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
@@ -119,6 +117,25 @@ class AnaLogger
         return !this.isNode();
     }
 
+    resetLogger()
+    {
+        this.options = {
+            contextLenMax: 10,
+            idLenMax: 5,
+            lidLenMax: 5,
+            symbolLenMax: 2,
+            messageLenMax: 60,
+            hideLog: undefined,
+            hideError: undefined,
+            hideHookMessage: undefined,
+            hidePassingTests: undefined,
+            logToDom: undefined,
+            logToFile: undefined,
+            oneConsolePerContext: undefined,
+            silent: undefined
+        };
+    }
+
     setOptions({
                    contextLenMax = 10,
                    idLenMax = 5,
@@ -177,11 +194,19 @@ class AnaLogger
             if (!this.isBrowser())
             {
                 this.options.logToFile = logToFile || "./analogger.log";
+
+                /** to-esm-browser: remove **/
                 // these require won't get compiled by to-esm
-                this.options.logToFile = require("path").resolve(this.options.logToFile);
-                this.logFile = require("fs").createWriteStream(this.options.logToFile, {flags : "w"});
-                this.EOL = require("os").EOL;
+                this.options.logToFilePath = path.resolve(this.options.logToFile);
+                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags : "a"});
+                this.EOL = os.EOL;
+                /** to-esm-browser: end-remove **/
             }
+
+            /** to-esm-browser: add
+             this.realConsoleLog("LogToFile is not supported in this environment. ")
+             * **/
+
         }
 
         if (silent !== undefined)
@@ -759,4 +784,5 @@ class AnaLogger
 
 }
 
+module.exports = new AnaLogger();
 module.exports.anaLogger = new AnaLogger();
