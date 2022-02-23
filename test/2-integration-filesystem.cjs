@@ -23,6 +23,7 @@ describe("In the Terminal", function ()
 
     beforeEach(()=>
     {
+        anaLogger.resetLogger();
         anaLogger.resetLogHistory();
         anaLogger.keepLogHistory();
         anaLogger.setOptions({silent: false, hideError: false});
@@ -94,7 +95,7 @@ describe("In the Terminal", function ()
             expect(captured.stdout).to.not.contain("Error After override");
         });
 
-        it("should not show unrelated target logs", function ()
+        it("should not show target logs that are unrelated to DEV3", function ()
         {
             const captured = capcon.captureStdio(function ()
             {
@@ -122,9 +123,10 @@ describe("In the Terminal", function ()
 
         it("should write logs to a file when logToFile is on", function ()
         {
-            anaLogger.setOptions({silent: true, logToFile: "./test-log.log"});
+            anaLogger.setOptions({silent: true, logToFile: "./test-log.txt"});
             anaLogger.log("Test Log example with DEFAULT target");
-            const content = fs.readFileSync("./test-log.log", "utf-8");
+
+            const content = fs.readFileSync("./test-log.txt", "utf-8");
             expect(content).to.contain("Test Log example with DEFAULT target");
         });
 
