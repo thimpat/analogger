@@ -74,3 +74,4 @@ dist
 /example/esm-browser/
 /src/esm-browser/
 /generated/
+/test-log.txt
