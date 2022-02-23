@@ -18,15 +18,6 @@ module.exports = {
     ],
     replaceModules:
         {
-            chalk: {
-                cjs: {
-                    name: "chalk-cjs",
-                    version: "@^4.1.2",
-                },
-                esm: {
-                    version: "@latest"
-                }
-            },
             "rgb-hex": {
                 cjs: {
                     name: "rgb-hex-cjs",
