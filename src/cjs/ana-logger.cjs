@@ -120,20 +120,38 @@ class AnaLogger
     resetLogger()
     {
         this.options = {
-            contextLenMax: 10,
-            idLenMax: 5,
-            lidLenMax: 5,
-            symbolLenMax: 2,
-            messageLenMax: 60,
-            hideLog: undefined,
-            hideError: undefined,
-            hideHookMessage: undefined,
-            hidePassingTests: undefined,
-            logToDom: undefined,
-            logToFile: undefined,
+            contextLenMax       : 10,
+            idLenMax            : 5,
+            lidLenMax           : 5,
+            symbolLenMax        : 2,
+            messageLenMax       : 60,
+            hideLog             : undefined,
+            hideError           : undefined,
+            hideHookMessage     : undefined,
+            hidePassingTests    : undefined,
+            logToDom            : undefined,
+            logToFile           : undefined,
             oneConsolePerContext: undefined,
-            silent: undefined
+            silent              : undefined
         };
+    }
+
+    resetOptions()
+    {
+        this.options.contextLenMax = 10;
+        this.options.idLenMax = 5;
+        this.options.lidLenMax = 5;
+        this.options.messageLenMax = 2;
+        this.options.symbolLenMax = 60;
+        this.options.hideHookMessage = false;
+        this.options.hidePassingTests = false;
+        this.options.hideHookMessage = false;
+        this.options.hideLog = false;
+        this.options.hideError = false;
+        this.options.oneConsolePerContext = true;
+        this.options.logToDom = undefined;
+        this.options.logToDomlogToFile = undefined;
+        this.options.silent = false;
     }
 
     setOptions({
@@ -148,9 +166,9 @@ class AnaLogger
                    hidePassingTests = undefined,
                    logToDom = undefined,
                    logToFile = undefined,
-        oneConsolePerContext = undefined,
-        silent = undefined
-               } = {})
+                   oneConsolePerContext = undefined,
+                   silent = undefined
+               } = null)
     {
         this.options.contextLenMax = contextLenMax;
         this.options.idLenMax = idLenMax;
@@ -213,12 +231,9 @@ class AnaLogger
         {
             this.options.silent = !!silent;
 
-            if (silent)
-            {
-                this.options.hideLog = true;
-                this.options.hideHookMessage = true;
-                this.options.silent = true;
-            }
+            this.options.hideLog = this.options.silent;
+            this.options.hideHookMessage = this.options.silent;
+            this.options.silent = this.options.silent;
         }
 
     }
@@ -575,6 +590,7 @@ class AnaLogger
         }
         catch (e)
         {
+            /* istanbul ignore next */
             console.error("AnaLogger:", e.message);
         }
     }
