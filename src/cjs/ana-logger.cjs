@@ -602,7 +602,10 @@ class AnaLogger
             return false;
         }
 
-        return options.hasOwnProperty("context") || options.hasOwnProperty("target");
+        return options.hasOwnProperty("context") ||
+            options.hasOwnProperty("target") ||
+            options.hasOwnProperty("color") ||
+            options.hasOwnProperty("lid");
     }
 
     convertToContext(options, defaultContext)
