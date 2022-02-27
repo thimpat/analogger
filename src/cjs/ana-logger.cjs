@@ -145,7 +145,6 @@ class AnaLogger
         this.options.symbolLenMax = 60;
         this.options.hideHookMessage = false;
         this.options.hidePassingTests = false;
-        this.options.hideHookMessage = false;
         this.options.hideLog = false;
         this.options.hideError = false;
         this.options.oneConsolePerContext = true;
@@ -175,7 +174,6 @@ class AnaLogger
         this.options.lidLenMax = lidLenMax;
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
-        this.options.hideHookMessage = !!hideHookMessage;
 
         if (hidePassingTests !== undefined)
         {
@@ -230,10 +228,7 @@ class AnaLogger
         if (silent !== undefined)
         {
             this.options.silent = !!silent;
-
             this.options.hideLog = this.options.silent;
-            this.options.hideHookMessage = this.options.silent;
-            this.options.silent = this.options.silent;
         }
 
     }
