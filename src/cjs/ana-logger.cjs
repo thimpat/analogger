@@ -124,7 +124,7 @@ class AnaLogger
             idLenMax            : 5,
             lidLenMax           : 5,
             symbolLenMax        : 2,
-            messageLenMax       : 60,
+            messageLenMax       : undefined,
             hideLog             : undefined,
             hideError           : undefined,
             hideHookMessage     : undefined,
@@ -141,7 +141,7 @@ class AnaLogger
         this.options.contextLenMax = 10;
         this.options.idLenMax = 5;
         this.options.lidLenMax = 5;
-        this.options.messageLenMax = 2;
+        this.options.messageLenMax = undefined;
         this.options.symbolLenMax = 60;
         this.options.hideHookMessage = false;
         this.options.hidePassingTests = false;
@@ -158,7 +158,7 @@ class AnaLogger
                    idLenMax = 5,
                    lidLenMax = 5,
                    symbolLenMax = 2,
-                   messageLenMax = 60,
+                   messageLenMax = undefined,
                    hideLog = undefined,
                    hideError = undefined,
                    hideHookMessage = undefined,
@@ -271,7 +271,12 @@ class AnaLogger
         contextName = this.truncateMessage(contextName, {fit: this.options.contextLenMax, align: AnaLogger.ALIGN.RIGHT});
         // id = this.truncateMessage(id, {fit: this.options.idLenMax})
         lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
-        message = this.truncateMessage(message, {fit: this.options.messageLenMax});
+
+        if (this.options.messageLenMax !== undefined)
+        {
+            message = this.truncateMessage(message, {fit: this.options.messageLenMax});
+        }
+
         symbol = this.truncateMessage(symbol, {fit: this.options.symbolLenMax});
 
         return `[${time}] ${contextName}: (${lid}) ${symbol} ${message}`;
