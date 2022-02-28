@@ -76,7 +76,7 @@ out
 /example
 /.github
 /test
-
+.run/
 .nycrc
 .releaserc
 .eslintrc.cjs
