@@ -71,7 +71,6 @@ out
 /.gitignore
 /rollup-cjs.config.js
 /rollup-esm-terminal.config.js
-/src
 /docs
 /example
 /.github
