@@ -1,6 +1,6 @@
 {
   "name": "analogger",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "Js Logger",
   "main": "./example/cjs/demo.cjs",
   "module": "./generated/browser/demo.mjs",
