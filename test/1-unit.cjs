@@ -200,7 +200,7 @@ describe("AnaLogger", function ()
             }, "The super long Log ID (lid) will be truncated");
 
             // Assert
-            expect(anaLogger.getLogHistory()).to.contain("C1: (12... )");
+            expect(anaLogger.getLogHistory()).to.contain("C1: (12...)");
         });
 
 
@@ -374,7 +374,7 @@ describe("AnaLogger", function ()
             );
             anaLogger.resetLogFormatter();
             anaLogger.log(LOG_CONTEXTS.C1, "Test Log example C4 with new format");
-            expect(anaLogger.getLogHistory()).to.contain("C1: (      )");
+            expect(anaLogger.getLogHistory()).to.contain("C1: (     )");
         });
 
         it("should reject invalid formatters", () =>

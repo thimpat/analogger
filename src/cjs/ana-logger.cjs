@@ -145,7 +145,6 @@ class AnaLogger
         this.options.symbolLenMax = 60;
         this.options.hideHookMessage = false;
         this.options.hidePassingTests = false;
-        this.options.hideHookMessage = false;
         this.options.hideLog = false;
         this.options.hideError = false;
         this.options.oneConsolePerContext = true;
@@ -175,7 +174,6 @@ class AnaLogger
         this.options.lidLenMax = lidLenMax;
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
-        this.options.hideHookMessage = !!hideHookMessage;
 
         if (hidePassingTests !== undefined)
         {
@@ -230,10 +228,7 @@ class AnaLogger
         if (silent !== undefined)
         {
             this.options.silent = !!silent;
-
             this.options.hideLog = this.options.silent;
-            this.options.hideHookMessage = this.options.silent;
-            this.options.silent = this.options.silent;
         }
 
     }
@@ -243,7 +238,7 @@ class AnaLogger
         return this.options;
     }
 
-    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT})
+    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT} = {})
     {
         input = "" + input;
         if (fit && input.length >= fit + 2)
@@ -251,7 +246,7 @@ class AnaLogger
             input = input.substring(0, fit - 3) + "...";
         }
 
-        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ");
+        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
         return input;
     }
 
@@ -607,7 +602,10 @@ class AnaLogger
             return false;
         }
 
-        return options.hasOwnProperty("context") || options.hasOwnProperty("target");
+        return options.hasOwnProperty("context") ||
+            options.hasOwnProperty("target") ||
+            options.hasOwnProperty("color") ||
+            options.hasOwnProperty("lid");
     }
 
     convertToContext(options, defaultContext)
@@ -664,7 +662,7 @@ class AnaLogger
         const errorContext = this.generateErrorContext();
         let context = this.convertToContext(options, errorContext);
 
-        let args0 = Array.prototype.slice.call(arguments);
+        let args0 = Array.prototype.slice.call(arguments, 1);
         this.log(context, ...args0);
     }
 
