@@ -8,7 +8,6 @@ const sinon = require("sinon");
  */
 const configTest = require("./0-config.json");
 
-
 let alert;
 
 // Arrange
@@ -193,6 +192,10 @@ describe("AnaLogger", function ()
 
         it("should truncate some text when too long", function ()
         {
+            anaLogger.setOptions({
+                messageLenMax: 80
+            });
+
             // Act
             anaLogger.log({
                 context: LOG_CONTEXTS.C1,
