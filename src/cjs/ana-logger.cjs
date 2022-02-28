@@ -238,7 +238,7 @@ class AnaLogger
         return this.options;
     }
 
-    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT})
+    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT} = {})
     {
         input = "" + input;
         if (fit && input.length >= fit + 2)
@@ -246,7 +246,7 @@ class AnaLogger
             input = input.substring(0, fit - 3) + "...";
         }
 
-        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit + 1, " ") : input.padStart(fit + 1, " ");
+        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
         return input;
     }
 
