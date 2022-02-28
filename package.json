@@ -1,14 +1,14 @@
 {
   "name": "analogger",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Js Logger",
-  "main": "./src/cjs/ana-logger.cjs",
-  "module": "./generated/browser/ana-logger.mjs",
+  "main": "./example/cjs/demo.cjs",
+  "module": "./generated/browser/demo.mjs",
   "type": "module",
   "exports": {
     ".": {
-      "require": "./src/cjs/ana-logger.cjs",
-      "import": "./generated/browser/ana-logger.mjs"
+      "require": "./example/cjs/demo.cjs",
+      "import": "./generated/browser/demo.mjs"
     }
   },
   "scripts": {
