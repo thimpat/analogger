@@ -92,7 +92,6 @@
     "rgb-hex": "^4.0.0",
     "rgb-hex-cjs": "npm:rgb-hex@^3.0.0",
     "to-ansi": "^1.0.5",
-    "to-esm": "^2.6.0",
     "uglify-js": "^3.15.1"
   }
 }
