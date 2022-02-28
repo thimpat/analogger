@@ -662,7 +662,7 @@ class AnaLogger
         const errorContext = this.generateErrorContext();
         let context = this.convertToContext(options, errorContext);
 
-        let args0 = Array.prototype.slice.call(arguments);
+        let args0 = Array.prototype.slice.call(arguments, 1);
         this.log(context, ...args0);
     }
 
