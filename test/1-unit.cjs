@@ -32,6 +32,7 @@ describe("AnaLogger", function ()
     before(() =>
     {
         anaLogger.setContexts(LOG_CONTEXTS);
+        anaLogger.setDefaultContext({color: "#564"});
         anaLogger.setTargets(LOG_TARGETS);
         anaLogger.setActiveTarget(LOG_TARGETS.DEV3);
         anaLogger.removeOverride({error: true});
