@@ -33,11 +33,11 @@
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
     "build:esm:browser": "npm run clean:generated && to-esm.cmd ./src/cjs/ana-logger.cjs --output generated/terminal/ --config .toesm.cjs --target browser --update-all",
     "build:browser:demo": "npm run clean:generated && to-esm.cmd example/cjs/demo.cjs --output=generated/browser/ --entrypoint=./src/cjs/ana-logger.cjs --config=\".toesm.cjs\" --target=browser --update-all --bundle=\"./dist/analogger-browser.min.mjs\"",
-    "demo:browser": "npm run build:esm:browser && node example/cjs/demo.cjs",
+    "demo:browser": "npm run build:browser:demo && node example/cjs/demo.cjs",
     "*** In the Browser with importmap-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser with importmap-2 ****": "# Generate ESM code with import map",
     "*** In the Browser with importmap-3 ****": "# ----------------------------------------------------------------------------------------------------------",
-    "build:browser:importmap": "npm run build:esm:browser -- --html=example/index.html",
+    "build:browser:importmap": "npm run build:browser:demo -- --html=example/index.html",
     "demo:browser:importmap": "npm run build:browser:importmap && node example/cjs/demo.cjs",
     "quick:run": "node example/cjs/demo.cjs"
   },
