@@ -36,7 +36,7 @@ coverage
 bower_components
 .lock-wscript
 build/Release
-node_modules/
+/node_modules/
 jspm_packages/
 web_modules/
 *.tsbuildinfo
@@ -74,3 +74,4 @@ dist
 /example/esm-browser/
 /src/esm-browser/
 /test-log.txt
+/generated/terminal/node_modules/
