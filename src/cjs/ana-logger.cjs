@@ -7,6 +7,10 @@ const os = require("os");
 const toAnsi = require("to-ansi");
 const rgbHex = require("rgb-hex-cjs");
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
+const PREDEFINED_CONTEXT_NAMES = {
+    "DEFAULT": "DEFAULT",
+    "ERROR": "ERROR"
+};
 
 const EOL =`
 `;
@@ -362,17 +366,29 @@ class AnaLogger
         return (context.hasOwnProperty("contextName") && context.hasOwnProperty("target"));
     }
 
+    setContext(contextName, context)
+    {
+        this.contexts[contextName] = context;
+    }
+
+    setDefaultContext(context)
+    {
+        this.setContext(PREDEFINED_CONTEXT_NAMES.DEFAULT, context);
+    }
+
     generateDefaultContext()
     {
-        const defaultContext = {
-            name       : "DEFAULT",
-            contextName: "DEFAULT",
-            target     : "ALL",
-            symbol     : "⚡"
-        };
+        let defaultContext = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] || {};
+        defaultContext = Object.assign({},
+            {
+                name       : PREDEFINED_CONTEXT_NAMES.DEFAULT,
+                contextName: PREDEFINED_CONTEXT_NAMES.DEFAULT,
+                target     : "ALL",
+                symbol     : "⚡",
+                color: COLOR_TABLE[1]
+            }, defaultContext);
 
         defaultContext.id = this.logIndex++;
-        defaultContext.color = COLOR_TABLE[1];
         return defaultContext;
     }
 
