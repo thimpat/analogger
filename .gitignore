@@ -75,3 +75,4 @@ dist
 /src/esm-browser/
 /test-log.txt
 /generated/terminal/node_modules/
+/generated/browser/
