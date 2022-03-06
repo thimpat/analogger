@@ -403,8 +403,10 @@ class AnaLogger
     generateErrorContext()
     {
         const errorContext = this.generateDefaultContext();
+        errorContext.name = PREDEFINED_CONTEXT_NAMES.ERROR;
+        errorContext.contextName = PREDEFINED_CONTEXT_NAMES.ERROR;
         errorContext.color = COLOR_TABLE[0];
-        errorContext.symbol = "v";
+        errorContext.symbol = "❌";
         errorContext.error = true;
         return errorContext;
     }
@@ -442,8 +444,8 @@ class AnaLogger
     setContexts(contextTable)
     {
         const arr = Object.keys(contextTable);
-        contextTable["DEFAULT"] = this.contexts["DEFAULT"] = this.generateDefaultContext();
-        contextTable["ERROR"] = this.contexts["ERROR"] = this.generateErrorContext();
+        contextTable[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.generateDefaultContext();
+        contextTable[PREDEFINED_CONTEXT_NAMES.ERROR] = this.contexts[PREDEFINED_CONTEXT_NAMES.ERROR] = this.generateErrorContext();
         arr.forEach((key) =>
         {
             const contextPassed = contextTable[key] || {};
