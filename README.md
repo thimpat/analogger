@@ -104,14 +104,14 @@ anaLogger.setOptions({hideHookMessage: true, logToDom: "#analogger"})
 ### overrideConsole()
 
 ```javascript
-anaLogger.setOptions({silent: false, hideError: false})
+anaLogger.setOptions({silent: true, hideError: false})
 console.log(`Log Before override`);
 anaLogger.overrideConsole()
 console.log(`Log After override`);
 ```
 
 Override console.log, console.info and console.warn. If you already have many console.log running in your system,
-it allows formatting them or hiding then (silent = true) all in one go.
+it allows hiding them all in one go.
 In this example, the terminal (or inspector) will not show the message "Log After override". All following messages
 either.
 
