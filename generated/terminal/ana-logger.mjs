@@ -4,9 +4,15 @@
  * [./src/cjs/ana-logger.cjs]{@link ./src/cjs/ana-logger.cjs}
  * 
  **/
+import path  from "path";
+import fs  from "fs";
+import os  from "os";
 import toAnsi  from "./node_modules/to-ansi/index.mjs";
 import rgbHex  from "./node_modules/rgb-hex/index.mjs";
 import {COLOR_TABLE, SYSTEM}  from "./src/cjs/constants.mjs";
+/** to-esm-browser: remove **/
+
+
 
 
 
@@ -219,12 +225,17 @@ class AnaLogger
             {
                 this.options.logToFile = logToFile || "./analogger.log";
 
-                
+                /** to-esm-browser: remove **/
+                // these require won't get compiled by to-esm
+                this.options.logToFilePath = path.resolve(this.options.logToFile);
+                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags : "a"});
+                this.EOL = os.EOL;
+                /** to-esm-browser: end-remove **/
             }
 
-            
+            /** to-esm-browser: add
              this.realConsoleLog("LogToFile is not supported in this environment. ")
-
+             * **/
 
         }
 
