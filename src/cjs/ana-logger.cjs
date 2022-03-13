@@ -546,14 +546,39 @@ class AnaLogger
 
     convertArgumentsToText(args)
     {
-        let text = "";
+        const strs = [];
+        let text;
         const n = args.length;
         for (let i = 0; i < n; ++i)
         {
-            text += stringify(args[i], null, 2);
-            text += i < n - 1 ? EOL : "";
+            let str;
+            let arg = args[i];
+
+            try
+            {
+                str = JSON.stringify(arg);
+            }
+            catch (e)
+            {
+
+            }
+
+            if (!str)
+            {
+                try
+                {
+                    str = stringify(arg);
+                }
+                catch (e)
+                {
+
+                }
+            }
+
+            strs.push(str);
         }
 
+        text = strs.join("•");
         return text;
     }
 
@@ -581,7 +606,6 @@ class AnaLogger
             }
             else
             {
-                // message = args.join(" | ");
                 message = this.convertArgumentsToText(args);
             }
 
