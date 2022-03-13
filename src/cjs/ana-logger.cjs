@@ -12,6 +12,8 @@ const PREDEFINED_CONTEXT_NAMES = {
     "ERROR": "ERROR"
 };
 
+const {stringify} = require("flatted");
+
 const EOL =`
 `;
 
@@ -225,7 +227,7 @@ class AnaLogger
 
             /** to-esm-browser: add
              this.realConsoleLog("LogToFile is not supported in this environment. ")
-             * **/
+             **/
 
         }
 
@@ -542,6 +544,19 @@ class AnaLogger
         this.logFile.write(text + this.EOL);
     }
 
+    convertArgumentsToText(args)
+    {
+        let text = "";
+        const n = args.length;
+        for (let i = 0; i < n; ++i)
+        {
+            text = stringify(args[i], null, 2);
+            text += i < n - 1 ? EOL : "";
+        }
+
+        return text;
+    }
+
     /**
      * Display log following template
      * @param context
@@ -550,6 +565,8 @@ class AnaLogger
     {
         try
         {
+            let message = "";
+
             if (!this.isTargetAllowed(context.target))
             {
                 return;
@@ -558,10 +575,18 @@ class AnaLogger
             let args = Array.prototype.slice.call(arguments);
             args.shift();
 
-            const message = args.join(" | ");
+            if (context.format === "no")
+            {
+                message = this.convertArgumentsToText(args);
+            }
+            else
+            {
+                // message = args.join(" | ");
+                message = this.convertArgumentsToText(args);
+            }
 
             let output = "";
-            const text = this.format({...context, message});
+            let text = this.format({...context, message});
 
             ++this.logCounter;
 
@@ -572,6 +597,7 @@ class AnaLogger
                 {
                     this.writeLogToDom(context, text);
                 }
+
                 output = `%c${text}`;
             }
             else
@@ -602,6 +628,11 @@ class AnaLogger
             else
             {
                 this.realConsoleLog(output);
+            }
+
+            if (context.format === "no")
+            {
+                this.realConsoleLog(args);
             }
 
             this.errorTargetHandler(context, args);
