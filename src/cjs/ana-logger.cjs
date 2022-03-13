@@ -550,7 +550,7 @@ class AnaLogger
         const n = args.length;
         for (let i = 0; i < n; ++i)
         {
-            text = stringify(args[i], null, 2);
+            text += stringify(args[i], null, 2);
             text += i < n - 1 ? EOL : "";
         }
 
