@@ -53,7 +53,7 @@ describe("The Browser", async function ()
         expect(url).to.equal(webPageTest);
     });
 
-    it("should load the correct js", async function ()
+    it("should have a reachable DOM", async function ()
     {
         const pageSource = await driver.getPageSource();
         expect(pageSource).to.contain("<body>");

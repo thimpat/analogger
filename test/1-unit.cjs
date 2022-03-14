@@ -118,6 +118,18 @@ describe("AnaLogger", function ()
             expect(output).to.contain("Test Log example C1");
         });
 
+        it("should display objects with circular references without raising exceptions", function ()
+        {
+            const circularReference = {otherData: 123};
+            circularReference.myself = circularReference;
+
+            // Act
+            anaLogger.log(LOG_CONTEXTS.DEFAULT, circularReference);
+
+            // Assert
+            expect(anaLogger.getLogHistory()).to.contain("[{\"otherData\":123,\"myself\":\"0\"}]");
+        });
+
         it("should understand values passed with context", function ()
         {
             // Act
