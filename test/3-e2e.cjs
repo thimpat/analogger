@@ -53,7 +53,7 @@ describe("The Browser", async function ()
         expect(url).to.equal(webPageTest);
     });
 
-    it("should load the correct js", async function ()
+    it("should have a reachable DOM", async function ()
     {
         const pageSource = await driver.getPageSource();
         expect(pageSource).to.contain("<body>");
@@ -70,7 +70,7 @@ describe("The Browser", async function ()
     {
         const element = driver.findElement(By.id("analogger"));
         const bodyText = await element.getText();
-        expect(bodyText).to.contain("DEFAULT: Basic Log example 1");
+        expect(bodyText).to.contain("Basic Log example 1");
     });
 
     after(  async function()

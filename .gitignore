@@ -76,3 +76,6 @@ dist
 /test-log.txt
 /generated/terminal/node_modules/
 /generated/browser/
+/generated/terminal/example/
+/generated/terminal/src/
+/generated/terminal/demo.mjs

@@ -84,3 +84,6 @@ todo.js
 /unrelated/
 test-log.txt
 /generated/browser/
+/generated/terminal/example/
+/generated/terminal/src/
+/generated/terminal/demo.mjs
