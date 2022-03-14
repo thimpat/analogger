@@ -600,14 +600,14 @@ class AnaLogger
             let args = Array.prototype.slice.call(arguments);
             args.shift();
 
-            if (context.format === "no")
-            {
+            // if (context.format === "no")
+            // {
+            //     message = this.convertArgumentsToText(args);
+            // }
+            // else
+            // {
                 message = this.convertArgumentsToText(args);
-            }
-            else
-            {
-                message = this.convertArgumentsToText(args);
-            }
+            // }
 
             let output = "";
             let text = this.format({...context, message});
@@ -654,10 +654,10 @@ class AnaLogger
                 this.realConsoleLog(output);
             }
 
-            if (context.format === "no")
-            {
-                this.realConsoleLog(args);
-            }
+            // if (context.format === "no")
+            // {
+            //     this.realConsoleLog(args);
+            // }
 
             this.errorTargetHandler(context, args);
         }
