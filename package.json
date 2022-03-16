@@ -3,12 +3,12 @@
   "version": "1.9.1",
   "description": "Js Logger",
   "main": "./src/cjs/ana-logger.cjs",
-  "module": "./generated/browser/ana-logger.mjs",
+  "module": "./generated/terminal/ana-logger.mjs",
   "type": "module",
   "exports": {
     ".": {
       "require": "./src/cjs/ana-logger.cjs",
-      "import": "./generated/browser/ana-logger.mjs"
+      "import": "./generated/terminal/ana-logger.mjs"
     }
   },
   "scripts": {
@@ -97,6 +97,7 @@
     "rgb-hex": "^4.0.0",
     "rgb-hex-cjs": "npm:rgb-hex@^3.0.0",
     "to-ansi": "^1.0.5",
-    "uglify-js": "^3.15.1"
+    "uglify-js": "^3.15.1",
+    "window-size": "^1.1.1"
   }
 }

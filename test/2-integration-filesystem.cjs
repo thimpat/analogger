@@ -43,6 +43,141 @@ describe("In the Terminal", function ()
             expect(captured.stdout).to.contain("Test Log example C1");
         });
 
+        describe("table", function ()
+        {
+            it("should display nothing when invoked with an empty array", function ()
+            {
+                const captured = capcon.captureStdio(function ()
+                {
+                    const arr = {};
+                    anaLogger.table(arr);
+                });
+
+                expect(captured.stdout).to.be.empty;
+            });
+
+            it("should display an array of objects in a table", function ()
+            {
+                const captured = capcon.captureStdio(function ()
+                {
+                    const arr = [
+                        {
+                            "serverName"      : "Nubia",
+                            "silent"          : false,
+                            "defaultPage"     : "index.html",
+                            "apiPort"         : "8082",
+                            "protocol"        : "http://",
+                            "host"            : "localhost",
+                            "port"            : 10040,
+                            "serverUrl"       : "http://localhost:10040/",
+                            "enableapi"       : true,
+                            "webServerStarted": true
+                        },
+                        {
+                            "serverName"      : "Lavern",
+                            "silent"          : false,
+                            "defaultPage"     : "index.html",
+                            "apiPort"         : "8082",
+                            "protocol"        : "http://",
+                            "host"            : "localhost",
+                            "port"            : 10040,
+                            "serverUrl"       : "http://localhost:10040/",
+                            "enableapi"       : true,
+                            "webServerStarted": true
+                        },
+                        {
+                            "serverName"      : "Kristal",
+                            "silent"          : false,
+                            "defaultPage"     : "index.html",
+                            "apiPort"         : "8082",
+                            "protocol"        : "http://",
+                            "host"            : "localhost",
+                            "port"            : 10040,
+                            "serverUrl"       : "http://localhost:10040/",
+                            "enableapi"       : true,
+                            "webServerStarted": true
+                        }
+                    ];
+                    anaLogger.table(arr);
+                });
+
+                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ apiPort │ protocol  │ host        │ port  │");
+            });
+
+            it("should display an array of objects in a smaller table", function ()
+            {
+                const captured = capcon.captureStdio(function ()
+                {
+                    const arr = [
+                        {
+                            "serverName"      : "Nubia",
+                            "silent"          : false,
+                            "defaultPage"     : "index.html",
+                            "apiPort"         : "8082",
+                            "protocol"        : "http://",
+                            "host"            : "localhost",
+                            "port"            : 10040,
+                            "serverUrl"       : "http://localhost:10040/",
+                            "enableapi"       : true,
+                            "webServerStarted": true
+                        },
+                    ];
+                    anaLogger.table(arr, {availableLength: 80, columnMaxChars: 10});
+                });
+
+                expect(captured.stdout).to.contain("Nubia  │ false  │ inde... │ 8082   │ htt... │ loca... │ 10040  │ http://... │...");
+            });
+
+            it("should display a complex object in a table", function ()
+            {
+                const captured = capcon.captureStdio(function ()
+                {
+                    const arr = {
+                            "Nubia"  : {
+                                "serverName"      : "Nubia",
+                                "silent"          : false,
+                                "defaultPage"     : "index.html",
+                                "apiPort"         : "8082",
+                                "protocol"        : "http://",
+                                "host"            : "localhost",
+                                "port"            : 10040,
+                                "serverUrl"       : "http://localhost:10040/",
+                                "enableapi"       : true,
+                                "webServerStarted": true
+                            },
+                            "Lavern" : {
+                                "serverName"      : "Lavern",
+                                "silent"          : false,
+                                "defaultPage"     : "index.html",
+                                "apiPort"         : "8082",
+                                "protocol"        : "http://",
+                                "host"            : "localhost",
+                                "port"            : 10040,
+                                "serverUrl"       : "http://localhost:10040/",
+                                "enableapi"       : true,
+                                "webServerStarted": true
+                            },
+                            "Kristal": {
+                                "serverName"      : "Kristal",
+                                "silent"          : false,
+                                "defaultPage"     : "index.html",
+                                "apiPort"         : "8082",
+                                "protocol"        : "http://",
+                                "host"            : "localhost",
+                                "port"            : 10040,
+                                "serverUrl"       : "http://localhost:10040/",
+                                "enableapi"       : true,
+                                "webServerStarted": true
+                            }
+                        };
+                    anaLogger.table(arr);
+                });
+
+                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ apiPort │ protocol  │ host        │ port  │");
+            });
+
+        });
+
         it("should hide console output when the console behaviour is overridden", function (done)
         {
             const captured = capcon.captureStdio(function ()
