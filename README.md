@@ -71,6 +71,52 @@ anaLogger.error(`I'am some log`);
 ```
 <br/>
 
+### table()
+
+Display data in tabular format on the terminal.
+
+```javascript
+    const table = [
+    {
+        "serverName"      : "Nubia",
+        "silent"          : false,
+        "defaultPage"     : "index.html",
+        "port"            : 10040,
+        "serverUrl"       : "http://localhost:10040/",
+    },
+    {
+        "serverName"      : "Lavern",
+        "silent"          : false,
+        "defaultPage"     : "index.html",
+        "port"            : 10050,
+        "serverUrl"       : "http://localhost:10050/",
+    },
+    {
+        "serverName"      : "Kristal",
+        "silent"          : false,
+        "defaultPage"     : "index.html",
+        "host"            : "localhost",
+        "port"            : 10060,
+        "serverUrl"       : "http://localhost:10060/",
+    }
+];
+anaLogger.table(table);
+```
+
+<br/>
+
+Result:
+
+```shell
+serverName │ silent │ defaultPage  │ port  │ serverUrl                 │                                       
+────────── │ ────── │ ──────────── │ ───── │ ───────────────────────── │                                       
+Nubia      │ false  │ index.html   │ 10040 │ http://localhost:10040/   │                                       
+Lavern     │ false  │ index.html   │ 10050 │ http://localhost:10050/   │                                       
+Kristal    │ false  │ index.html   │ 10060 │ http://localhost:10060/   │ 
+```
+
+<br/>
+
 ### alert()
 
 ```javascript
