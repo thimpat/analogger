@@ -1,20 +1,28 @@
+let terminalSize = {};
+
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+terminalSize = require("window-size");
 /** to-esm-browser: end-remove **/
+
+/** to-esm-browser: add
+terminalSize = {}
+ **/
 
 const toAnsi = require("to-ansi");
 const rgbHex = require("rgb-hex-cjs");
+
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 const PREDEFINED_CONTEXT_NAMES = {
     "DEFAULT": "DEFAULT",
-    "ERROR": "ERROR"
+    "ERROR"  : "ERROR"
 };
 
 const {stringify} = require("flatted");
 
-const EOL =`
+const EOL = `
 `;
 
 class AnaLogger
@@ -46,6 +54,8 @@ class AnaLogger
     #realConsoleWarn = console.warn;
     #realConsoleError = console.error;
 
+    isBrowser0 = null;
+
     static ALIGN = {
         LEFT : "LEFT",
         RIGHT: "RIGHT"
@@ -62,6 +72,7 @@ class AnaLogger
     {
         if (AnaLogger.Instance)
         {
+            /* istanbul ignore next */
             return AnaLogger.Instance;
         }
 
@@ -85,6 +96,17 @@ class AnaLogger
         console.rawInfo = this.#realConsoleInfo;
         console.rawWarn = this.#realConsoleWarn;
         console.rawError = this.#realConsoleError;
+
+        console.table = this.table;
+        console.buildTable = this.buildTable;
+        console.isNode = this.isNode;
+        console.isBrowser = this.isBrowser;
+        console.truncateMessage = this.truncateMessage;
+        console.rawLog = this.rawLog;
+        console.rawInfo = this.rawInfo;
+        console.rawWarn = this.rawWarn;
+        console.rawError = this.rawError;
+        console.isBrowser0 = this.system === SYSTEM.BROWSER;
 
         this.ALIGN = AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE;
@@ -135,44 +157,34 @@ class AnaLogger
 
     resetLogger()
     {
-        this.options = {
-            contextLenMax       : 10,
-            idLenMax            : 5,
-            lidLenMax           : 5,
-            symbolLenMax        : 2,
-            messageLenMax       : undefined,
-            hideLog             : undefined,
-            hideError           : undefined,
-            hideHookMessage     : undefined,
-            hidePassingTests    : undefined,
-            logToDom            : undefined,
-            logToFile           : undefined,
-            oneConsolePerContext: undefined,
-            silent              : undefined
-        };
+        this.options = {};
+        this.options.timeLenMax = 10;
+        this.options.contextLenMax = 10;
+        this.options.idLenMax = 5;
+        this.options.lidLenMax = 6;
+        this.options.messageLenMax = undefined;
+        this.options.symbolLenMax = 60;
+        this.options.hideHookMessage = undefined;
+        this.options.hidePassingTests = undefined;
+        this.options.hideLog = undefined;
+        this.options.hideError = undefined;
+        this.options.oneConsolePerContext = true;
+        this.options.logToDom = undefined;
+        this.options.logToFile = undefined;
+        this.options.logToDomlogToFile = undefined;
+        this.options.silent = false;
+
     }
 
     resetOptions()
     {
-        this.options.contextLenMax = 10;
-        this.options.idLenMax = 5;
-        this.options.lidLenMax = 5;
-        this.options.messageLenMax = undefined;
-        this.options.symbolLenMax = 60;
-        this.options.hideHookMessage = false;
-        this.options.hidePassingTests = false;
-        this.options.hideLog = false;
-        this.options.hideError = false;
-        this.options.oneConsolePerContext = true;
-        this.options.logToDom = undefined;
-        this.options.logToDomlogToFile = undefined;
-        this.options.silent = false;
+        this.resetLogger();
     }
 
     setOptions({
                    contextLenMax = 10,
                    idLenMax = 5,
-                   lidLenMax = 5,
+                   lidLenMax = 6,
                    symbolLenMax = 2,
                    messageLenMax = undefined,
                    hideLog = undefined,
@@ -230,7 +242,7 @@ class AnaLogger
                 /** to-esm-browser: remove **/
                 // these require won't get compiled by to-esm
                 this.options.logToFilePath = path.resolve(this.options.logToFile);
-                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags : "a"});
+                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags: "a"});
                 this.EOL = os.EOL;
                 /** to-esm-browser: end-remove **/
             }
@@ -254,16 +266,160 @@ class AnaLogger
         return this.options;
     }
 
-    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT} = {})
+    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT, ellipsis = "..."} = {})
     {
         input = "" + input;
-        if (fit && input.length >= fit + 2)
+        if (fit && input.length > fit)
         {
-            input = input.substring(0, fit - 3) + "...";
+            input = input.substring(0, fit - ellipsis.length) + ellipsis;
         }
 
         input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
         return input;
+    }
+
+    /**
+     * Display data
+     * @param {any[]} table
+     * @param ellipsis
+     * @param ColumnMinChars
+     * @param columnMaxChars
+     * @param verticalSeparator
+     * @param horizontalSeparator
+     * @param availableLength
+     */
+    buildTable(table, {
+        ellipsis = "...",
+        ColumnMinChars = 6,
+        columnMaxChars = 0,
+        verticalSeparator = " │ ",
+        horizontalSeparator = "─",
+        availableLength = 0
+    } = {})
+    {
+        let text = "";
+
+        const isArray = Array.isArray(table);
+        if (!isArray)
+        {
+            table = Object.values(Object.values(table));
+        }
+        
+        if (!table || !table.length)
+        {
+            return "";
+        }
+
+        const firstLine = table[0];
+        const titles = Object.keys(firstLine);
+        table.unshift(titles);
+
+        horizontalSeparator = horizontalSeparator.repeat(100);
+
+        const fits = {};
+        for (let i = 1; i < table.length; ++i)
+        {
+            const line = table[i];
+            for (let ii = 0; ii < titles.length; ++ii)
+            {
+                const colName = titles[ii];
+                const colContent = line[colName];
+
+                fits[colName] = fits[colName] || 0;
+                let colLength;
+                try
+                {
+                    colLength = JSON.stringify(colContent).length;
+                }
+                catch (e)
+                {
+                }
+
+                colLength = colLength || ColumnMinChars;
+                fits[colName] = Math.max(fits[colName], colLength, colName.length);
+            }
+        }
+
+        if (!this.isBrowser0)
+        {
+            terminalSize = terminalSize || {};
+
+            if (!availableLength)
+            {
+                availableLength = terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
+            }
+        }
+
+        let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
+        if (availableLength < totalLength)
+        {
+            const ratio = (availableLength) / totalLength;
+            for (let key in fits)
+            {
+                fits[key] = Math.floor(fits[key] * ratio) - 1;
+                if (ColumnMinChars && fits[key] < ColumnMinChars)
+                {
+                    fits[key] = ColumnMinChars;
+                }
+
+                if (columnMaxChars && fits[key] > columnMaxChars)
+                {
+                    fits[key] = columnMaxChars;
+                }
+
+                fits[key] = fits[key];
+            }
+
+        }
+
+        let strLine;
+
+        // Titles
+        strLine = "";
+        for (let i = 0; i < titles.length; ++i)
+        {
+            const colName = titles[i];
+            const fit = fits[colName];
+            strLine += this.truncateMessage(colName, {fit, ellipsis});
+            strLine += verticalSeparator;
+        }
+        text += this.truncateMessage(strLine, {fit: availableLength});
+        text += EOL;
+
+        // Separators
+        strLine = "";
+        const colContent = horizontalSeparator;
+        for (let i = 0; i < titles.length; ++i)
+        {
+            const colName = titles[i];
+            const fit = fits[colName];
+            strLine += this.truncateMessage(colContent, {fit, ellipsis: ""});
+            strLine += verticalSeparator;
+        }
+        text += this.truncateMessage(strLine, {fit: availableLength});
+        text += EOL;
+
+        // Content
+        for (let i = 1; i < table.length; ++i)
+        {
+            strLine = "";
+            const line = table[i];
+            for (let ii = 0; ii < titles.length; ++ii)
+            {
+                const colName = titles[ii];
+                const colContent = line[colName];
+                const fit = fits[colName];
+
+                strLine += this.truncateMessage(colContent, {fit, ellipsis});
+                strLine += verticalSeparator;
+            }
+            text += this.truncateMessage(strLine, {fit: availableLength});
+            text += EOL;
+        }
+
+        this.rawLog(text);
+
+        return text;
     }
 
     /**
@@ -283,9 +439,11 @@ class AnaLogger
         let time = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
 
         // Display content in columns
-        time = this.truncateMessage(time, {fit: 7});
-        contextName = this.truncateMessage(contextName, {fit: this.options.contextLenMax, align: AnaLogger.ALIGN.RIGHT});
-        // id = this.truncateMessage(id, {fit: this.options.idLenMax})
+        time = this.truncateMessage(time, {fit: this.options.timeLenMax});
+        contextName = this.truncateMessage(contextName, {
+            fit  : this.options.contextLenMax,
+            align: AnaLogger.ALIGN.RIGHT
+        });
         lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
 
         if (this.options.messageLenMax !== undefined)
@@ -543,7 +701,7 @@ class AnaLogger
             $line.setAttribute("data-log-counter", this.logCounter);
             $line.setAttribute("data-log-index", this.logIndex);
 
-            this.setColumns($line ,context, text);
+            this.setColumns($line, context, text);
 
             $view.append($line);
         }
@@ -610,17 +768,11 @@ class AnaLogger
             let args = Array.prototype.slice.call(arguments);
             args.shift();
 
-            // if (context.format === "no")
-            // {
-            //     message = this.convertArgumentsToText(args);
-            // }
-            // else
-            // {
-                message = this.convertArgumentsToText(args);
-            // }
+            message = this.convertArgumentsToText(args);
 
             let output = "";
-            let text = this.format({...context, message});
+            let text = "";
+            text = this.format({...context, message});
 
             ++this.logCounter;
 
@@ -664,11 +816,6 @@ class AnaLogger
                 this.#realConsoleLog(output);
             }
 
-            // if (context.format === "no")
-            // {
-            //     this.#realConsoleLog(args);
-            // }
-
             this.errorTargetHandler(context, args);
         }
         catch (e)
@@ -699,7 +846,7 @@ class AnaLogger
     convertToContext(options, defaultContext)
     {
         defaultContext = defaultContext || this.generateDefaultContext();
-        options  = options || defaultContext;
+        options = options || defaultContext;
         let context = options;
         if (options.context && typeof options.context === "object")
         {
@@ -830,6 +977,11 @@ class AnaLogger
         return this.log(...args);
     }
 
+    table(...args)
+    {
+        return this.buildTable(...args);
+    }
+
     alert(...args)
     {
         if (this.isNode())
@@ -886,5 +1038,6 @@ class AnaLogger
 
 }
 
-module.exports = new AnaLogger();
-module.exports.anaLogger = new AnaLogger();
+const anaLogger = new AnaLogger();
+module.exports = anaLogger;
+module.exports.anaLogger = anaLogger;
