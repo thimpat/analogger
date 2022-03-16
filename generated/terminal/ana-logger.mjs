@@ -51,6 +51,11 @@ class AnaLogger
         hideHookMessage: false
     };
 
+    #realConsoleLog = console.log;
+    #realConsoleInfo = console.info;
+    #realConsoleWarn = console.warn;
+    #realConsoleError = console.error;
+
     static ALIGN = {
         LEFT : "LEFT",
         RIGHT: "RIGHT"
@@ -81,10 +86,15 @@ class AnaLogger
 
         this.setOptions(this.options);
 
-        this.realConsoleLog = console.log;
-        this.realConsoleInfo = console.info;
-        this.realConsoleWarn = console.warn;
-        this.realConsoleError = console.error;
+        this.rawLog = this.#realConsoleLog;
+        this.rawInfo = this.#realConsoleInfo;
+        this.rawWarn = this.#realConsoleWarn;
+        this.rawError = this.#realConsoleError;
+
+        console.rawLog = this.#realConsoleLog;
+        console.rawInfo = this.#realConsoleInfo;
+        console.rawWarn = this.#realConsoleWarn;
+        console.rawError = this.#realConsoleError;
 
         this.ALIGN = AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE;
@@ -236,7 +246,7 @@ class AnaLogger
             }
 
             /** to-esm-browser: add
-             this.realConsoleLog("LogToFile is not supported in this environment. ")
+             this.#realConsoleLog("LogToFile is not supported in this environment. ")
              **/
 
         }
@@ -556,14 +566,39 @@ class AnaLogger
 
     convertArgumentsToText(args)
     {
-        let text = "";
+        const strs = [];
+        let text;
         const n = args.length;
         for (let i = 0; i < n; ++i)
         {
-            text = stringify(args[i], null, 2);
-            text += i < n - 1 ? EOL : "";
+            let str;
+            let arg = args[i];
+
+            try
+            {
+                str = JSON.stringify(arg);
+            }
+            catch (e)
+            {
+
+            }
+
+            if (!str)
+            {
+                try
+                {
+                    str = stringify(arg);
+                }
+                catch (e)
+                {
+
+                }
+            }
+
+            strs.push(str);
         }
 
+        text = strs.join("•");
         return text;
     }
 
@@ -585,15 +620,14 @@ class AnaLogger
             let args = Array.prototype.slice.call(arguments);
             args.shift();
 
-            if (context.format === "no")
-            {
+            // if (context.format === "no")
+            // {
+            //     message = this.convertArgumentsToText(args);
+            // }
+            // else
+            // {
                 message = this.convertArgumentsToText(args);
-            }
-            else
-            {
-                // message = args.join(" | ");
-                message = this.convertArgumentsToText(args);
-            }
+            // }
 
             let output = "";
             let text = this.format({...context, message});
@@ -633,17 +667,17 @@ class AnaLogger
 
             if (this.isBrowser())
             {
-                this.realConsoleLog(output, `color: ${context.color}`);
+                this.#realConsoleLog(output, `color: ${context.color}`);
             }
             else
             {
-                this.realConsoleLog(output);
+                this.#realConsoleLog(output);
             }
 
-            if (context.format === "no")
-            {
-                this.realConsoleLog(args);
-            }
+            // if (context.format === "no")
+            // {
+            //     this.#realConsoleLog(args);
+            // }
 
             this.errorTargetHandler(context, args);
         }
@@ -734,7 +768,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog("AnaLogger: Hook placed on console.error");
+            this.#realConsoleLog("AnaLogger: Hook placed on console.error");
         }
         console.error = this.onDisplayError.bind(this);
     }
@@ -743,7 +777,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog("AnaLogger: Hook placed on console.log");
+            this.#realConsoleLog("AnaLogger: Hook placed on console.log");
         }
 
         if (log)
@@ -769,24 +803,24 @@ class AnaLogger
 
     removeOverrideError()
     {
-        console.warn = this.realConsoleError;
+        console.warn = this.#realConsoleError;
     }
 
     removeOverride({log = true, info = true, warn = true, error = false} = {})
     {
         if (log)
         {
-            console.log = this.realConsoleLog;
+            console.log = this.#realConsoleLog;
         }
 
         if (info)
         {
-            console.info = this.realConsoleInfo;
+            console.info = this.#realConsoleInfo;
         }
 
         if (warn)
         {
-            console.warn = this.realConsoleWarn;
+            console.warn = this.#realConsoleWarn;
         }
 
         if (error)

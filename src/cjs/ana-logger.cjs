@@ -41,6 +41,11 @@ class AnaLogger
         hideHookMessage: false
     };
 
+    #realConsoleLog = console.log;
+    #realConsoleInfo = console.info;
+    #realConsoleWarn = console.warn;
+    #realConsoleError = console.error;
+
     static ALIGN = {
         LEFT : "LEFT",
         RIGHT: "RIGHT"
@@ -71,10 +76,15 @@ class AnaLogger
 
         this.setOptions(this.options);
 
-        this.realConsoleLog = console.log;
-        this.realConsoleInfo = console.info;
-        this.realConsoleWarn = console.warn;
-        this.realConsoleError = console.error;
+        this.rawLog = this.#realConsoleLog;
+        this.rawInfo = this.#realConsoleInfo;
+        this.rawWarn = this.#realConsoleWarn;
+        this.rawError = this.#realConsoleError;
+
+        console.rawLog = this.#realConsoleLog;
+        console.rawInfo = this.#realConsoleInfo;
+        console.rawWarn = this.#realConsoleWarn;
+        console.rawError = this.#realConsoleError;
 
         this.ALIGN = AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE;
@@ -226,7 +236,7 @@ class AnaLogger
             }
 
             /** to-esm-browser: add
-             this.realConsoleLog("LogToFile is not supported in this environment. ")
+             this.#realConsoleLog("LogToFile is not supported in this environment. ")
              **/
 
         }
@@ -647,16 +657,16 @@ class AnaLogger
 
             if (this.isBrowser())
             {
-                this.realConsoleLog(output, `color: ${context.color}`);
+                this.#realConsoleLog(output, `color: ${context.color}`);
             }
             else
             {
-                this.realConsoleLog(output);
+                this.#realConsoleLog(output);
             }
 
             // if (context.format === "no")
             // {
-            //     this.realConsoleLog(args);
+            //     this.#realConsoleLog(args);
             // }
 
             this.errorTargetHandler(context, args);
@@ -748,7 +758,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog("AnaLogger: Hook placed on console.error");
+            this.#realConsoleLog("AnaLogger: Hook placed on console.error");
         }
         console.error = this.onDisplayError.bind(this);
     }
@@ -757,7 +767,7 @@ class AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.realConsoleLog("AnaLogger: Hook placed on console.log");
+            this.#realConsoleLog("AnaLogger: Hook placed on console.log");
         }
 
         if (log)
@@ -783,24 +793,24 @@ class AnaLogger
 
     removeOverrideError()
     {
-        console.warn = this.realConsoleError;
+        console.warn = this.#realConsoleError;
     }
 
     removeOverride({log = true, info = true, warn = true, error = false} = {})
     {
         if (log)
         {
-            console.log = this.realConsoleLog;
+            console.log = this.#realConsoleLog;
         }
 
         if (info)
         {
-            console.info = this.realConsoleInfo;
+            console.info = this.#realConsoleInfo;
         }
 
         if (warn)
         {
-            console.warn = this.realConsoleWarn;
+            console.warn = this.#realConsoleWarn;
         }
 
         if (error)
