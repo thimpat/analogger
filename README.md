@@ -129,6 +129,18 @@ Remove overridden console methods
 
 <br/>
 
+### rawLog() | rawInfo() | rawWarn() | rawInfo()
+
+Use native console format after overrides.
+
+```javascript
+anaLogger.overrideConsole();
+console.log(`Example 1`);              // <= Will use new format
+console.rawLog(`Example 2`);           // <= Will use native format
+```
+
+<br/>
+
 ### setContexts()
 
 #### Contexts
