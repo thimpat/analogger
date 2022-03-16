@@ -216,7 +216,7 @@ describe("AnaLogger", function ()
             }, "The super long Log ID (lid) will be truncated");
 
             // Assert
-            expect(anaLogger.getLogHistory()).to.contain("C1: (12...)");
+            expect(anaLogger.getLogHistory()).to.contain("C1: (123...)");
         });
 
 
@@ -263,6 +263,54 @@ describe("AnaLogger", function ()
         it("should display some warn", function ()
         {
             anaLogger.warn("Hello from warn");
+            expect(anaLogger.getLogHistory()).to.contain("Hello from warn");
+        });
+    });
+
+    describe.skip("#table()", function ()
+    {
+        it("should display an array of object in a table", function ()
+        {
+            const arr = {
+                "Nubia" : {
+                    "serverName" : "Nubia",
+                    "silent" : false,
+                    "defaultPage" : "index.html",
+                    "apiPort" : "8082",
+                    "protocol" : "http://",
+                    "host" : "localhost",
+                    "port" : 10040,
+                    "serverUrl" : "http://localhost:10040/",
+                    "enableapi" : true,
+                    "webServerStarted" : true
+                },
+                "Lavern" : {
+                    "serverName" : "Lavern",
+                    "silent" : false,
+                    "defaultPage" : "index.html",
+                    "apiPort" : "8082",
+                    "protocol" : "http://",
+                    "host" : "localhost",
+                    "port" : 10040,
+                    "serverUrl" : "http://localhost:10040/",
+                    "enableapi" : true,
+                    "webServerStarted" : true
+                },
+                "Kristal" : {
+                    "serverName" : "Kristal",
+                    "silent" : false,
+                    "defaultPage" : "index.html",
+                    "apiPort" : "8082",
+                    "protocol" : "http://",
+                    "host" : "localhost",
+                    "port" : 10040,
+                    "serverUrl" : "http://localhost:10040/",
+                    "enableapi" : true,
+                    "webServerStarted" : true
+                }
+            };
+
+            anaLogger.table(arr);
             expect(anaLogger.getLogHistory()).to.contain("Hello from warn");
         });
     });
@@ -390,7 +438,7 @@ describe("AnaLogger", function ()
             );
             anaLogger.resetLogFormatter();
             anaLogger.log(LOG_CONTEXTS.C1, "Test Log example C4 with new format");
-            expect(anaLogger.getLogHistory()).to.contain("C1: (     )");
+            expect(anaLogger.getLogHistory()).to.contain("C1: (      )    \"Test Log example C4 with new format\"");
         });
 
         it("should reject invalid formatters", () =>
