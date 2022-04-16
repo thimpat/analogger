@@ -101,7 +101,7 @@ describe("In the Terminal", function ()
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ apiPort │ protocol  │ host        │ port  │");
+                expect(captured.stdout).to.contain("serve... │ silent │ default... │ api... │ prot... │ host");
             });
 
             it("should display an array of objects in a smaller table", function ()
@@ -125,7 +125,7 @@ describe("In the Terminal", function ()
                     anaLogger.table(arr, {availableLength: 80, columnMaxChars: 10});
                 });
 
-                expect(captured.stdout).to.contain("Nubia  │ false  │ inde... │ 8082   │ htt... │ loca... │ 10040  │ http://... │...");
+                expect(captured.stdout).to.contain("Nubia  │ false  │ inde... │ 8082   │ htt... │ loc... │ 10040");
             });
 
             it("should display a complex object in a table", function ()
@@ -173,7 +173,7 @@ describe("In the Terminal", function ()
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ apiPort │ protocol  │ host        │ port  │");
+                expect(captured.stdout).to.contain("Nubia    │ false  │ index.html │ 8082   │ http:// │ localhost │ 10040  │ http://localhost:10040/");
             });
 
         });
