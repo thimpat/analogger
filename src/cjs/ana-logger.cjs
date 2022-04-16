@@ -350,6 +350,8 @@ class AnaLogger
             }
         }
 
+        availableLength = availableLength - 4;
+
         let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
         if (availableLength < totalLength)
         {
