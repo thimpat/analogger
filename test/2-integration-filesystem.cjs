@@ -1,5 +1,5 @@
 const chai = require("chai");
-var capcon = require("capture-console");
+const capcon = require("capture-console");
 const {anaLogger} = require("../src/cjs/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/cjs/contexts-def.cjs");
 const fs = require("fs");
@@ -11,6 +11,11 @@ describe("In the Terminal", function ()
     {
         anaLogger.setContexts(LOG_CONTEXTS);
         anaLogger.setTargets(LOG_TARGETS);
+
+        if (fs.existsSync("./test-log.txt"))
+        {
+            fs.unlinkSync("./test-log.txt");
+        }
     });
 
     after(()=>
@@ -230,7 +235,7 @@ describe("In the Terminal", function ()
 
         it("should write logs to a file when logToFile is on", function ()
         {
-            anaLogger.setOptions({silent: true, logToFile: "./test-log.txt"});
+            anaLogger.setOptions({silent: false, logToFile: "./test-log.txt"});
             anaLogger.log("Test Log example with DEFAULT target");
 
             const content = fs.readFileSync("./test-log.txt", "utf-8");
