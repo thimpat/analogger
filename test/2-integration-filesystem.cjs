@@ -65,43 +65,31 @@ describe("In the Terminal", function ()
                             "serverName"      : "Nubia",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                         {
                             "serverName"      : "Lavern",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                         {
                             "serverName"      : "Kristal",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         }
                     ];
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("serve... │ silent │ default... │ api... │ prot... │ host");
+                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ protocol  │ host        │ port  │");
             });
 
             it("should display an array of objects in a smaller table", function ()
@@ -113,19 +101,15 @@ describe("In the Terminal", function ()
                             "serverName"      : "Nubia",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                     ];
                     anaLogger.table(arr, {availableLength: 80, columnMaxChars: 10});
                 });
 
-                expect(captured.stdout).to.contain("Nubia  │ false  │ inde... │ 8082   │ htt... │ loc... │ 10040");
+                expect(captured.stdout).to.contain("Nubia      │ false  │ index.html   │ http://   │ localhost   │ 10040 │");
             });
 
             it("should display a complex object in a table", function ()
@@ -137,43 +121,31 @@ describe("In the Terminal", function ()
                                 "serverName"      : "Nubia",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             },
                             "Lavern" : {
                                 "serverName"      : "Lavern",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             },
                             "Kristal": {
                                 "serverName"      : "Kristal",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             }
                         };
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("Nubia    │ false  │ index.html │ 8082   │ http:// │ localhost │ 10040  │ http://localhost:10040/");
+                expect(captured.stdout).to.contain("Kristal    │ false  │ index.html   │ http://   │ localhost   │ 10040 │");
             });
 
         });
