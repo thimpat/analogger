@@ -5,6 +5,9 @@ const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const {By, until} = require("selenium-webdriver");
 const chromium = require("chromium");
+const {startGenServer, stopGenServer} = require("genserve");
+
+const SERVER_NAME = "ci-test-analogger";
 
 require("chromedriver");
 
@@ -23,6 +26,15 @@ const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
 
 async function init()
 {
+    // Start the server
+    // $> genserve.cmd start ci-analogger --port 9880 --dir ./
+    const serverStarted = await startGenServer({name: SERVER_NAME, port: 9880});
+    if (!serverStarted)
+    {
+        console.error("Failed to start server");
+        process.exit(1);
+    }
+
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
     options.addArguments("--headless");
@@ -76,6 +88,8 @@ describe("The Browser", async function ()
     after(  async function()
     {
         driver.quit();
+
+        await stopGenServer({name: SERVER_NAME});
     });
 
 });

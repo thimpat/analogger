@@ -352,6 +352,8 @@ class AnaLogger
         availableLength = availableLength - 4;
 
         let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
+
+        /* istanbul ignore next */
         if (availableLength < totalLength)
         {
             const ratio = (availableLength) / totalLength;
@@ -716,6 +718,7 @@ class AnaLogger
         }
         catch (e)
         {
+            /* istanbul ignore next */
             console.rawError("LOG_TO_FILE_FAILURE: ", e.message);
         }
     }
