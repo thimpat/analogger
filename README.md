@@ -17,6 +17,10 @@ It serves as a packaging example of **hybrid (CJS/ESM) module**.
 npm install analogger
 ```
 
+<br/>
+
+---
+
 ## Usage
 
 ### In NodeJS
@@ -39,6 +43,9 @@ import {anaLogger} from "analogger"
 
 <br/>
 
+---
+
+
 ### Preview
 
 #### Terminal
@@ -55,6 +62,9 @@ import {anaLogger} from "analogger"
 
 <br/>
 
+---
+
+
 ## API
 
 <br/>
@@ -70,6 +80,9 @@ anaLogger.warn(`I'am some log`);
 anaLogger.error(`I'am some log`);
 ```
 <br/>
+
+---
+
 
 ### table()
 
@@ -117,6 +130,9 @@ Kristal    │ false  │ index.html   │ 10060 │ http://localhost:10060/   �
 
 <br/>
 
+---
+
+
 ### alert()
 
 ```javascript
@@ -130,22 +146,43 @@ Display the browser native message box if run from it; otherwise, it displays th
 ### setOptions()
 
 
-| **Options**      | **default** | **Expect**   | **Description**                                                                    | 
-|------------------|-------------|--------------|------------------------------------------------------------------------------------|
-| silent           | false       |  boolean       | _No log will be displayed (only errors)_                                           |
-| hideError        | false       | boolean | _Hide errors from console_                                                         |              
-| hideHookMessage  | false       | boolean | _Hide the automatic message shown when some native console methods are overridden_ |
-| hidePassingTests | false       | boolean | _Hide Live test results_                                                           |           
+| **Options**      | **default** | **Expect**            | **Description**                                                                    | 
+|------------------|-------------|-----------------------|------------------------------------------------------------------------------------|
+| silent           | false       | boolean               | _No log will be displayed (only errors)_                                           |
+| hideLog          | false       | boolean               | _Hide logs from console_                                                           |              
+| hideError        | false       | boolean               | _Hide errors from console_                                                         |              
+| hideHookMessage  | false       | boolean               | _Hide the automatic message shown when some native console methods are overridden_ |
+| hidePassingTests | false       | boolean               | _Hide Live test results_                                                           |           
 | logToDom         | false       | string (DOM Selector) | _display log in a DOM container_                                                   |
-| logToFile        | false       | string (File path) | _write log to a file if running from Node_                                         |
+| logToFile        | false       | string (File path)    | _write log to a file if running from Node_                                         |
 
 
 ```javascript
 // No hook alert message + Log messages in the div #analogger
 anaLogger.setOptions({hideHookMessage: true, logToDom: "#analogger"})
 ```
+<br/>
+<br/>
+
+#### Examples
+
+##### Write logs to file only
+
+```javascript
+anaLogger.setOptions({silent: true, logToFile: logFilePath});
+```
 
 <br/>
+
+##### Write logs to both file and console
+
+```javascript
+anaLogger.setOptions({silent: false, logToFile: logFilePath});
+```
+
+<br/>
+
+---
 
 ### overrideConsole()
 
@@ -163,17 +200,25 @@ either.
 
 <br/>
 
+---
+
 ### overrideError()
 
 Same as above, but for errors (console.error)
 
 <br/>
 
+---
+
+
 ### removeOverride() | removeOverrideError()
 
 Remove overridden console methods
 
 <br/>
+
+---
+
 
 ### rawLog() | rawInfo() | rawWarn() | rawInfo()
 
@@ -186,6 +231,9 @@ console.rawLog(`Example 2`);           // <= Will use native format
 ```
 
 <br/>
+
+---
+
 
 ### setContexts()
 
@@ -224,6 +272,9 @@ The "Testing log 2" log will not show up in the console or the terminal.
 
 <br/>
 
+---
+
+
 ### setTargets() / setActiveTarget()
 
 #### Targets
@@ -249,7 +300,10 @@ anaLogger.log(`Testing log 4`);                                       // You wil
 anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will see this
 ```
 
-<br/><br/>
+<br/>
+
+---
+
 
 ### assert()
 
@@ -264,7 +318,10 @@ anaLogger.assert(()=>true, true)
 anaLogger.assert((a, b)=> a === b, true, 2, 2)
 ```
 
-<br/><br/>
+<br/>
+
+---
+
 
 ### setErrorHandlerForUserTarget()
 
