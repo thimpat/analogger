@@ -1,7 +1,10 @@
 const chai = require("chai");
-const assertArrays = require("chai-arrays");
+
 const expect = chai.expect;
 const sinon = require("sinon");
+
+const spies = require("chai-spies");
+const assertArrays = require("chai-arrays");
 
 /**
  * TEST CONFIGURATION FILE
@@ -14,11 +17,10 @@ let alert;
 const myStub = {
     myMethod: () =>
     {
-    }
+        process.stdout.write("");
+    },
 };
 
-
-const spies = require("chai-spies");
 
 chai.use(spies);
 chai.use(assertArrays);
@@ -52,7 +54,7 @@ describe("AnaLogger", function ()
         anaLogger.resetLogFormatter();
     });
 
-    afterEach(()=>
+    afterEach(() =>
     {
         chai.spy.restore(myStub.myMethod);
     });
@@ -267,52 +269,62 @@ describe("AnaLogger", function ()
         });
     });
 
-    describe.skip("#table()", function ()
+    describe("#table()", function ()
     {
-        it("should display an array of object in a table", function ()
+        let data;
+        before(() =>
         {
-            const arr = {
-                "Nubia" : {
+            data = {
+                "Nubia"  : {
                     "serverName" : "Nubia",
-                    "silent" : false,
-                    "defaultPage" : "index.html",
-                    "apiPort" : "8082",
-                    "protocol" : "http://",
-                    "host" : "localhost",
-                    "port" : 10040,
-                    "serverUrl" : "http://localhost:10040/",
-                    "enableapi" : true,
-                    "webServerStarted" : true
+                    "defaultPage": "index.html",
                 },
                 "Lavern" : {
                     "serverName" : "Lavern",
-                    "silent" : false,
-                    "defaultPage" : "index.html",
-                    "apiPort" : "8082",
-                    "protocol" : "http://",
-                    "host" : "localhost",
-                    "port" : 10040,
-                    "serverUrl" : "http://localhost:10040/",
-                    "enableapi" : true,
-                    "webServerStarted" : true
+                    "defaultPage": "index.html",
                 },
-                "Kristal" : {
+                "Kristal": {
                     "serverName" : "Kristal",
-                    "silent" : false,
-                    "defaultPage" : "index.html",
-                    "apiPort" : "8082",
-                    "protocol" : "http://",
-                    "host" : "localhost",
-                    "port" : 10040,
-                    "serverUrl" : "http://localhost:10040/",
-                    "enableapi" : true,
-                    "webServerStarted" : true
+                    "defaultPage": "index.html",
                 }
             };
 
-            anaLogger.table(arr);
-            expect(anaLogger.getLogHistory()).to.contain("Hello from warn");
         });
+
+        it("should invoke the callback onCompleteHeaders", function ()
+        {
+            anaLogger.table(data, {onCompleteHeaders: myStub.myMethod});
+            expect(myStub.myMethod).to.have.been.called.with(
+                "serverName │ defaultPage  │ ",
+                ["serverName", "defaultPage"]
+            );
+        });
+
+        it("should invoke the callback onCompleteSeparators", function ()
+        {
+
+            anaLogger.table(data, {onCompleteSeparators: myStub.myMethod});
+            expect(myStub.myMethod).to.have.been.called();
+        });
+
+        it("should invoke the callback onCompleteLines three times", function ()
+        {
+            anaLogger.table(data, {onCompleteLines: myStub.myMethod});
+            expect(myStub.myMethod).to.have.been.called.exactly(3);
+        });
+
+        it("should invoke onCompleteLines with the correct arguments", function ()
+        {
+            anaLogger.table(data, {onCompleteLines: myStub.myMethod});
+            expect(myStub.myMethod).to.have.been.third.called.with(
+                "Kristal    │ index.html   │ ",
+                {
+                "defaultPage": "index.html",
+                "serverName": "Kristal"
+            }
+            );
+        });
+
     });
 
     describe("#alert()", function ()
@@ -409,26 +421,26 @@ describe("AnaLogger", function ()
 
     describe("#setLogFormat()", function ()
     {
+        beforeEach(function ()
+        {
+        });
+
+        afterEach(function ()
+        {
+            chai.spy.restore(myStub.myMethod);
+        });
+
         /**
          * We use a spy here, but things would have been straightforward with a simple "done" + async on the "it"
          */
         it("should replace the default formatter function with the given callback when invoking console.log", function ()
         {
-            beforeEach(function ()
-            {
-            });
-
-            afterEach(function ()
-            {
-                chai.spy.restore(myStub.myMethod);
-            });
-
             anaLogger.setLogFormat(
                 myStub.myMethod
             );
 
             console.log(LOG_CONTEXTS.C1, "Test Log example C4 with new format");
-            expect(myStub.myMethod).to.have.been.called;
+            expect(myStub.myMethod).to.have.been.called();
         });
 
         it("should reset the formatter to its first value", () =>
@@ -484,9 +496,13 @@ describe("AnaLogger", function ()
 
     describe("#setErrorHandlerForUserTarget()", function ()
     {
-        it("should replace the error manager targeting the user", function ()
+        before(() =>
         {
             anaLogger.resetOptions();
+        });
+        
+        it("should replace the error manager targeting the user", function ()
+        {
             anaLogger.setActiveTarget(LOG_TARGETS.USER);
             anaLogger.setErrorHandlerForUserTarget(
                 myStub.myMethod
@@ -497,7 +513,7 @@ describe("AnaLogger", function ()
                 target : LOG_TARGETS.USER,
                 lid    : 200020
             }, "Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
+            expect(myStub.myMethod).to.have.been.called();
         });
 
         it("should replace the error manager targeting the user", function ()
@@ -507,8 +523,11 @@ describe("AnaLogger", function ()
                 myStub.myMethod
             );
 
-            anaLogger.error("Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
+            anaLogger.error({
+                target : LOG_TARGETS.USER,
+                lid    : 203420
+            }, "Test Error Log");
+            expect(myStub.myMethod).to.have.been.called.with(["Test Error Log"]);
         });
 
     });
@@ -528,7 +547,7 @@ describe("AnaLogger", function ()
             );
 
             console.error("Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
+            expect(myStub.myMethod).to.have.been.called();
         });
 
         it("should replace the error manager targeting the user", function ()
@@ -539,7 +558,7 @@ describe("AnaLogger", function ()
             );
 
             anaLogger.error("Test Error Log");
-            expect(myStub.myMethod).to.have.been.called;
+            expect(myStub.myMethod).to.have.been.called();
         });
 
     });
@@ -552,7 +571,6 @@ describe("AnaLogger", function ()
             chai.expect(() => anaLogger.writeLogToDom("Hello you - How is it?")).to.throw("document is not defined");
         });
     });
-
 
     describe("on the simulated DOM", function ()
     {
