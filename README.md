@@ -72,6 +72,8 @@ import {anaLogger} from "analogger"
 
 Display a message in the terminal or the inspector, depending on where the process is running.
 
+#### Example 1
+
 ```javascript
 anaLogger.log(`I'am some log`);
 anaLogger.info(`I'am some log`);
@@ -79,6 +81,36 @@ anaLogger.warn(`I'am some log`);
 anaLogger.error(`I'am some log`);
 ```
 <br/>
+
+
+#### Example 2
+
+###### Display log in red and blue
+
+```javascript
+anaLogger.log({color: "red"}, `I'am some log in red`);
+anaLogger.log({color: "blue"}, `I'am some log in blue`);
+```
+
+<br/>
+
+#### Example 3
+
+###### Change log color and symbol
+
+```javascript
+anaLogger.log({color: "#00FFAA", symbol: "🎧"}, `I'am some log in red`);
+```
+
+<br/>
+
+#### Example 4
+
+###### Set Log ID
+
+```javascript
+anaLogger.log({lid: 1234}, `I'am some log in red`);
+```
 
 ---
 
@@ -91,7 +123,9 @@ Display data in tabular format on the terminal.
 anaLogger.table(data, options)
 ```
 
-#### Options
+<br/>
+
+###### Options (for .table)
 
 | names                | Expected | values | Description                                       |
 |----------------------|----------|--------|---------------------------------------------------|
@@ -104,6 +138,8 @@ anaLogger.table(data, options)
 | onCompleteHeaders    | function | null   | Callback to call when headers line is ready       |
 | onCompleteSeparators | function | null   | Callback to call when the separator line is ready |
 | onCompleteLines      | function | null   | Callback to call when a line is complete          |
+
+<br/>
 
 > The callbacks **onCompleteHeaders, onCompleteSeparators, onCompleteSeparators** must return
 > the modified first argument
@@ -123,7 +159,9 @@ anaLogger.table(data, options)
 > })
 > ```
 
-#### Examples
+<br/>
+
+#### Example
 
 ```javascript
     const table = [
@@ -155,7 +193,7 @@ anaLogger.table(table);
 
 <br/>
 
-Result:
+###### Result:
 
 ```shell
 serverName │ silent │ defaultPage  │ port  │ serverUrl                 │                                       
@@ -179,6 +217,9 @@ anaLogger.alert(`I'am some log`);
 Display the browser native message box if run from it; otherwise, it displays the message in the terminal.
 
 <br/>
+
+---
+
 
 ### setOptions()
 
@@ -230,8 +271,9 @@ anaLogger.overrideConsole()
 console.log(`Log After override`);
 ```
 
-Override console.log, console.info and console.warn. If you already have many console.log running in your system,
+Override **console.log**, **console.info** and **console.warn**. If you already have many console.log running in your system,
 it allows hiding them all in one go.
+
 In this example, the terminal (or inspector) will not show the message "Log After override". All following messages
 either.
 
@@ -241,7 +283,7 @@ either.
 
 ### overrideError()
 
-Same as above, but for errors (console.error)
+Same as above, but for **console.error**.
 
 <br/>
 
