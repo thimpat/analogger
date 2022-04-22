@@ -1,5 +1,5 @@
 const chai = require("chai");
-var capcon = require("capture-console");
+const capcon = require("capture-console");
 const {anaLogger} = require("../src/cjs/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/cjs/contexts-def.cjs");
 const fs = require("fs");
@@ -11,6 +11,11 @@ describe("In the Terminal", function ()
     {
         anaLogger.setContexts(LOG_CONTEXTS);
         anaLogger.setTargets(LOG_TARGETS);
+
+        if (fs.existsSync("./test-log.txt"))
+        {
+            fs.unlinkSync("./test-log.txt");
+        }
     });
 
     after(()=>
@@ -65,43 +70,31 @@ describe("In the Terminal", function ()
                             "serverName"      : "Nubia",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                         {
                             "serverName"      : "Lavern",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                         {
                             "serverName"      : "Kristal",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         }
                     ];
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("serve... │ silent │ default... │ api... │ prot... │ host");
+                expect(captured.stdout).to.contain("serverName │ silent │ defaultPage  │ protocol  │ host        │ port  │");
             });
 
             it("should display an array of objects in a smaller table", function ()
@@ -113,19 +106,15 @@ describe("In the Terminal", function ()
                             "serverName"      : "Nubia",
                             "silent"          : false,
                             "defaultPage"     : "index.html",
-                            "apiPort"         : "8082",
                             "protocol"        : "http://",
                             "host"            : "localhost",
                             "port"            : 10040,
-                            "serverUrl"       : "http://localhost:10040/",
-                            "enableapi"       : true,
-                            "webServerStarted": true
                         },
                     ];
                     anaLogger.table(arr, {availableLength: 80, columnMaxChars: 10});
                 });
 
-                expect(captured.stdout).to.contain("Nubia  │ false  │ inde... │ 8082   │ htt... │ loc... │ 10040");
+                expect(captured.stdout).to.contain("Nubia      │ false  │ index.html   │ http://   │ localhost   │ 10040 │");
             });
 
             it("should display a complex object in a table", function ()
@@ -137,43 +126,31 @@ describe("In the Terminal", function ()
                                 "serverName"      : "Nubia",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             },
                             "Lavern" : {
                                 "serverName"      : "Lavern",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             },
                             "Kristal": {
                                 "serverName"      : "Kristal",
                                 "silent"          : false,
                                 "defaultPage"     : "index.html",
-                                "apiPort"         : "8082",
                                 "protocol"        : "http://",
                                 "host"            : "localhost",
                                 "port"            : 10040,
-                                "serverUrl"       : "http://localhost:10040/",
-                                "enableapi"       : true,
-                                "webServerStarted": true
                             }
                         };
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.contain("Nubia    │ false  │ index.html │ 8082   │ http:// │ localhost │ 10040  │ http://localhost:10040/");
+                expect(captured.stdout).to.contain("Kristal    │ false  │ index.html   │ http://   │ localhost   │ 10040 │");
             });
 
         });
@@ -258,7 +235,7 @@ describe("In the Terminal", function ()
 
         it("should write logs to a file when logToFile is on", function ()
         {
-            anaLogger.setOptions({silent: true, logToFile: "./test-log.txt"});
+            anaLogger.setOptions({silent: false, logToFile: "./test-log.txt"});
             anaLogger.log("Test Log example with DEFAULT target");
 
             const content = fs.readFileSync("./test-log.txt", "utf-8");

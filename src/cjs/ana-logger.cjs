@@ -242,7 +242,6 @@ class AnaLogger
                 /** to-esm-browser: remove **/
                 // these require won't get compiled by to-esm
                 this.options.logToFilePath = path.resolve(this.options.logToFile);
-                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags: "a"});
                 this.EOL = os.EOL;
                 /** to-esm-browser: end-remove **/
             }
@@ -304,7 +303,7 @@ class AnaLogger
         {
             table = Object.values(Object.values(table));
         }
-        
+
         if (!table || !table.length)
         {
             return "";
@@ -353,6 +352,8 @@ class AnaLogger
         availableLength = availableLength - 4;
 
         let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
+
+        /* istanbul ignore next */
         if (availableLength < totalLength)
         {
             const ratio = (availableLength) / totalLength;
@@ -711,7 +712,15 @@ class AnaLogger
 
     writeLogToFile(text)
     {
-        this.logFile.write(text + this.EOL);
+        try
+        {
+            fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.rawError("LOG_TO_FILE_FAILURE: ", e.message);
+        }
     }
 
     convertArgumentsToText(args)
