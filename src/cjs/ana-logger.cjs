@@ -233,7 +233,11 @@ class AnaLogger
             this.options.logToDom = logToDom || "#analogger";
         }
 
-        if (logToFile !== undefined)
+        if (logToFile === false)
+        {
+            this.options.logToFile = false;
+        }
+        else if (logToFile !== undefined)
         {
             if (!this.isBrowser())
             {
@@ -249,7 +253,6 @@ class AnaLogger
             /** to-esm-browser: add
              this.#realConsoleLog("LogToFile is not supported in this environment. ")
              **/
-
         }
 
         if (silent !== undefined)
