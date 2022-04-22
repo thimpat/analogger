@@ -242,6 +242,15 @@ describe("In the Terminal", function ()
             expect(content).to.contain("Test Log example with DEFAULT target");
         });
 
+        it("should disable logs to a file when logToFile is false", function ()
+        {
+            anaLogger.setOptions({silent: false, logToFile: false});
+            anaLogger.log("This Log should be absent from the file");
+
+            const content = fs.readFileSync("./test-log.txt", "utf-8");
+            expect(content).not.to.contain("This Log should be absent from the file");
+        });
+
 
     });
 });
