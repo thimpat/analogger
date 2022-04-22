@@ -7,9 +7,8 @@
 
 ---
 
-Analogger is a very simple logger for both Node and the Browser.
-It is a library using both CJS and ESM.
-It serves as a packaging example of **hybrid (CJS/ESM) module**.
+Analogger is a logger for Node and Browser environments that is highly customisable.
+It logs to terminals, browser DOM and inspectors and files.
 
 ## Installation
 
@@ -87,6 +86,44 @@ anaLogger.error(`I'am some log`);
 ### table()
 
 Display data in tabular format on the terminal.
+
+```javascript
+anaLogger.table(data, options)
+```
+
+#### Options
+
+| names                | Expected | values | Description                                       |
+|----------------------|----------|--------|---------------------------------------------------|
+| ellipsis             | string   | "..."  | Characters to use when values don't fit           |
+| ColumnMinChars       | number   | 6      | Minimum size for a column                         |
+| columnMaxChars       | number   | 0      |                                                   |
+| verticalSeparator    | string   | "│"    | Table vertical line symbols                       |
+| horizontalSeparator  | string   | "─"    | Table horizontal line symbols                     |
+ | availableLength      | number   | 0      | Maximum width for table. O for auto size          |
+| onCompleteHeaders    | function | null   | Callback to call when headers line is ready       |
+| onCompleteSeparators | function | null   | Callback to call when the separator line is ready |
+| onCompleteLines      | function | null   | Callback to call when a line is complete          |
+
+> The callbacks **onCompleteHeaders, onCompleteSeparators, onCompleteSeparators** must return
+> the modified first argument
+> 
+> For instance:
+> ```javascript
+> anaLogger.table(data, {
+>    onCompleteLines: (textLine, objectLine) => {
+> 
+>        if (objectLine.name === "tom") {
+>            return textLine;
+>        }
+> 
+>        let newLine = "*" + textLine + "*";
+>        return newLine;
+>    }
+> })
+> ```
+
+#### Examples
 
 ```javascript
     const table = [
