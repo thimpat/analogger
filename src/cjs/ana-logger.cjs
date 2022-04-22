@@ -289,6 +289,9 @@ class AnaLogger
      * @param verticalSeparator
      * @param horizontalSeparator
      * @param availableLength
+     * @param onCompleteHeaders
+     * @param onCompleteSeparators
+     * @param onCompleteLines
      */
     buildTable(table, {
         ellipsis = "...",
@@ -296,7 +299,10 @@ class AnaLogger
         columnMaxChars = 0,
         verticalSeparator = " │ ",
         horizontalSeparator = "─",
-        availableLength = 0
+        availableLength = 0,
+        onCompleteHeaders = null,
+        onCompleteSeparators = null,
+        onCompleteLines = null
     } = {})
     {
         let text = "";
@@ -380,7 +386,7 @@ class AnaLogger
 
         let strLine;
 
-        // Titles
+        // Headers
         strLine = "";
         for (let i = 0; i < titles.length; ++i)
         {
@@ -389,8 +395,14 @@ class AnaLogger
             strLine += this.truncateMessage(colName, {fit, ellipsis});
             strLine += verticalSeparator;
         }
+        
+        if (onCompleteHeaders)
+        {
+            strLine = onCompleteHeaders(strLine, titles);
+        }
         text += this.truncateMessage(strLine, {fit: availableLength});
         text += EOL;
+
 
         // Separators
         strLine = "";
@@ -402,6 +414,12 @@ class AnaLogger
             strLine += this.truncateMessage(colContent, {fit, ellipsis: ""});
             strLine += verticalSeparator;
         }
+
+        if (onCompleteSeparators)
+        {
+            strLine = onCompleteSeparators(strLine, titles);
+        }
+
         text += this.truncateMessage(strLine, {fit: availableLength});
         text += EOL;
 
@@ -419,6 +437,12 @@ class AnaLogger
                 strLine += this.truncateMessage(colContent, {fit, ellipsis});
                 strLine += verticalSeparator;
             }
+
+            if (onCompleteLines)
+            {
+                strLine = onCompleteLines(strLine, line);
+            }
+
             text += this.truncateMessage(strLine, {fit: availableLength});
             text += EOL;
         }
