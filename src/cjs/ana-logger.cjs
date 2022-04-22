@@ -827,7 +827,7 @@ class AnaLogger
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE;
-                output = toAnsi.getTextFromHex(text, {fg: context.color});
+                output = toAnsi.getTextFromColor(text, {fg: context.color});
 
                 if (this.options.logToFile)
                 {
