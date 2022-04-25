@@ -1,1 +1,2 @@
-// Log to server
+// @todo Log to server
+// @todo Fix setOptions
