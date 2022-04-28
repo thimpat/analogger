@@ -5,7 +5,7 @@ const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
 const {By, until} = require("selenium-webdriver");
 const chromium = require("chromium");
-const {startGenServer, stopGenServer} = require("genserve");
+const {startGenServer, stopGenServer, infoGenServer} = require("genserve");
 
 const SERVER_NAME = "ci-test-analogger";
 
@@ -23,17 +23,26 @@ const configTest = require("./0-config.json");
 const webPageTest = configTest.e2e.webPageTest;
 
 const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
+const path = require("path");
 
 async function init()
 {
     // Start the server
     // $> genserve.cmd start ci-analogger --port 9880 --dir ./
-    const serverStarted = await startGenServer({name: SERVER_NAME, port: 9880});
+    const serverStarted = await startGenServer({
+        name: SERVER_NAME, port: 9880,
+        args: [
+            "--dir", path.join(__dirname, "../")
+        ]
+    });
     if (!serverStarted)
     {
         console.error("Failed to start server");
         process.exit(1);
     }
+
+    const info = await infoGenServer({name: SERVER_NAME});
+    console.log(info);
 
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
@@ -85,7 +94,7 @@ describe("The Browser", async function ()
         expect(bodyText).to.contain("Basic Log example 1");
     });
 
-    after(  async function()
+    after(async function ()
     {
         driver.quit();
 
