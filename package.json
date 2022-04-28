@@ -3,12 +3,12 @@
   "version": "1.10.0",
   "description": "Js Logger",
   "main": "./src/cjs/ana-logger.cjs",
-  "module": "./generated/browser/ana-logger.mjs",
+  "module": "./generated/terminal/ana-logger.mjs",
   "type": "module",
   "exports": {
     ".": {
       "require": "./src/cjs/ana-logger.cjs",
-      "import": "./generated/browser/ana-logger.mjs"
+      "import": "./generated/terminal/ana-logger.mjs"
     }
   },
   "scripts": {
