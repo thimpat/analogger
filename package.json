@@ -85,15 +85,11 @@
   "dependencies": {
     "chalk": "^5.0.0",
     "chalk-cjs": "npm:chalk@^4.1.2",
-    "color-convert": "^2.0.1",
-    "color-convert-cjs": "npm:color-convert@^2.0.1",
     "flatted": "^3.2.5",
     "js-beautify": "^1.10.1-rc2",
     "node_modules-path": "^2.0.5",
     "pretty-js": "^0.2.2",
-    "rgb-hex": "^4.0.0",
-    "rgb-hex-cjs": "npm:rgb-hex@^3.0.0",
-    "to-ansi": "^1.2.0",
+    "to-ansi": "^1.4.0",
     "uglify-js": "^3.15.1",
     "window-size": "^1.1.1"
   }
