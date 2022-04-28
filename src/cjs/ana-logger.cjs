@@ -12,7 +12,6 @@ terminalSize = {}
  **/
 
 const toAnsi = require("to-ansi");
-const rgbHex = require("rgb-hex-cjs");
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 const PREDEFINED_CONTEXT_NAMES = {
@@ -585,7 +584,7 @@ class AnaLogger
                 contextName: PREDEFINED_CONTEXT_NAMES.DEFAULT,
                 target     : "ALL",
                 symbol     : "⚡",
-                color: COLOR_TABLE[1]
+                color      : COLOR_TABLE[1]
             }, defaultContext);
 
         defaultContext.id = this.logIndex++;
@@ -621,15 +620,11 @@ class AnaLogger
 
         if (converted.color.toLowerCase().indexOf("rgb") > -1)
         {
-            converted.color = "#" + rgbHex(converted.color);
+            converted.color = toAnsi.rgbStringToHex(converted.color);
         }
         else if (converted.color.indexOf("#") === -1)
         {
-            const colorConvert = require("color-convert-cjs");
-            if (colorConvert)
-            {
-                converted.color = "#" + colorConvert.keyword.hex(converted.color);
-            }
+            converted.color = toAnsi.colorNameToHex(converted.color);
         }
 
         return converted;

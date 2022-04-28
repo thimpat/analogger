@@ -9,13 +9,11 @@ import fs  from "fs";
 import os  from "os";
 import terminalSize  from "./node_modules/window-size/index.mjs";
 import toAnsi  from "./node_modules/to-ansi/index.mjs";
-import rgbHex  from "./node_modules/rgb-hex/index.mjs";
 import {COLOR_TABLE, SYSTEM}  from "./src/cjs/constants.mjs";
 import {stringify}  from "./node_modules/flatted/cjs/index.mjs";
 terminalSize = {};
 
 /** to-esm-browser: remove **/
-
 
 
 
@@ -239,7 +237,11 @@ class AnaLogger
             this.options.logToDom = logToDom || "#analogger";
         }
 
-        if (logToFile !== undefined)
+        if (logToFile === false)
+        {
+            this.options.logToFile = false;
+        }
+        else if (logToFile !== undefined)
         {
             if (!this.isBrowser())
             {
@@ -248,7 +250,6 @@ class AnaLogger
                 /** to-esm-browser: remove **/
                 // these require won't get compiled by to-esm
                 this.options.logToFilePath = path.resolve(this.options.logToFile);
-                this.logFile = fs.createWriteStream(this.options.logToFilePath, {flags: "a"});
                 this.EOL = os.EOL;
                 /** to-esm-browser: end-remove **/
             }
@@ -256,7 +257,6 @@ class AnaLogger
             /** to-esm-browser: add
              this.#realConsoleLog("LogToFile is not supported in this environment. ")
              **/
-
         }
 
         if (silent !== undefined)
@@ -293,6 +293,9 @@ class AnaLogger
      * @param verticalSeparator
      * @param horizontalSeparator
      * @param availableLength
+     * @param onCompleteHeaders
+     * @param onCompleteSeparators
+     * @param onCompleteLines
      */
     buildTable(table, {
         ellipsis = "...",
@@ -300,7 +303,10 @@ class AnaLogger
         columnMaxChars = 0,
         verticalSeparator = " │ ",
         horizontalSeparator = "─",
-        availableLength = 0
+        availableLength = 0,
+        onCompleteHeaders = null,
+        onCompleteSeparators = null,
+        onCompleteLines = null
     } = {})
     {
         let text = "";
@@ -310,7 +316,7 @@ class AnaLogger
         {
             table = Object.values(Object.values(table));
         }
-        
+
         if (!table || !table.length)
         {
             return "";
@@ -356,7 +362,11 @@ class AnaLogger
             }
         }
 
+        availableLength = availableLength - 4;
+
         let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
+
+        /* istanbul ignore next */
         if (availableLength < totalLength)
         {
             const ratio = (availableLength) / totalLength;
@@ -380,7 +390,7 @@ class AnaLogger
 
         let strLine;
 
-        // Titles
+        // Headers
         strLine = "";
         for (let i = 0; i < titles.length; ++i)
         {
@@ -389,8 +399,14 @@ class AnaLogger
             strLine += this.truncateMessage(colName, {fit, ellipsis});
             strLine += verticalSeparator;
         }
+        
+        if (onCompleteHeaders)
+        {
+            strLine = onCompleteHeaders(strLine, titles);
+        }
         text += this.truncateMessage(strLine, {fit: availableLength});
         text += EOL;
+
 
         // Separators
         strLine = "";
@@ -402,6 +418,12 @@ class AnaLogger
             strLine += this.truncateMessage(colContent, {fit, ellipsis: ""});
             strLine += verticalSeparator;
         }
+
+        if (onCompleteSeparators)
+        {
+            strLine = onCompleteSeparators(strLine, titles);
+        }
+
         text += this.truncateMessage(strLine, {fit: availableLength});
         text += EOL;
 
@@ -419,6 +441,12 @@ class AnaLogger
                 strLine += this.truncateMessage(colContent, {fit, ellipsis});
                 strLine += verticalSeparator;
             }
+
+            if (onCompleteLines)
+            {
+                strLine = onCompleteLines(strLine, line);
+            }
+
             text += this.truncateMessage(strLine, {fit: availableLength});
             text += EOL;
         }
@@ -561,7 +589,7 @@ class AnaLogger
                 contextName: PREDEFINED_CONTEXT_NAMES.DEFAULT,
                 target     : "ALL",
                 symbol     : "⚡",
-                color: COLOR_TABLE[1]
+                color      : COLOR_TABLE[1]
             }, defaultContext);
 
         defaultContext.id = this.logIndex++;
@@ -597,15 +625,11 @@ class AnaLogger
 
         if (converted.color.toLowerCase().indexOf("rgb") > -1)
         {
-            converted.color = "#" + rgbHex(converted.color);
+            converted.color = toAnsi.rgbStringToHex(converted.color);
         }
         else if (converted.color.indexOf("#") === -1)
         {
-            const colorConvert = null;
-            if (colorConvert)
-            {
-                converted.color = "#" + colorConvert.keyword.hex(converted.color);
-            }
+            converted.color = toAnsi.colorNameToHex(converted.color);
         }
 
         return converted;
@@ -715,7 +739,15 @@ class AnaLogger
 
     writeLogToFile(text)
     {
-        this.logFile.write(text + this.EOL);
+        try
+        {
+            fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.rawError("LOG_TO_FILE_FAILURE: ", e.message);
+        }
     }
 
     convertArgumentsToText(args)
@@ -795,7 +827,7 @@ class AnaLogger
             else
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE;
-                output = toAnsi.getTextFromHex(text, {fg: context.color});
+                output = toAnsi.getTextFromColor(text, {fg: context.color});
 
                 if (this.options.logToFile)
                 {
