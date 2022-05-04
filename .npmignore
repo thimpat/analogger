@@ -91,3 +91,5 @@ test-log.txt
 .toesm.cjs
 /debug/
 /generated/browser-demo/
+/dist/analogger-browser-demo.min.mjs
+/bump.js
