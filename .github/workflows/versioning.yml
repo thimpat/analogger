@@ -21,6 +21,14 @@ jobs:
         run: |
           npm install to-esm -g
           npm install
+      - name: Generate AnaLogger for browsers
+        shell: powershell
+        run: |
+          npm run build:esm:browser
+      - name: Generate AnaLogger for terminals
+        shell: powershell
+        run: |
+          npm run build:esm:terminal
       - name: Upgrade version
         shell: powershell
         run: |
