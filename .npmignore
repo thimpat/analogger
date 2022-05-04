@@ -87,3 +87,5 @@ test-log.txt
 /generated/terminal/example/
 /generated/terminal/src/
 /generated/terminal/demo.mjs
+.genserverc.cjs
+.toesm.cjs
