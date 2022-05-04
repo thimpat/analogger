@@ -19,6 +19,14 @@ jobs:
         shell: powershell
         run: |
           npm install
+      - name: Generate AnaLogger for browsers
+        shell: powershell
+        run: |
+          npm run build:esm:browser
+      - name: Generate AnaLogger for terminals
+        shell: powershell
+        run: |
+          npm run build:esm:terminal
       - name: Test
         shell: powershell
         run: |

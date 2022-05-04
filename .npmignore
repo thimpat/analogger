@@ -90,3 +90,4 @@ test-log.txt
 .genserverc.cjs
 .toesm.cjs
 /debug/
+/generated/browser-demo/
