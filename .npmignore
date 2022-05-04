@@ -89,3 +89,4 @@ test-log.txt
 /generated/terminal/demo.mjs
 .genserverc.cjs
 .toesm.cjs
+/debug/

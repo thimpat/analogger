@@ -80,3 +80,4 @@ dist
 /generated/terminal/src/
 /generated/terminal/demo.mjs
 .genserverc.cjs
+/debug/

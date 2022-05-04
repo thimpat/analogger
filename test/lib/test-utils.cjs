@@ -6,7 +6,7 @@ module.exports.takeScreenshot = async function takeScreenshot(driver, name)
     {
         fs.writeFileSync(name + ".png", data, "base64");
     });
-}
+};
 
 /**
  * E2E Utility function
