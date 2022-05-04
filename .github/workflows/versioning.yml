@@ -20,7 +20,7 @@ jobs:
         shell: powershell
         run: |
           npm install to-esm -g
-          npm install
+          npm ci install
       - name: Generate AnaLogger for browsers
         shell: powershell
         run: |
