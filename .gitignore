@@ -81,3 +81,4 @@ dist
 /generated/terminal/demo.mjs
 .genserverc.cjs
 /debug/
+/generated/browser-demo/
