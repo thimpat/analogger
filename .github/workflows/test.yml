@@ -18,7 +18,6 @@ jobs:
       - name: Install dependencies
         shell: powershell
         run: |
-          npm install to-esm -g
           npm install
       - name: Test
         shell: powershell
