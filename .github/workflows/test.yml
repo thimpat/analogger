@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         shell: powershell
         run: |
-          npm install
+          npm ci install
       - name: Generate AnaLogger for browsers
         shell: powershell
         run: |
