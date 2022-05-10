@@ -368,15 +368,76 @@ const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C
 const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
 anaLogger.setContexts(LOG_CONTEXTS);
-anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                        // <- You are DEV1 
+anaLogger.setTargets(LOG_TARGETS);                                    // Allowed targets = "ALL", "TOM", "TIM", "USER"
 
+// Many ways to assign an active target
+anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                          // <- You are "TOM"
+
+// Seen as TOM
 anaLogger.log({target: LOG_TARGETS.DEV1}, `Testing log 1`);           // You will see this
+anaLogger.log({target: "TOM"}, `Testing log 1`);                      // You will see this
+
+// Not seen (only for TIM)
 anaLogger.log({target: LOG_TARGETS.DEV2}, `Testing log 2`);           // You will not see this
+anaLogger.log({target: "TIM"}, `Testing log 2`);                      // You will not see this
+
+// No target defined. Everybody sees this
 anaLogger.log({context: LOG_CONTEXTS.STANDARD}, `Testing log 3`);     // You will see this    
 anaLogger.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXTS.ALL
 
 
 anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will see this
+```
+
+To assign the active target, you could use IPs, read a file, read an environment variable, etc. 
+It is all up to your implement.
+
+Examples:
+
+###### IP Based
+
+```javascript
+anaLogger.setTargets({DEV1: "192.168.12.45", DEV: "192.168.12.46"});
+anaLogger.setActiveTarget(require('ip').address());   
+```
+<br/>
+
+###### File based
+
+```javascript
+// Example 2: File  
+anaLogger.setTargets({DEV1: "fg890234ru20u93r2303092pkid0293"});
+anaLogger.setActiveTarget(require('./something.json').key);
+```
+
+<br/>
+
+###### Fetch
+```javascript
+// Example 3: Fetch
+anaLogger.setTargets({DEV1: "fg890234ru20u93r2303092pkid0293"});
+const key = (await (await fetch('/private-api/me')).json()).key
+anaLogger.setActiveTarget(key);
+```
+
+<br/>
+
+###### Environment system based
+
+```javascript
+// Example 4: Environment variables
+anaLogger.setActiveTarget(process.env.DEVELOPER);     // <= Assuming it has been set on the system host
+```
+
+<br/>
+
+> Note that there are two targets that cannot be overriden: {ALL: "ALL", USER: "USER"}.
+They are always added by the system in the allowed list, so even if a call to setTargets is empty,
+they will still be set.
+
+```javascript
+// Two implicit targets "ALL" and "USER"  
+analogger.setTargets()
 ```
 
 <br/>
