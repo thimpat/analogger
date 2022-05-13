@@ -24,6 +24,89 @@ const {stringify} = require("flatted");
 const EOL = `
 `;
 
+const symbolNames = {
+    airplane                  : "✈",
+    anchor                    : "⚓",
+    arrow_backward            : "◀",
+    arrow_double_up           : "⏫",
+    arrow_double_down         : "⏬",
+    arrow_forward             : "▶",
+    arrow_lower_right         : "↘",
+    arrow_lower_left          : "↙",
+    arrow_right_hook          : "↪",
+    arrow_up_down             : "↕",
+    arrow_upper_left          : "↖",
+    arrow_upper_right         : "↗",
+    ballot_box_with_check     : "☑",
+    biohazard                 : "☣",
+    black_circle              : "⏺",
+    black_medium_small_square : "◾",
+    black_medium_square       : "◼",
+    black_nib                 : "✒",
+    black_small_square        : "▪",
+    black_square              : "⏹",
+    chains                    : "⛓",
+    check                     : "✔",
+    chess_pawn                : "♟",
+    cloud_and_rain            : "⛈",
+    clubs                     : "♣",
+    coffee                    : "☕",
+    copyright                 : "©",
+    cross                     : "❌",
+    diamonds                  : "♦",
+    divisions_ign             : "➗",
+    double_triangle_right     : "⏭",
+    double_triangle_left      : "⏮",
+    email                     : "✉",
+    eject                     : "⏏",
+    exclamation_mark          : "❗",
+    fast_forward              : "⏩",
+    female_sign               : "♀",
+    fist                      : "✊",
+    fuel_pump                 : "⛽",
+    gear                      : "⚙",
+    hammer_and_pick           : "⚒",
+    hand                      : "✋",
+    hearts                    : "♥",
+    infinity                  : "♾",
+    information               : "ℹ",
+    left_right_arrow          : "↔",
+    leftwards_arrow_with_hook : "↩",
+    male_sign                 : "♂",
+    minus_sign                : "➖",
+    no_entry                  : "⛔",
+    partly_sunny              : "⛅",
+    pencil                    : "✏",
+    phone                     : "☎",
+    plus_sign                 : "➕",
+    question                  : "❔",
+    radioactive               : "☢",
+    raised_hand               : "✋",
+    recycle                   : "♻",
+    registered                : "®",
+    relaxed                   : "☺",
+    rewind                    : "⏪",
+    scissors                  : "✂",
+    snowman                   : "☃",
+    spades                    : "♠",
+    sparkles                  : "✨",
+    star                      : "⭐",
+    sunny                     : "☀",
+    tent                      : "⛺",
+    trademark                 : "™",
+    triangle_with_vertical_bar: "⏯",
+    umbrella                  : "☔",
+    vertical_bars             : "⏸",
+    watch                     : "⌚",
+    white_frowning_face       : "☹",
+    white_medium_square       : "◻",
+    white_medium_small_square : "◽",
+    white_small_square        : "▫",
+    wheelchair                : "♿",
+    white_circle              : "⚪",
+    writing_hand              : "✍",
+};
+
 class AnaLogger
 {
     system = "";
@@ -394,7 +477,7 @@ class AnaLogger
             strLine += this.truncateMessage(colName, {fit, ellipsis});
             strLine += verticalSeparator;
         }
-        
+
         if (onCompleteHeaders)
         {
             strLine = onCompleteHeaders(strLine, titles);
@@ -876,6 +959,29 @@ class AnaLogger
             options.hasOwnProperty("lid");
     }
 
+    static listSymbols()
+    {
+        for (let key in symbolNames)
+        {
+            console.rawLog(symbolNames[key] + `   ${key} `);
+        }
+    }
+
+    applySymbolByName(context)
+    {
+        try
+        {
+            if (context.symbol && symbolNames[context.symbol])
+            {
+                context.symbol = symbolNames[context.symbol];
+            }
+        }
+        catch (e)
+        {
+
+        }
+    }
+
     convertToContext(options, defaultContext)
     {
         defaultContext = defaultContext || this.generateDefaultContext();
@@ -887,9 +993,9 @@ class AnaLogger
             delete moreOptions.context;
             context = Object.assign({}, options.context, moreOptions);
         }
-
-        context = Object.assign({}, defaultContext, context);
         delete context.context;
+
+        this.applySymbolByName(context);
 
         return context;
     }
