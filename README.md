@@ -109,8 +109,53 @@ anaLogger.log({color: "#00FFAA", symbol: "🎧"}, `I'am some log in red`);
 ###### Set Log ID
 
 ```javascript
-anaLogger.log({lid: 1234}, `I'am some log in red`);
+anaLogger.log({lid: 1234}, `I'am some log with log id`);
 ```
+
+<br/>
+
+#### Example 5
+
+###### Set symbol by name
+
+```javascript
+anaLogger.log({lid: 1234, symbol: "check"}, `I'am some log with a check symbol`);
+anaLogger.log({lid: 1235, symbol: "radioactive"}, `I'am some log with a radioactive symbol`);
+anaLogger.log({lid: 1236, symbol: "scissors"}, `I'am some log with some scissors symbol`);
+```
+
+💻  ↴
+>```shell
+> [01:16:11]           : (1234) ✔  "I'am some log with a check symbol"
+> [01:16:11]           : (1235) ☢  "I'am some log with a radioactive symbol"
+> [01:16:11]           : (1236) ✂  "I'am some log with some scissors symbol"
+>```
+
+<br/>
+
+---
+
+### listSymbols()
+
+Display the list of supported symbols.
+
+```javascript
+Analogger.listSymbols()
+```
+
+💻  ↴
+>```prettier
+> ✈   airplane 
+> ⚓   anchor
+> ◀   arrow_backward
+> ↘   arrow_lower_right
+> ↙   arrow_lower_left
+>
+>... (And much more)
+>```
+
+
+
 
 ---
 
