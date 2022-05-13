@@ -151,7 +151,7 @@ Analogger.listSymbols()
 > ↘   arrow_lower_right
 > ↙   arrow_lower_left
 >
->... (And much more)
+>... (And more)
 >```
 
 
@@ -271,7 +271,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 
 | **Options**      | **default** | **Expect**            | **Description**                                                                    | 
 |------------------|-------------|-----------------------|------------------------------------------------------------------------------------|
-| silent           | false       | boolean               | _No log will be displayed (only errors)_                                           |
+| silent           | false       | boolean               | _Will display no log (only errors)_                                           |
 | hideLog          | false       | boolean               | _Hide logs from console_                                                           |              
 | hideError        | false       | boolean               | _Hide errors from console_                                                         |              
 | hideHookMessage  | false       | boolean               | _Hide the automatic message shown when some native console methods are overridden_ |
@@ -337,7 +337,7 @@ Same as above, but for **console.error**.
 
 ### removeOverride() | removeOverrideError()
 
-Remove overridden console methods
+Remove overridden console methods.
 
 <br/>
 
@@ -435,7 +435,7 @@ anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will
 ```
 
 To assign the active target, you could use IPs, read a file, read an environment variable, etc. 
-It is all up to your implement.
+It is all up to your implementation.
 
 Examples:
 
@@ -476,9 +476,8 @@ anaLogger.setActiveTarget(process.env.DEVELOPER);     // <= Assuming it has been
 
 <br/>
 
-> Note that there are two targets that cannot be overriden: {ALL: "ALL", USER: "USER"}.
-They are always added by the system in the allowed list, so even if a call to setTargets is empty,
-they will still be set.
+> Note that two targets cannot be overridden: {ALL: "ALL", USER: "USER"}.
+The system always adds them to the allowed list, so they will still be set even if a call to setTargets() is empty.
 
 ```javascript
 // Two implicit targets "ALL" and "USER"  
@@ -520,7 +519,7 @@ to them), you can set a handler here. All other console.error will be working as
         // Detect whether we are in a browser
         if (context.environnment === anaLogger.ENVIRONMENT_TYPE.BROWSER)
         {
-            // When an error is detected in the Browser, the Browser will see this message
+            // When the Browser detects an error, users will see this message
             anaLogger.alert(`Users explicitly see this message`)
         }
     });
