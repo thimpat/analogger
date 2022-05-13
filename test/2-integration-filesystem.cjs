@@ -48,6 +48,23 @@ describe("In the Terminal", function ()
             expect(captured.stdout).to.contain("Test Log example C1");
         });
 
+        describe("#listSymbols", function ()
+        {
+            it("should display the list of supported symbols", function ()
+            {
+                const captured = capcon.captureStdio(function ()
+                {
+                    anaLogger.listSymbols();
+                });
+
+                expect(captured.stdout)
+                    .to.contain("⏹   black_square")
+                    .to.contain("✔   check")
+                    .to.contain("❌   cross")
+                    .to.contain("⚒   hammer_and_pick");
+            });
+        });
+
         describe("table", function ()
         {
             it("should display nothing when invoked with an empty array", function ()
@@ -205,6 +222,18 @@ describe("In the Terminal", function ()
 
             expect(captured.stdout).to.contain("Log Before override");
             expect(captured.stdout).to.not.contain("Error After override");
+        });
+
+        it("should update the log id", function ()
+        {
+            const captured = capcon.captureStdio(function ()
+            {
+                anaLogger.log({context: LOG_CONTEXTS.TEST, lid: 123456, symbol: "raised_hand"}, "Test Log example with log" +
+                    " identifier");
+                anaLogger.log("Test Log example with DEFAULT target");
+            });
+
+            expect(captured.stdout).to.contain("TEST: (123456) ✋  \"Test Log example with log identifier\"");
         });
 
         it("should not show target logs that are unrelated to DEV3", function ()
