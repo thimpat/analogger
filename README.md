@@ -34,7 +34,7 @@ const {anaLogger}  = require("analogger");
 import {anaLogger} from "./node_modules/analogger/dist/index-esm.min.mjs";
 ```
 
-### With a bundler or a transpiler
+### ESM (or With a bundler or a transpiler)
 
 ```javascript
 import {anaLogger} from "analogger"
@@ -409,21 +409,31 @@ You can apply a default settings for every output with setDefaultContext
 
 ```javascript
 
-anaLogger.setDefaultContext({color: "gray", symbol: "check"});
+anaLogger.setDefaultContext({color: "gray", symbol: "check", contextName: "LOG"});
 
-anaLogger.log({lid: 1000}, `Test Log example C1`);
-anaLogger.log({lid: 1010}, `Test Log example C2`);
-anaLogger.log({lid: 1020}, `Test Log example C3`);
-anaLogger.log({lid: 1020, symbol: "cross"}, `Test Log example C3`);
+anaLogger.log({lid: 100000}, `Test Log example C1`);        // <- Use default (grey color and the check symbol)
+anaLogger.log({lid: 100010}, `Test Log example C2`);        // <- Use default
+anaLogger.log({lid: 100020}, `Test Log example C3`);        // <- Use default
+
+anaLogger.log({contextName: "LOG", lid: 100030, symbol: "cross"}, "Test Log example C4");
+anaLogger.log({contextName: "INFO", lid: 100040, symbol: "no_entry"}, "Test Log example C4");
+anaLogger.log({contextName: "WARN", lid: 100050, symbol: "raised_hand"}, "Test Log example C4");
+
 ```
 
+💻  ↴
 > ```
-> [03:56:15]    DEFAULT: (100000) ✔  "Test Log example C1"
-> [03:56:15]    DEFAULT: (100010) ✔  "Test Log example C2"
-> [03:56:15]    DEFAULT: (100020) ✔  "Test Log example C3"
-> [04:00:39]    DEFAULT: (100020) ❌ "Test Log example C4"
-```
-See LOG_CONTEXTS.C1 in this example to categorise the functionality we want to monitor.
+> [04:32:38]        LOG: (100000) ✔  "Test Log example C1"
+> [04:32:38]        LOG: (100010) ✔  "Test Log example C2"
+> [04:32:38]        LOG: (100020) ✔  "Test Log example C3"
+> [04:32:38]        LOG: (100030) ❌  "Test Log example C4"
+> [04:32:38]       INFO: (100040) ⛔  "Test Log example C5"
+> [04:32:38]       WARN: (100050) ✋  "Test Log example C6"
+> ```
+
+
+<br/>
+
 
 ---
 
