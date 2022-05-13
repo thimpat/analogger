@@ -993,6 +993,8 @@ class AnaLogger
             delete moreOptions.context;
             context = Object.assign({}, options.context, moreOptions);
         }
+
+        context = Object.assign({}, defaultContext, context);
         delete context.context;
 
         this.applySymbolByName(context);

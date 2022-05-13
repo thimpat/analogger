@@ -399,6 +399,35 @@ The "Testing log 2" log will not show up in the console or the terminal.
 ---
 
 
+### setDefaultContext()
+
+
+You can apply a default settings for every output with setDefaultContext 
+
+
+##### Examples
+
+```javascript
+
+anaLogger.setDefaultContext({color: "gray", symbol: "check"});
+
+anaLogger.log({lid: 1000}, `Test Log example C1`);
+anaLogger.log({lid: 1010}, `Test Log example C2`);
+anaLogger.log({lid: 1020}, `Test Log example C3`);
+anaLogger.log({lid: 1020, symbol: "cross"}, `Test Log example C3`);
+```
+
+> ```
+> [03:56:15]    DEFAULT: (100000) ✔  "Test Log example C1"
+> [03:56:15]    DEFAULT: (100010) ✔  "Test Log example C2"
+> [03:56:15]    DEFAULT: (100020) ✔  "Test Log example C3"
+> [04:00:39]    DEFAULT: (100020) ❌ "Test Log example C4"
+```
+See LOG_CONTEXTS.C1 in this example to categorise the functionality we want to monitor.
+
+---
+
+
 ### setTargets() / setActiveTarget()
 
 #### Targets
