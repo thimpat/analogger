@@ -959,7 +959,7 @@ class AnaLogger
             options.hasOwnProperty("lid");
     }
 
-    static listSymbols()
+    listSymbols()
     {
         for (let key in symbolNames)
         {
