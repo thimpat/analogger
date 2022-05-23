@@ -375,7 +375,7 @@ class AnaLogger
      * @param onCompleteSeparators
      * @param onCompleteLines
      */
-    buildTable(table, {
+    buildTable(objList, {
         ellipsis = "...",
         ColumnMinChars = 6,
         columnMaxChars = 0,
@@ -389,16 +389,18 @@ class AnaLogger
     {
         let text = "";
 
-        const isArray = Array.isArray(table);
+        const isArray = Array.isArray(objList);
         if (!isArray)
         {
-            table = Object.values(Object.values(table));
+            objList = Object.values(Object.values(objList));
         }
 
-        if (!table || !table.length)
+        if (!objList || !objList.length)
         {
             return "";
         }
+
+        let table = objList.map(a => Object.assign({}, a));
 
         const firstLine = table[0];
         const titles = Object.keys(firstLine);
