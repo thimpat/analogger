@@ -91,7 +91,9 @@ describe("The Browser", async function ()
     {
         const element = driver.findElement(By.id("analogger"));
         const bodyText = await element.getText();
-        expect(bodyText).to.contain("Basic Log example 1");
+        expect(bodyText)
+            .to.contain("Test Log example C1")
+            .to.contain("Test Log example C4");
     });
 
     after(async function ()
