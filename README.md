@@ -85,11 +85,19 @@ anaLogger.error(`I'am some log`);
 
 #### Example 2
 
-###### Display log in red and blue
+###### Display log in red
 
 ```javascript
-anaLogger.log({color: "red"}, `I'am some log in red`);
-anaLogger.log({color: "blue"}, `I'am some log in blue`);
+anaLogger.log({color: "red"}, `I am some log in red`);
+```
+
+<br/>
+
+###### Display log in blue on red in bold and underlined 
+
+```javascript
+anaLogger.log({color: "blue", bgColor: "red", underline: true, bold: true}, `I am some log in blue on a red 
+background in bold and underlined`);
 ```
 
 <br/>
