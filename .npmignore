@@ -90,3 +90,6 @@ test-log.txt
 /bump.js
 /genserve-log/
 /example-2/
+/generated/browser-minified/
+/generated/browser-importmaps/
+/example-2/index-with-import-maps.html

@@ -38,7 +38,7 @@
     "build:esm:terminal": "          npm run clean:terminal           && to-esm.cmd src/ana-logger.cjs        --output generated/terminal/                 --config .toesm.cjs --target esm                                               --update-all",
     "build:esm:browser": "           npm run clean:browser            && to-esm src/ana-logger.cjs            --output generated/browser/                  --config .toesm.cjs --target browser                                           --update-all",
     "build:esm:browser:importmaps": "npm run clean:browser:importmaps && to-esm src/ana-logger.cjs            --output generated/browser-importmaps/       --config .toesm.cjs --target browser                                                        --useImportMaps",
-    "build:esm:browser:minified": "  npm run clean:browser:minified   && to-esm src/ana-logger.cjs            --output generated/browser-minified/         --config .toesm.cjs --target browser --bundle ./dist/analogger-browser.min.mjs",
+    "build:esm:browser:minified": "  npm run clean:browser:minified   && to-esm src/ana-logger.cjs            --output generated/browser-minified/         --config .toesm.cjs --target browser --bundle ./dist/analogger-browser.min.mjs && rimraf generated/browser-minified",
     "build:esm": "                   npm run build:esm:terminal && npm run build:esm:browser && npm run build:esm:browser:importmaps && npm run build:esm:browser:minified",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code",
