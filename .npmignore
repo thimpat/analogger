@@ -83,13 +83,10 @@ ci.md
 todo.js
 /unrelated/
 test-log.txt
-/generated/browser/
-/generated/terminal/example/
-/generated/terminal/src/
-/generated/terminal/demo.mjs
+/generated/demo/
 .genserverc.cjs
 .toesm.cjs
 /debug/
-/generated/browser-demo/
-/dist/analogger-browser-demo.min.mjs
 /bump.js
+/genserve-log/
+/example-2/
