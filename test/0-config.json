@@ -1,6 +1,8 @@
 {
   "e2e":
   {
-    "webPageTest": "http://127.0.0.1:9880/example/index.html"
+    "indexHTML": "http://127.0.0.1:9880/example/index.html",
+    "indexHTMLImportMaps": "http://127.0.0.1:9880/example-2/index-with-import-maps.html",
+    "indexMinifiedHtmlUrl": "http://127.0.0.1:9880/example-3/index-bundle.html"
   }
 }
