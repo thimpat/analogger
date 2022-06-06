@@ -48,6 +48,17 @@ describe("In the Terminal", function ()
             expect(captured.stdout).to.contain("Test Log example C1");
         });
 
+        it("should apply the default format", function ()
+        {
+            const captured = capcon.captureStdio(function ()
+            {
+                anaLogger.applyPredefinedFormat();
+                anaLogger.log({lid: 8000}, "Test Log example C1");
+            });
+
+            expect(captured.stdout).to.contain("Test Log example C1");
+        });
+
         describe("#listSymbols", function ()
         {
             it("should display the list of supported symbols", function ()

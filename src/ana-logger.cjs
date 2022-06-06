@@ -1260,9 +1260,11 @@ class AnaLogger
         }
         catch (e)
         {
+            /* istanbul ignore next */
             console.error({lid: 3249}, e.message);
         }
 
+        /* istanbul ignore next */
         return false;
     }
 
