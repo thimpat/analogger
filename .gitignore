@@ -83,3 +83,5 @@ dist
 /debug/
 /generated/browser-demo/
 /genserve-log/
+/generated/demo/
+/generated/terminal/
