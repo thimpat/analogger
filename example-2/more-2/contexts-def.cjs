@@ -10,6 +10,7 @@ module.exports.LOG_CONTEXTS = {
     C1: null,
     C2: null,
     C3: null,
+    INFO: {},
     DEFAULT: {}
 };
 
