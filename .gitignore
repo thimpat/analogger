@@ -82,3 +82,9 @@ dist
 .genserverc.cjs
 /debug/
 /generated/browser-demo/
+/genserve-log/
+/generated/demo/
+/generated/terminal/
+/generated/browser-minified/
+/generated/browser-importmaps/
+/example-2/index-with-import-maps.html

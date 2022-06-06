@@ -3,9 +3,9 @@ module.exports = {
         browser: true,
         node: true
     },
-    parser: "@babel/eslint-parser",
     parserOptions: {
-        "ecmaVersion": 2020
+        "ecmaVersion": 2022,
+        "sourceType": "module"
     },
     rules: {
         "comma-dangle": 0,
@@ -17,7 +17,7 @@ module.exports = {
         "prefer-const": "off",
         "spaced-comment": "off",
         "no-debugger": "error",
-        "quotes": ["error", "double"],
+        "quotes": ["error", "double", { "avoidEscape": true, "allowTemplateLiterals": true }],
         "semi": 2,
         "no-unused-vars": "error",
         "max-len": ["error", {code: 200}]

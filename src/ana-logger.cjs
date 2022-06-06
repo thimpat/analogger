@@ -8,7 +8,7 @@ terminalSize = require("window-size");
 /** to-esm-browser: end-remove **/
 
 /** to-esm-browser: add
-terminalSize = {}
+ terminalSize = {}
  **/
 
 const toAnsi = require("to-ansi");
@@ -16,7 +16,15 @@ const toAnsi = require("to-ansi");
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 const PREDEFINED_CONTEXT_NAMES = {
     "DEFAULT": "DEFAULT",
-    "ERROR"  : "ERROR"
+    // "LOG"      : "LOG",
+    // "INFO"     : "INFO",
+    // "WARN"     : "WARN",
+    // "ATTENTION": "ATTENTION",
+    "ERROR": "ERROR"
+};
+
+const PREDEFINED_FORMATS = {
+    "ANALOGGER": "ANALOGGER"
 };
 
 const {stringify} = require("flatted");
@@ -365,6 +373,7 @@ class AnaLogger
     /**
      * Display data
      * @param {any[]} table
+     * @param objList
      * @param ellipsis
      * @param ColumnMinChars
      * @param columnMaxChars
@@ -695,6 +704,18 @@ class AnaLogger
         return errorContext;
     }
 
+    // TODO: Need testing before activating
+    // generateCustomContext(contextName, {symbol = "", error = false, color = "gray"} = {})
+    // {
+    //     const customContext = this.generateDefaultContext();
+    //     customContext.name = contextName;
+    //     customContext.contextName = contextName;
+    //     customContext.color = color;
+    //     customContext.symbol = symbol;
+    //     customContext.error = error;
+    //     return customContext;
+    // }
+
     #allegeProperties(entry)
     {
         let converted = entry;
@@ -718,7 +739,7 @@ class AnaLogger
     /**
      * Load the context names that should be available to the environment.
      * They are defined by the user.
-     * @see Context definitions {@link ./example/cjs/contexts-def.cjs}
+     * @see Context definitions {@link ./example/more/contexts-def.cjs}
      * @param contextTable
      */
     setContexts(contextTable)
@@ -726,6 +747,12 @@ class AnaLogger
         const arr = Object.keys(contextTable);
         contextTable[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.generateDefaultContext();
         contextTable[PREDEFINED_CONTEXT_NAMES.ERROR] = this.contexts[PREDEFINED_CONTEXT_NAMES.ERROR] = this.generateErrorContext();
+        // contextTable[PREDEFINED_CONTEXT_NAMES.LOG] = this.contexts[PREDEFINED_CONTEXT_NAMES.LOG] =
+        // this.generateCustomContext("LOG", {}); contextTable[PREDEFINED_CONTEXT_NAMES.INFO] =
+        // this.contexts[PREDEFINED_CONTEXT_NAMES.INFO] = this.generateCustomContext("INFO", { symbol:
+        // symbolNames.information, color : "orange" }); contextTable[PREDEFINED_CONTEXT_NAMES.WARN] =
+        // this.contexts[PREDEFINED_CONTEXT_NAMES.WARN] = this.generateCustomContext("WARN", { symbol:
+        // symbolNames.hand, color : "orange" });
         arr.forEach((key) =>
         {
             const contextPassed = contextTable[key] || {};
@@ -964,6 +991,7 @@ class AnaLogger
         return options.hasOwnProperty("context") ||
             options.hasOwnProperty("target") ||
             options.hasOwnProperty("color") ||
+            options.hasOwnProperty("contextName") ||
             options.hasOwnProperty("lid");
     }
 
@@ -1185,8 +1213,73 @@ class AnaLogger
         return false;
     }
 
+    /**
+     * Set standard Analogger format
+     * @example
+     * // Output Example
+     * // [14:01:06]    DEFAULT: (1060) ⚡  " ✔ My log ..."
+     * @param activeTarget
+     * @returns {boolean}
+     */
+    applyAnalogFormatting({activeTarget = ""} = {})
+    {
+        try
+        {
+            const override = true, silent = false, lidLenMax = 4;
+
+            const LOG_CONTEXTS = {
+                STANDARD: null,
+                TEST    : {color: "#B18904", symbol: "diamonds"},
+                C1      : null,
+                C2      : null,
+                C3      : null,
+                DEFAULT : {}
+            };
+
+            const LOG_TARGETS = {
+                ALL  : "ALL",
+                DEBUG: "DEBUG",
+                DEV  : process.env.DEVELOPER,
+                DEV1 : process.env.DEVELOPER,
+                USER : "USER"
+            };
+
+            this.setDefaultContext(LOG_CONTEXTS.DEFAULT);
+            this.setTargets(LOG_TARGETS);
+
+            activeTarget && this.setActiveTarget(activeTarget);
+
+            this.setOptions({silent, hideError: false, hideHookMessage: true, lidLenMax});
+            if (override)
+            {
+                this.overrideConsole();
+                this.overrideError();
+            }
+
+            return true;
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.error({lid: 3249}, e.message);
+        }
+
+        /* istanbul ignore next */
+        return false;
+    }
+
+    applyPredefinedFormat(name = PREDEFINED_FORMATS.ANALOGGER, {activeTarget = ""} = {})
+    {
+        if (name === PREDEFINED_FORMATS.ANALOGGER)
+        {
+            return this.applyAnalogFormatting({activeTarget});
+        }
+    }
+
 }
 
 const anaLogger = new AnaLogger();
 module.exports = anaLogger;
 module.exports.anaLogger = anaLogger;
+
+module.exports.PREDEFINED_FORMATS = PREDEFINED_FORMATS;

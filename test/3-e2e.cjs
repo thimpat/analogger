@@ -20,9 +20,11 @@ let driver;
  * TEST CONFIGURATION FILE
  */
 const configTest = require("./0-config.json");
-const webPageTest = configTest.e2e.webPageTest;
+const indexHtmlUrl = configTest.e2e.indexHTML;
+const indexMinifiedHtmlUrl = configTest.e2e.indexMinifiedHtmlUrl;
+const indexImportMapsHtmlUrl = configTest.e2e.indexHTMLImportMaps;
 
-const {waitForDriverCaptured} = require("./lib/test-utils.cjs");
+const {waitForDriverCaptured, sleep, getContent} = require("./lib/test-utils.cjs");
 const path = require("path");
 
 async function init()
@@ -53,8 +55,6 @@ async function init()
 
     driver = await new webdriver.Builder().forBrowser("chrome").setChromeOptions(options).build();
 
-    await driver.get(webPageTest);
-
     return driver;
 }
 
@@ -68,32 +68,9 @@ describe("The Browser", async function ()
         driver = await waitForDriverCaptured({driver: driver = await init()});
     });
 
-    it("should reach the correct url", async function ()
+    afterEach(async () =>
     {
-        const url = await driver.getCurrentUrl();
-        expect(url).to.equal(webPageTest);
-    });
-
-    it("should have a reachable DOM", async function ()
-    {
-        const pageSource = await driver.getPageSource();
-        expect(pageSource).to.contain("<body>");
-    });
-
-    it("should find the #analogger div in the DOM", async function ()
-    {
-        await driver.wait(until.elementLocated(By.id("analogger")), 10000);
-        const element = await driver.findElement(By.id("analogger"));
-        expect(await element.isDisplayed()).to.be.true;
-    });
-
-    it("should have the #analogger div containing some specific text", async function ()
-    {
-        const element = driver.findElement(By.id("analogger"));
-        const bodyText = await element.getText();
-        expect(bodyText)
-            .to.contain("Test Log example C1")
-            .to.contain("Test Log example C4");
+        await sleep(1000);
     });
 
     after(async function ()
@@ -101,6 +78,109 @@ describe("The Browser", async function ()
         driver.quit();
 
         await stopGenServer({name: SERVER_NAME});
+    });
+
+    describe("with the standard html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get(indexHtmlUrl);
+        });
+
+        it("should reach the correct url", async function ()
+        {
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
+        });
+
+        it("should have a reachable DOM", async function ()
+        {
+            const pageSource = await driver.getPageSource();
+            expect(pageSource).to.contain("<body>");
+        });
+
+        it("should find the #analogger div in the DOM", async function ()
+        {
+            await driver.wait(until.elementLocated(By.id("analogger")), 10000);
+            const element = await driver.findElement(By.id("analogger"));
+            expect(await element.isDisplayed()).to.be.true;
+        });
+
+        it("should have the #analogger div containing some specific text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
+    });
+
+    describe("with the minified html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get(indexMinifiedHtmlUrl);
+        });
+
+        it("should load the page", async function ()
+        {
+            driver.navigate().refresh();
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/example-3/index-bundle.html");
+        });
+
+        it("should have the #analogger div containing the expected text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
+    });
+
+    describe("with the mapped html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get(indexImportMapsHtmlUrl);
+        });
+
+        it("should load the mapped page", async function ()
+        {
+            driver.navigate().refresh();
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/example-2/index-with-import-maps.html");
+        });
+
+        it("should have its content having some map references", async function ()
+        {
+            const content = getContent("./example-2/index-with-import-maps.html");
+            expect(content)
+                .to.contain(`<script type="importmap">`)
+                .to.contain(`"imports":`)
+                .to.contain(`"to-ansi": "../../node_modules/to-ansi/index.mjs"`)
+                .to.contain(`"to-ansi": "../../node_modules/to-ansi/index.mjs"`);
+        });
+
+        it("should have some .js containing the to-ansi module not resolved", async function ()
+        {
+            const content = getContent("./generated/demo/browser-import-maps/src/ana-logger.mjs");
+            expect(content).to.contain(`import toAnsi  from "to-ansi";`);
+        });
+
+        it("should have the #analogger div containing the expected text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
     });
 
 });
