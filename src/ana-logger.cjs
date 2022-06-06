@@ -8,24 +8,24 @@ terminalSize = require("window-size");
 /** to-esm-browser: end-remove **/
 
 /** to-esm-browser: add
-terminalSize = {}
+ terminalSize = {}
  **/
 
 const toAnsi = require("to-ansi");
 
 const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
 const PREDEFINED_CONTEXT_NAMES = {
-    "DEFAULT"  : "DEFAULT",
+    "DEFAULT": "DEFAULT",
     // "LOG"      : "LOG",
     // "INFO"     : "INFO",
     // "WARN"     : "WARN",
     // "ATTENTION": "ATTENTION",
-    "ERROR"    : "ERROR"
+    "ERROR": "ERROR"
 };
 
 const PREDEFINED_FORMATS = {
     "ANALOGGER": "ANALOGGER"
-}
+};
 
 const {stringify} = require("flatted");
 
@@ -747,15 +747,12 @@ class AnaLogger
         const arr = Object.keys(contextTable);
         contextTable[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.generateDefaultContext();
         contextTable[PREDEFINED_CONTEXT_NAMES.ERROR] = this.contexts[PREDEFINED_CONTEXT_NAMES.ERROR] = this.generateErrorContext();
-        // contextTable[PREDEFINED_CONTEXT_NAMES.LOG] = this.contexts[PREDEFINED_CONTEXT_NAMES.LOG] = this.generateCustomContext("LOG", {});
-        // contextTable[PREDEFINED_CONTEXT_NAMES.INFO] = this.contexts[PREDEFINED_CONTEXT_NAMES.INFO] = this.generateCustomContext("INFO", {
-        //     symbol: symbolNames.information,
-        //     color : "orange"
-        // });
-        // contextTable[PREDEFINED_CONTEXT_NAMES.WARN] = this.contexts[PREDEFINED_CONTEXT_NAMES.WARN] = this.generateCustomContext("WARN", {
-        //     symbol: symbolNames.hand,
-        //     color : "orange"
-        // });
+        // contextTable[PREDEFINED_CONTEXT_NAMES.LOG] = this.contexts[PREDEFINED_CONTEXT_NAMES.LOG] =
+        // this.generateCustomContext("LOG", {}); contextTable[PREDEFINED_CONTEXT_NAMES.INFO] =
+        // this.contexts[PREDEFINED_CONTEXT_NAMES.INFO] = this.generateCustomContext("INFO", { symbol:
+        // symbolNames.information, color : "orange" }); contextTable[PREDEFINED_CONTEXT_NAMES.WARN] =
+        // this.contexts[PREDEFINED_CONTEXT_NAMES.WARN] = this.generateCustomContext("WARN", { symbol:
+        // symbolNames.hand, color : "orange" });
         arr.forEach((key) =>
         {
             const contextPassed = contextTable[key] || {};
@@ -1240,11 +1237,11 @@ class AnaLogger
             };
 
             const LOG_TARGETS = {
-                ALL: "ALL",
+                ALL  : "ALL",
                 DEBUG: "DEBUG",
-                DEV: process.env.DEVELOPER,
-                DEV1: process.env.DEVELOPER,
-                USER: "USER"
+                DEV  : process.env.DEVELOPER,
+                DEV1 : process.env.DEVELOPER,
+                USER : "USER"
             };
 
             this.setDefaultContext(LOG_CONTEXTS.DEFAULT);
