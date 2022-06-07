@@ -22,22 +22,26 @@ npm install analogger
 
 ## Usage
 
-### In NodeJS
+### CommonJs
 
 ```javascript
 const {anaLogger}  = require("analogger");
 ```
 
-### In the Browser
+<br/>
 
-```javascript
-import {anaLogger} from "./node_modules/analogger/dist/index-esm.min.mjs";
-```
-
-### ESM (or With a bundler or a transpiler)
+### ESM
 
 ```javascript
 import {anaLogger} from "analogger"
+```
+
+<br/>
+
+### In the Browser
+
+```javascript
+import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs";
 ```
 
 <br/>
