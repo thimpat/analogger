@@ -35,3 +35,20 @@ const constants = {
 
 export const COLOR_TABLE = constants.COLOR_TABLE;
 export const SYSTEM = constants.SYSTEM;
+export const MAX_CHILDREN_DOM_ANALOGGER = 2000;
+export const CLASS_REMOVED_NOTIF = "analogger-removed-notif";
+export const CONSOLE_AREA_CLASSNAME = "analogger-view";
+export const LINE_CLASSNAME = "to-esm-line";
+
+export const ADD_TYPE = {
+    TOP: "TOP",
+    BOTTOM: "BOTTOM"
+};
+
+export const ANALOGGER_NAME  = "ANALOGGER";
+
+
+
+export const PREDEFINED_FORMATS = {
+    DEFAULT_FORMAT: "FORMAT1"
+};

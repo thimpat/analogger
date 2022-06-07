@@ -13,7 +13,9 @@ terminalSize = require("window-size");
 
 const toAnsi = require("to-ansi");
 
-const {COLOR_TABLE, SYSTEM} = require("./constants.cjs");
+const {COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, ADD_TYPE, CONSOLE_AREA_CLASSNAME,
+    PREDEFINED_FORMATS, ANALOGGER_NAME, LINE_CLASSNAME
+} = require("./constants.cjs");
 const PREDEFINED_CONTEXT_NAMES = {
     "DEFAULT": "DEFAULT",
     // "LOG"      : "LOG",
@@ -23,9 +25,6 @@ const PREDEFINED_CONTEXT_NAMES = {
     "ERROR": "ERROR"
 };
 
-const PREDEFINED_FORMATS = {
-    "ANALOGGER": "ANALOGGER"
-};
 
 const {stringify} = require("flatted");
 
@@ -797,7 +796,7 @@ class AnaLogger
         let index = 0;
         for (let columnName in context)
         {
-            if ("name" === columnName)
+            if (!["contextName", "symbol", "lid", "text"].includes(columnName))
             {
                 continue;
             }
@@ -817,6 +816,26 @@ class AnaLogger
     }
 
     /**
+     * Check that the div has not too many entries
+     * @param $view
+     */
+    removeDomOldEntries = ($view) =>
+    {
+        const nbChildren = $view.childElementCount;
+        if (nbChildren > MAX_CHILDREN_DOM_ANALOGGER)
+        {
+            const n = Math.ceil(MAX_CHILDREN_DOM_ANALOGGER / 10);
+            for (let i = 0; i < n; ++i)
+            {
+                $view.removeChild($view.firstChild);
+            }
+            return n;
+        }
+
+        return 0;
+    };
+
+    /**
      * Scroll to bottom if div is already at the bottom
      * @param $view
      */
@@ -829,36 +848,85 @@ class AnaLogger
             /* istanbul ignore next */
             return;
         }
+
         $view.scrollTop = $view.scrollHeight;
     };
 
-    writeLogToDom(context, text)
+    /**
+     * Add a line to the Analogger div.
+     * Remove older lines if exceeding limit.
+     * @param $view
+     * @param $line
+     * @param context
+     * @param addType
+     */
+    addLineToDom($view, $line, {context, addType})
+    {
+        if (addType === ADD_TYPE.BOTTOM)
+        {
+            $view.append($line);
+        }
+        else
+        {
+            $view.insertBefore($line, $view.firstChild);
+        }
+
+        let nbRemoved = this.removeDomOldEntries($view);
+        if (nbRemoved)
+        {
+            if ($view.getElementsByClassName(CLASS_REMOVED_NOTIF).length)
+            {
+                return;
+            }
+
+            context.contextName = ANALOGGER_NAME;
+            context.symbol = "🗑";
+            context.color = "orange";
+            context.className = CLASS_REMOVED_NOTIF;
+
+            clearTimeout(this.timerAddLineToDomID);
+            this.timerAddLineToDomID = setTimeout(()=>
+            {
+                this.timerAddLineToDomID = null;
+                this.writeLogToDom(context, "", {addType: ADD_TYPE.TOP, message: `Oldest entries removed`});
+            }, 500);
+            return;
+        }
+
+        this.scrollDivToBottom($view);
+
+    }
+
+    writeLogToDom(context, fullText, {addType = ADD_TYPE.BOTTOM, message = ""} = {})
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom);
+        fullText = message || fullText;
 
         for (let i = 0; i < this.$containers.length; ++i)
         {
             const $container = this.$containers[i];
 
-            let $view = $container.querySelector(".analogger-view");
+            let $view = $container.querySelector("." + CONSOLE_AREA_CLASSNAME);
             if (!$view)
             {
                 $view = document.createElement("div");
-                $view.classList.add("analogger-view");
+                $view.classList.add(CONSOLE_AREA_CLASSNAME);
                 $container.append($view);
             }
 
             const $line = document.createElement("div");
-            $line.classList.add("to-esm-line");
+            $line.classList.add(LINE_CLASSNAME);
+            if (context.className)
+            {
+                $line.classList.add(context.className);
+            }
             $line.style.color = context.color;
-            $line.setAttribute("data-log-counter", this.logCounter);
-            $line.setAttribute("data-log-index", this.logIndex);
 
-            this.setColumns($line, context, text);
+            this.setColumns($line, context, fullText);
 
-            $view.append($line);
+            // Prevent the application to be stuck when many logs are entered at once
+            setTimeout(this.addLineToDom.bind(this, $view, $line, {addType, context}), 0);
 
-            this.scrollDivToBottom($view);
         }
     }
 
@@ -944,7 +1012,8 @@ class AnaLogger
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER;
                 if (this.options.logToDom)
                 {
-                    this.writeLogToDom(context, text);
+                    /* istanbul ignore next */
+                    this.writeLogToDom(context, text, {message});
                 }
 
                 output = `%c${text}`;
@@ -1287,9 +1356,9 @@ class AnaLogger
         return false;
     }
 
-    applyPredefinedFormat(name = PREDEFINED_FORMATS.ANALOGGER, {activeTarget = "", override = false} = {})
+    applyPredefinedFormat(name = PREDEFINED_FORMATS.DEFAULT_FORMAT, {activeTarget = "", override = false} = {})
     {
-        if (name === PREDEFINED_FORMATS.ANALOGGER)
+        if (name === PREDEFINED_FORMATS.DEFAULT_FORMAT)
         {
             return this.applyAnalogFormatting({activeTarget, override});
         }
@@ -1301,4 +1370,3 @@ const anaLogger = new AnaLogger();
 module.exports = anaLogger;
 module.exports.anaLogger = anaLogger;
 
-module.exports.PREDEFINED_FORMATS = PREDEFINED_FORMATS;

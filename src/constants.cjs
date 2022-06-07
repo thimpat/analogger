@@ -29,3 +29,20 @@ const constants = {
 
 module.exports.COLOR_TABLE = constants.COLOR_TABLE;
 module.exports.SYSTEM = constants.SYSTEM;
+module.exports.MAX_CHILDREN_DOM_ANALOGGER = 2000;
+module.exports.CLASS_REMOVED_NOTIF = "analogger-removed-notif";
+module.exports.CONSOLE_AREA_CLASSNAME = "analogger-view";
+module.exports.LINE_CLASSNAME = "to-esm-line";
+
+module.exports.ADD_TYPE = {
+    TOP: "TOP",
+    BOTTOM: "BOTTOM"
+};
+
+const ANALOGGER_NAME = "ANALOGGER";
+
+module.exports.ANALOGGER_NAME = ANALOGGER_NAME;
+
+module.exports.PREDEFINED_FORMATS = {
+    DEFAULT_FORMAT: "FORMAT1"
+};
