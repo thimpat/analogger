@@ -28,6 +28,7 @@ chai.use(assertArrays);
 // sut
 const {anaLogger} = require("../src/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/more/contexts-def.cjs");
+const {sleep} = require("./lib/test-utils.cjs");
 
 describe("AnaLogger", function ()
 {
@@ -598,10 +599,12 @@ describe("AnaLogger", function ()
 
         describe("#log", function ()
         {
-            it("should add log to the DOM when the logToDom option is on", function ()
+            it("should add log to the DOM when the logToDom option is on",  async function ()
             {
                 anaLogger.setOptions({logToDom: "body"});
                 anaLogger.log("Hello you - How is it?");
+
+                await sleep(100);
 
                 expect(document.body.textContent).to.contain("Hello you - How is it?");
             });

@@ -48,7 +48,7 @@ async function init()
 
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
-    // options.addArguments("--headless");
+    options.addArguments("--headless");
     options.addArguments("--sandbox");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1280,960");
@@ -61,7 +61,7 @@ async function init()
 
 describe("The Browser", async function ()
 {
-    this.timeout(20000);
+    this.timeout(120 * 1000);           // 2 minutes
 
     before(async function ()
     {
@@ -183,6 +183,24 @@ describe("The Browser", async function ()
 
         describe("on logging from console", ()=>
         {
+            before(async ()=>
+            {
+                await driver.wait(until.elementLocated(By.id("analogger")));
+            });
+
+            it("should add an entry to the div", async function ()
+            {
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-1"));
+                await button.click();
+
+                const bodyText = await element.getText();
+                expect(bodyText)
+                    .to.contain("Adding entry")
+                    .to.contain(" to the log");
+
+            });
+
             it("should scroll down to the bottom of the div", async function ()
             {
                 const button = driver.findElement(By.id("add-10"));
@@ -228,15 +246,56 @@ describe("The Browser", async function ()
                 expect(scrollBottom).to.equal("0");
             });
 
-            it("should add an entry to the div", async function ()
+            it("should display a notification that older logs were removed", async function ()
             {
+                const scrollTop = driver.findElement(By.id("scroll-top"));
                 const element = driver.findElement(By.id("analogger"));
-                const button = driver.findElement(By.id("add-1"));
-                await button.click();
+                const button = driver.findElement(By.id("add-1000"));
 
+                await button.click();
+                await sleep(3000);
+                await button.click();
+                await sleep(5000);
+                await button.click();
+                await sleep(8000);
+
+                scrollTop.click();
                 const bodyText = await element.getText();
                 expect(bodyText)
-                    .to.contain("Adding something to the log");
+                    .to.contain("Oldest entries removed");
+            });
+
+            it("should keep the number of logs entries under 2000", async function ()
+            {
+                driver.navigate().refresh();
+                const button = driver.findElement(By.id("add-1000"));
+
+                await button.click();
+                await sleep(3000);
+                await button.click();
+                await sleep(5000);
+
+                const lines = driver.findElements(By.className("to-esm-line"));
+                const count = (await lines).length;
+
+                expect(count)
+                    .to.be.lessThan(2000 ); // MAX_CHILDREN_DOM_ANALOGGER
+            });
+
+            it("should not choke when adding 10000 entries", async function ()
+            {
+                driver.navigate().refresh();
+                const scrollBottom = driver.findElement(By.id("scroll-bottom"));
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-10000"));
+
+                await scrollBottom.click();
+                await button.click();
+
+                await sleep(30000);
+
+                // await driver.wait(until.elementLocated(By.className('suggestions-results')));
+                await driver.wait(until.elementTextContains(element, "Adding entry 10000 to the log"));
             });
 
         });
