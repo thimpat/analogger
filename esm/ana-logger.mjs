@@ -893,6 +893,7 @@ class AnaLogger
             this.timerAddLineToDomID = setTimeout(()=>
             {
                 this.timerAddLineToDomID = null;
+                /* istanbul ignore next */
                 this.writeLogToDom(context, "", {addType: ADD_TYPE.TOP, message: `Oldest entries removed`});
             }, 500);
             return;
@@ -930,7 +931,12 @@ class AnaLogger
             this.setColumns($line, context, fullText);
 
             // Prevent the application to be stuck when many logs are entered at once
-            setTimeout(this.addLineToDom.bind(this, $view, $line, {addType, context}), 0);
+            /* istanbul ignore next */
+            setTimeout(/* istanbul ignore next */function($view, $line, {addType, context})
+            {
+                /* istanbul ignore next */
+                this.addLineToDom($view, $line, {addType, context});
+            }.bind(this, $view, $line, {addType, context}), 0);
 
         }
     }
@@ -1012,9 +1018,11 @@ class AnaLogger
 
             ++this.logCounter;
 
+            /* istanbul ignore next */
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER;
+                /* istanbul ignore next */
                 if (this.options.logToDom)
                 {
                     /* istanbul ignore next */

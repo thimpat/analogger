@@ -6,11 +6,6 @@ const sinon = require("sinon");
 const spies = require("chai-spies");
 const assertArrays = require("chai-arrays");
 
-/**
- * TEST CONFIGURATION FILE
- */
-const configTest = require("./0-config.json");
-
 let alert;
 
 // Arrange
@@ -320,9 +315,9 @@ describe("AnaLogger", function ()
             expect(myStub.myMethod).to.have.been.third.called.with(
                 "Kristal    │ index.html   │ ",
                 {
-                "defaultPage": "index.html",
-                "serverName": "Kristal"
-            }
+                    "defaultPage": "index.html",
+                    "serverName" : "Kristal"
+                }
             );
         });
 
@@ -501,7 +496,7 @@ describe("AnaLogger", function ()
         {
             anaLogger.resetOptions();
         });
-        
+
         it("should replace the error manager targeting the user", function ()
         {
             anaLogger.setActiveTarget(LOG_TARGETS.USER);
@@ -525,8 +520,8 @@ describe("AnaLogger", function ()
             );
 
             anaLogger.error({
-                target : LOG_TARGETS.USER,
-                lid    : 203420
+                target: LOG_TARGETS.USER,
+                lid   : 203420
             }, "Test Error Log");
             expect(myStub.myMethod).to.have.been.called.with(["Test Error Log"]);
         });
@@ -599,7 +594,7 @@ describe("AnaLogger", function ()
 
         describe("#log", function ()
         {
-            it("should add log to the DOM when the logToDom option is on",  async function ()
+            it("should add log to the DOM when the logToDom option is on", async function ()
             {
                 anaLogger.setOptions({logToDom: "body"});
                 anaLogger.log("Hello you - How is it?");
@@ -610,5 +605,19 @@ describe("AnaLogger", function ()
             });
         });
 
+        describe("#writeLogToDom", function ()
+        {
+            it("should not fail when there is no DOM", function ()
+            {
+                anaLogger.setOptions({logToDom: "body"});
+
+
+                chai.expect(() => anaLogger.writeLogToDom({className: "some-class"}, "Message - Example", {
+                    message: "Hello you - How is" +
+                        " it?"
+                })).to.not.throw("document is not" +
+                    " defined");
+            });
+        });
     });
 });
