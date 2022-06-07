@@ -816,6 +816,21 @@ class AnaLogger
         $line.append($col);
     }
 
+    /**
+     * Scroll to bottom if div is already at the bottom
+     * @param $view
+     */
+    scrollDivToBottom = ($view) =>
+    {
+        const scrollBottom =  $view.scrollHeight - ($view.clientHeight + $view.scrollTop);
+        const divHeight = $view.clientHeight || $view.offsetHeight;
+        if (scrollBottom > divHeight / 2)
+        {
+            return;
+        }
+        $view.scrollTop = $view.scrollHeight;
+    };
+
     writeLogToDom(context, text)
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom);
@@ -841,6 +856,8 @@ class AnaLogger
             this.setColumns($line, context, text);
 
             $view.append($line);
+
+            this.scrollDivToBottom($view);
         }
     }
 
