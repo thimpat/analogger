@@ -38,7 +38,7 @@
     "build:esm:browser": "             npm run clean:browser            && to-esm src/ana-logger.cjs            --output generated/browser/                  --config .toesm.cjs --target package",
     "build:esm:browser:importmaps": "  npm run clean:browser:importmaps && to-esm src/ana-logger.cjs            --output generated/browser-importmaps/       --config .toesm.cjs --target browser                                                        --useImportMaps",
     "build:esm:browser:minified": "    npm run clean:browser:minified   && to-esm src/ana-logger.cjs            --output generated/browser-minified/         --config .toesm.cjs --target browser --bundle ./dist/analogger-browser.min.mjs --update-all",
-    "build:esm": "npm run clean:all && npm run build:esm:terminal && npm run build:esm:browser && npm run build:esm:browser:importmaps && npm run build:esm:browser:minified && clonefile src/analogger.min.css dist/ && npm pack",
+    "build:esm": "npm run clean:all && npm run build:esm:terminal && npm run build:esm:browser && npm run build:esm:browser:importmaps && npm run build:esm:browser:minified && clonefile src/ana-logger.css dist/analogger.min.css && npm pack",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
@@ -90,7 +90,7 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.12.1"
+    "to-esm": "^2.13.0"
   },
   "dependencies": {
     "flatted": "^3.2.5",
