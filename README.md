@@ -22,22 +22,60 @@ npm install analogger
 
 ## Usage
 
-### In NodeJS
+### CommonJs
 
 ```javascript
 const {anaLogger}  = require("analogger");
 ```
 
-### In the Browser
+<br/>
 
-```javascript
-import {anaLogger} from "./node_modules/analogger/dist/index-esm.min.mjs";
-```
-
-### ESM (or With a bundler or a transpiler)
+### ESM
 
 ```javascript
 import {anaLogger} from "analogger"
+```
+
+<br/>
+
+### In the Browser
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>Demo</title>
+
+ <!-- AnaLogger Theme -->
+ <link rel="stylesheet" href="../dist/analogger.min.css">
+
+</head>
+<body>
+
+<div id="analogger" class="analogger">
+</div>
+
+<!-- AnaLogger Main -->
+<script type="module">
+ import {anaLogger} from "../dist/analogger-browser.min.mjs";
+ anaLogger.applyPredefinedFormat();
+ anaLogger.setOptions({logToDom: "#analogger"});
+ anaLogger.log({lid: 100000}, "Test Log example C1");
+</script>
+
+</body>
+</html>
+```
+
+<br/>
+
+### In the Browser via a module bundler
+
+```javascript
+// Read your module bundler documentation to load a style file
+import "./node_modules/analogger/dist/analogger.min.css"
+import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs";
 ```
 
 <br/>

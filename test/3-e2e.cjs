@@ -61,7 +61,7 @@ async function init()
 
 describe("The Browser", async function ()
 {
-    this.timeout(20000);
+    this.timeout(120 * 1000);           // 2 minutes
 
     before(async function ()
     {
@@ -78,43 +78,6 @@ describe("The Browser", async function ()
         driver.quit();
 
         await stopGenServer({name: SERVER_NAME});
-    });
-
-    describe("with the standard html", () =>
-    {
-        before(async function ()
-        {
-            await driver.get(indexHtmlUrl);
-        });
-
-        it("should reach the correct url", async function ()
-        {
-            const url = await driver.getCurrentUrl();
-            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
-        });
-
-        it("should have a reachable DOM", async function ()
-        {
-            const pageSource = await driver.getPageSource();
-            expect(pageSource).to.contain("<body>");
-        });
-
-        it("should find the #analogger div in the DOM", async function ()
-        {
-            await driver.wait(until.elementLocated(By.id("analogger")), 10000);
-            const element = await driver.findElement(By.id("analogger"));
-            expect(await element.isDisplayed()).to.be.true;
-        });
-
-        it("should have the #analogger div containing some specific text", async function ()
-        {
-            const element = driver.findElement(By.id("analogger"));
-            const bodyText = await element.getText();
-            expect(bodyText)
-                .to.contain("Test Log example C1")
-                .to.contain("Test Log example C4");
-        });
-
     });
 
     describe("with the minified html", () =>
@@ -182,6 +145,164 @@ describe("The Browser", async function ()
         });
 
     });
+
+    describe("with the standard html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get(indexHtmlUrl);
+        });
+
+        it("should reach the correct url", async function ()
+        {
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
+        });
+
+        it("should have a reachable DOM", async function ()
+        {
+            const pageSource = await driver.getPageSource();
+            expect(pageSource).to.contain("<body>");
+        });
+
+        it("should find the #analogger div in the DOM", async function ()
+        {
+            await driver.wait(until.elementLocated(By.id("analogger")), 10000);
+            const element = await driver.findElement(By.id("analogger"));
+            expect(await element.isDisplayed()).to.be.true;
+        });
+
+        it("should have the #analogger div containing some specific text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
+        describe("on logging from console", ()=>
+        {
+            before(async ()=>
+            {
+                await driver.wait(until.elementLocated(By.id("analogger")));
+            });
+
+            it("should add an entry to the div", async function ()
+            {
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-1"));
+                await button.click();
+
+                const bodyText = await element.getText();
+                expect(bodyText)
+                    .to.contain("Adding entry")
+                    .to.contain(" to the log");
+
+            });
+
+            it("should scroll down to the bottom of the div", async function ()
+            {
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await button.click();
+                const content = await report.getAttribute("value");
+
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).to.equal("0");
+            });
+
+            it("should not scroll down to the bottom of the div when the scrollbar has moved", async function ()
+            {
+                const scrollUp = driver.findElement(By.id("scroll-up"));
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await scrollUp.click();
+                await button.click();
+                const content = await report.getAttribute("value");
+
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).not.to.equal("0");
+            });
+
+            it("should scroll down to the bottom of the div again", async function ()
+            {
+                const scrollDown = driver.findElement(By.id("scroll-down"));
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await scrollDown.click();
+                await scrollDown.click();
+                await scrollDown.click();
+                await button.click();
+
+                const content = await report.getAttribute("value");
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).to.equal("0");
+            });
+
+            it("should display a notification that older logs were removed", async function ()
+            {
+                const scrollTop = driver.findElement(By.id("scroll-top"));
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-1000"));
+
+                await button.click();
+                await sleep(3000);
+                await button.click();
+                await sleep(5000);
+                await button.click();
+                await sleep(8000);
+
+                scrollTop.click();
+                const bodyText = await element.getText();
+                expect(bodyText)
+                    .to.contain("Oldest entries removed");
+            });
+
+            it("should keep the number of logs entries under 2000", async function ()
+            {
+                driver.navigate().refresh();
+                const button = driver.findElement(By.id("add-1000"));
+
+                await button.click();
+                await sleep(3000);
+                await button.click();
+                await sleep(5000);
+
+                const lines = driver.findElements(By.className("to-esm-line"));
+                const count = (await lines).length;
+
+                expect(count)
+                    .to.be.lessThan(2000 ); // MAX_CHILDREN_DOM_ANALOGGER
+            });
+
+            it("should not choke when adding 10000 entries", async function ()
+            {
+                driver.navigate().refresh();
+                const scrollBottom = driver.findElement(By.id("scroll-bottom"));
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-10000"));
+
+                await scrollBottom.click();
+                await button.click();
+
+                await sleep(30000);
+
+                // await driver.wait(until.elementLocated(By.className('suggestions-results')));
+                await driver.wait(until.elementTextContains(element, "Adding entry 10000 to the log"));
+            });
+
+        });
+
+
+    });
+
 
 });
 

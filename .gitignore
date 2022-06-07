@@ -88,3 +88,4 @@ dist
 /generated/browser-minified/
 /generated/browser-importmaps/
 /example-2/index-with-import-maps.html
+*.min.css

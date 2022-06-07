@@ -9,7 +9,9 @@ import fs  from "fs";
 import os  from "os";
 import terminalSize  from "./node_modules/window-size/index.mjs";
 import toAnsi  from "to-ansi";
-import {COLOR_TABLE, SYSTEM}  from "./src/constants.mjs";
+import {COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, ADD_TYPE, CONSOLE_AREA_CLASSNAME,
+    PREDEFINED_FORMATS, ANALOGGER_NAME, LINE_CLASSNAME
+}  from "./src/constants.mjs";
 import {stringify}  from "flatted";
 terminalSize = {};
 
@@ -29,9 +31,6 @@ const PREDEFINED_CONTEXT_NAMES = {
     "ERROR": "ERROR"
 };
 
-export const PREDEFINED_FORMATS  = {
-    "ANALOGGER": "ANALOGGER"
-};
 
 
 const EOL = `
@@ -802,7 +801,7 @@ class AnaLogger
         let index = 0;
         for (let columnName in context)
         {
-            if ("name" === columnName)
+            if (!["contextName", "symbol", "lid", "text"].includes(columnName))
             {
                 continue;
             }
@@ -821,31 +820,124 @@ class AnaLogger
         $line.append($col);
     }
 
-    writeLogToDom(context, text)
+    /**
+     * Check that the div has not too many entries
+     * @param $view
+     */
+    removeDomOldEntries = ($view) =>
+    {
+        const nbChildren = $view.childElementCount;
+        if (nbChildren > MAX_CHILDREN_DOM_ANALOGGER)
+        {
+            const n = Math.ceil(MAX_CHILDREN_DOM_ANALOGGER / 10);
+            for (let i = 0; i < n; ++i)
+            {
+                $view.removeChild($view.firstChild);
+            }
+            return n;
+        }
+
+        return 0;
+    };
+
+    /**
+     * Scroll to bottom if div is already at the bottom
+     * @param $view
+     */
+    scrollDivToBottom = ($view) =>
+    {
+        const scrollBottom =  $view.scrollHeight - ($view.clientHeight + $view.scrollTop);
+        const divHeight = $view.clientHeight || $view.offsetHeight;
+        if (scrollBottom > divHeight / 2)
+        {
+            /* istanbul ignore next */
+            return;
+        }
+
+        $view.scrollTop = $view.scrollHeight;
+    };
+
+    /**
+     * Add a line to the Analogger div.
+     * Remove older lines if exceeding limit.
+     * @param $view
+     * @param $line
+     * @param context
+     * @param addType
+     */
+    addLineToDom($view, $line, {context, addType})
+    {
+        if (addType === ADD_TYPE.BOTTOM)
+        {
+            $view.append($line);
+        }
+        else
+        {
+            $view.insertBefore($line, $view.firstChild);
+        }
+
+        let nbRemoved = this.removeDomOldEntries($view);
+        if (nbRemoved)
+        {
+            if ($view.getElementsByClassName(CLASS_REMOVED_NOTIF).length)
+            {
+                return;
+            }
+
+            context.contextName = ANALOGGER_NAME;
+            context.symbol = "🗑";
+            context.color = "orange";
+            context.className = CLASS_REMOVED_NOTIF;
+
+            clearTimeout(this.timerAddLineToDomID);
+            this.timerAddLineToDomID = setTimeout(()=>
+            {
+                this.timerAddLineToDomID = null;
+                /* istanbul ignore next */
+                this.writeLogToDom(context, "", {addType: ADD_TYPE.TOP, message: `Oldest entries removed`});
+            }, 500);
+            return;
+        }
+
+        this.scrollDivToBottom($view);
+
+    }
+
+    writeLogToDom(context, fullText, {addType = ADD_TYPE.BOTTOM, message = ""} = {})
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom);
+        fullText = message || fullText;
 
         for (let i = 0; i < this.$containers.length; ++i)
         {
             const $container = this.$containers[i];
 
-            let $view = $container.querySelector(".analogger-view");
+            let $view = $container.querySelector("." + CONSOLE_AREA_CLASSNAME);
             if (!$view)
             {
                 $view = document.createElement("div");
-                $view.classList.add("analogger-view");
+                $view.classList.add(CONSOLE_AREA_CLASSNAME);
                 $container.append($view);
             }
 
             const $line = document.createElement("div");
-            $line.classList.add("to-esm-line");
+            $line.classList.add(LINE_CLASSNAME);
+            if (context.className)
+            {
+                $line.classList.add(context.className);
+            }
             $line.style.color = context.color;
-            $line.setAttribute("data-log-counter", this.logCounter);
-            $line.setAttribute("data-log-index", this.logIndex);
 
-            this.setColumns($line, context, text);
+            this.setColumns($line, context, fullText);
 
-            $view.append($line);
+            // Prevent the application to be stuck when many logs are entered at once
+            /* istanbul ignore next */
+            setTimeout(/* istanbul ignore next */function($view, $line, {addType, context})
+            {
+                /* istanbul ignore next */
+                this.addLineToDom($view, $line, {addType, context});
+            }.bind(this, $view, $line, {addType, context}), 0);
+
         }
     }
 
@@ -926,12 +1018,15 @@ class AnaLogger
 
             ++this.logCounter;
 
+            /* istanbul ignore next */
             if (this.isBrowser())
             {
                 context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER;
+                /* istanbul ignore next */
                 if (this.options.logToDom)
                 {
-                    this.writeLogToDom(context, text);
+                    /* istanbul ignore next */
+                    this.writeLogToDom(context, text, {message});
                 }
 
                 output = `%c${text}`;
@@ -1242,11 +1337,14 @@ class AnaLogger
                 DEFAULT : {}
             };
 
+            const DEV = (typeof process === "object") ? process.env.DEVELOPER : "DEV";
+            const DEV1 = (typeof process === "object") ? process.env.DEVELOPER : "DEV1";
+
             const LOG_TARGETS = {
                 ALL  : "ALL",
                 DEBUG: "DEBUG",
-                DEV  : process.env.DEVELOPER,
-                DEV1 : process.env.DEVELOPER,
+                DEV,
+                DEV1,
                 USER : "USER"
             };
 
@@ -1274,9 +1372,9 @@ class AnaLogger
         return false;
     }
 
-    applyPredefinedFormat(name = PREDEFINED_FORMATS.ANALOGGER, {activeTarget = "", override = false} = {})
+    applyPredefinedFormat(name = PREDEFINED_FORMATS.DEFAULT_FORMAT, {activeTarget = "", override = false} = {})
     {
-        if (name === PREDEFINED_FORMATS.ANALOGGER)
+        if (name === PREDEFINED_FORMATS.DEFAULT_FORMAT)
         {
             return this.applyAnalogFormatting({activeTarget, override});
         }
@@ -1286,6 +1384,5 @@ class AnaLogger
 
 export const anaLogger  = new AnaLogger();
 export default anaLogger;
-
 
 
