@@ -1324,11 +1324,14 @@ class AnaLogger
                 DEFAULT : {}
             };
 
+            const DEV = (typeof process === "object") ? process.env.DEVELOPER : "DEV";
+            const DEV1 = (typeof process === "object") ? process.env.DEVELOPER : "DEV1";
+
             const LOG_TARGETS = {
                 ALL  : "ALL",
                 DEBUG: "DEBUG",
-                DEV  : process.env.DEVELOPER,
-                DEV1 : process.env.DEVELOPER,
+                DEV,
+                DEV1,
                 USER : "USER"
             };
 

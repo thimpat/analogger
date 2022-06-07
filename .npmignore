@@ -96,3 +96,9 @@ test-log.txt
 /example-3/
 dist/analogger-browser-demo.min.mjs
 /generated/browser/
+/src/index.scss
+/src/index.css
+/src/index.css.map
+/src/ana-logger.css
+/src/ana-logger.scss
+/src/analogger.min.css
