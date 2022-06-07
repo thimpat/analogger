@@ -1224,13 +1224,14 @@ class AnaLogger
      * // Output Example
      * // [14:01:06]    DEFAULT: (1060) ⚡  " ✔ My log ..."
      * @param activeTarget
+     * @param override
      * @returns {boolean}
      */
-    applyAnalogFormatting({activeTarget = ""} = {})
+    applyAnalogFormatting({activeTarget = "", override = false} = {})
     {
         try
         {
-            const override = true, silent = false, lidLenMax = 4;
+            const silent = false, lidLenMax = 4;
 
             const LOG_CONTEXTS = {
                 STANDARD: null,
@@ -1273,11 +1274,11 @@ class AnaLogger
         return false;
     }
 
-    applyPredefinedFormat(name = PREDEFINED_FORMATS.ANALOGGER, {activeTarget = ""} = {})
+    applyPredefinedFormat(name = PREDEFINED_FORMATS.ANALOGGER, {activeTarget = "", override = false} = {})
     {
         if (name === PREDEFINED_FORMATS.ANALOGGER)
         {
-            return this.applyAnalogFormatting({activeTarget});
+            return this.applyAnalogFormatting({activeTarget, override});
         }
     }
 
