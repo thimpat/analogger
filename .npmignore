@@ -95,3 +95,4 @@ test-log.txt
 /example-2/index-with-import-maps.html
 /example-3/
 dist/analogger-browser-demo.min.mjs
+/generated/browser/

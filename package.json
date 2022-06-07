@@ -3,7 +3,7 @@
   "version": "1.15.1",
   "description": "Js Logger",
   "main": "./src/ana-logger.cjs",
-  "module": "./generated/terminal/ana-logger.mjs",
+  "module": "./esm/ana-logger.mjs",
   "type": "module",
   "imports": {
     "flatted": "./node_modules/flatted/esm/index.js",
@@ -12,10 +12,10 @@
   "exports": {
     ".": {
       "require": "./src/ana-logger.cjs",
-      "import": "./generated/terminal/ana-logger.mjs"
+      "import": "./esm/ana-logger.mjs"
     }
   },
-  "browser": "./generated/browser/ana-logger.mjs",
+  "browser": "./dist/analogger-browser.min.mjs",
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
     "test": "npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
@@ -25,7 +25,7 @@
     "*** Pre-Cleaning-2 ****": "# Clean directory",
     "*** Pre-Cleaning-3 ****": "# ----------------------------------------------------------------------------------------------------------",
     "clean:all": "rimraf ./generated && rimraf ./dist",
-    "clean:terminal": "rimraf ./generated/terminal",
+    "clean:terminal": "rimraf ./esm/",
     "clean:browser": "rimraf ./generated/browser",
     "clean:browser:importmaps": "rimraf ./generated/browser-import-maps && rimraf ./example-2/index-with-import-maps.html && clonefile example-2/index-maps.html example-2/index-with-import-maps.html",
     "clean:browser:minified": "rimraf ./generated/browser-minified",
@@ -34,15 +34,14 @@
     "*** On the Terminal-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** On the Terminal-2 ****": "# Generate library code",
     "*** On the Terminal-3 ****": "# ----------------------------------------------------------------------------------------------------------",
-    "build:esm:terminal": "          npm run clean:terminal           && to-esm.cmd src/ana-logger.cjs        --output generated/terminal/                 --config .toesm.cjs --target esm                                               --update-all",
-    "build:esm:browser": "           npm run clean:browser            && to-esm src/ana-logger.cjs            --output generated/browser/                  --config .toesm.cjs --target browser                                           --update-all",
-    "build:esm:browser:importmaps": "npm run clean:browser:importmaps && to-esm src/ana-logger.cjs            --output generated/browser-importmaps/       --config .toesm.cjs --target browser                                                        --useImportMaps",
-    "build:esm:browser:minified": "  npm run clean:browser:minified   && to-esm src/ana-logger.cjs            --output generated/browser-minified/         --config .toesm.cjs --target browser --bundle ./dist/analogger-browser.min.mjs",
-    "build:esm": "                   npm run build:esm:terminal && npm run build:esm:browser && npm run build:esm:browser:importmaps && npm run build:esm:browser:minified",
+    "build:esm:terminal": "            npm run clean:terminal           && to-esm.cmd src/ana-logger.cjs        --output esm/                                --config .toesm.cjs --target esm                                               --update-all",
+    "build:esm:browser": "             npm run clean:browser            && to-esm src/ana-logger.cjs            --output generated/browser/                  --config .toesm.cjs --target package",
+    "build:esm:browser:importmaps": "  npm run clean:browser:importmaps && to-esm src/ana-logger.cjs            --output generated/browser-importmaps/       --config .toesm.cjs --target browser                                                        --useImportMaps",
+    "build:esm:browser:minified": "    npm run clean:browser:minified   && to-esm src/ana-logger.cjs            --output generated/browser-minified/         --config .toesm.cjs --target browser --bundle ./dist/analogger-browser.min.mjs --update-all",
+    "build:esm": "npm run clean:all && npm run build:esm:terminal && npm run build:esm:browser && npm run build:esm:browser:importmaps && npm run build:esm:browser:minified",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
-    "***": "npm run build:terminal:esm:demo && node ./generated/terminal/demo.mjs",
     "build:demo:terminal": "           to-esm.cmd example/more/demo.cjs      --output=generated/demo/terminal/             --config .toesm.cjs  --target=esm",
     "build:demo:browser": "            to-esm.cmd example/more/demo.cjs      --output generated/demo/browser/              --config .toesm.cjs  --target browser",
     "build:demo:browser:importmaps": " to-esm.cmd example/more/demo.cjs      --output generated/demo/browser-import-maps/  --config .toesm.cjs  --target browser  --html=example-2/index-with-import-maps.html --useImportMaps",

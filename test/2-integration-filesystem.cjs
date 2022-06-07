@@ -1,6 +1,6 @@
 const chai = require("chai");
 const capcon = require("capture-console");
-const {anaLogger} = require("../src/ana-logger.cjs");
+const {anaLogger, PREDEFINED_FORMATS} = require("../src/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/more/contexts-def.cjs");
 const fs = require("fs");
 const expect = chai.expect;
@@ -52,8 +52,19 @@ describe("In the Terminal", function ()
         {
             const captured = capcon.captureStdio(function ()
             {
-                anaLogger.applyPredefinedFormat();
+                anaLogger.applyPredefinedFormat(PREDEFINED_FORMATS.ANALOGGER, {override: false});
                 anaLogger.log({lid: 8000}, "Test Log example C1");
+            });
+
+            expect(captured.stdout).to.contain("Test Log example C1");
+        });
+
+        it("should apply the default format and override console", function ()
+        {
+            const captured = capcon.captureStdio(function ()
+            {
+                anaLogger.applyPredefinedFormat(PREDEFINED_FORMATS.ANALOGGER,{override: true});
+                console.log({lid: 8000}, "Test Log example C1");
             });
 
             expect(captured.stdout).to.contain("Test Log example C1");
