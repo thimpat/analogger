@@ -5,8 +5,7 @@
     <title>Demo</title>
     <link rel="stylesheet" href="index.css">
     <style>
-        .report
-        {
+        .report {
             height: 240px;
             width: 600px;
         }
@@ -14,57 +13,73 @@
 </head>
 <body>
 
-<button id="add-1">Add One Item</button>
-<button id="add-10">Add many Items</button>
+<button id="add-1" class="add-button">Add 1</button>
+<button id="add-10" class="add-button">Add 10</button>
+<button id="add-100" class="add-button">Add 100</button>
+<button id="add-1000" class="add-button">Add 1000</button>
+<button id="add-10000" class="add-button">Add 10000</button>
 <button id="scroll-up">Scroll up 200 pixels</button>
 <button id="scroll-down">Scroll down 200 pixels</button>
+<button id="scroll-top">Scroll to top</button>
+<button id="scroll-bottom">Scroll to bottom</button>
 
 <div id="analogger" class="analogger">
 </div>
 
-<div>clientHeight, scrollTop, scrollHeight, scrollHeightWhole</div>
+<div>number of entries, scrollTop, scrollHeight, scrollHeightWhole, clientHeight</div>
 <textarea id="report" class="report"></textarea>
 
 <script type="module" src="../generated/demo/browser/demo.mjs"></script>
 <script>
 
-    document.addEventListener("DOMContentLoaded", ()=>
+    document.addEventListener("DOMContentLoaded", () =>
     {
         const $report = document.getElementById("report");
-
         const $view = document.querySelector("#analogger .analogger-view");
         const update = () =>
         {
-            const scrollToBottomHeight =  $view.scrollHeight - ($view.clientHeight + $view.scrollTop)
-            $report.value = `${$view.clientHeight},${$view.scrollTop},${$view.scrollHeight},${scrollToBottomHeight}`
+            const scrollToBottomHeight = $view.scrollHeight - ($view.clientHeight + $view.scrollTop)
+            $report.value =
+                `${$view.childElementCount},${$view.scrollTop},${$view.scrollHeight},${scrollToBottomHeight},${$view.clientHeight},`
         }
 
-        document.getElementById("add-1").addEventListener("click", ()=>
+        document.querySelectorAll(".add-button").forEach($button =>
         {
-            console.log({lid: 1000}, `Adding something to the log`);
-            update();
-        })
-
-        document.getElementById("add-10").addEventListener("click", ()=>
-        {
-            for (let i = 0; i < 10; ++i)
+            $button.addEventListener("click", function()
             {
-                console.log({lid: 1000 + i}, `Adding 10 entries to the log`);
-                update();
-            }
-        })
+                const currentTotalEntries = $view.childElementCount;
+                const nb = parseInt( this.id.replace("add-", "") ) || 0;
+                for (let i = 0; i < nb; ++i)
+                {
+                    console.log({lid: 1000 + i}, `Adding entry ${currentTotalEntries + i} to the log`);
+                    update();
+                }
+            });
+        });
 
-        document.getElementById("scroll-up").addEventListener("click", ()=>
+        document.getElementById("scroll-up").addEventListener("click", () =>
         {
             $view.scrollBy(0, -200);
             update();
-        })
+        });
 
-        document.getElementById("scroll-down").addEventListener("click", ()=>
+        document.getElementById("scroll-down").addEventListener("click", () =>
         {
             $view.scrollBy(0, 200);
             update();
-        })
+        });
+
+        document.getElementById("scroll-top").addEventListener("click", () =>
+        {
+            $view.scrollTop = 0;
+            update();
+        });
+
+        document.getElementById("scroll-bottom").addEventListener("click", () =>
+        {
+            $view.scrollTop = $view.scrollHeight;
+            update();
+        });
 
         setInterval(update, 500);
 

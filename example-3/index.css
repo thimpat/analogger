@@ -25,40 +25,46 @@
   width: 100%;
 }
 .analogger .analogger-view .to-esm-line {
-  display: block;
+  align-items: stretch;
+  display: flex;
+  justify-content: flex-start;
+  height: 26px;
+  line-height: 26px;
   overflow: hidden;
+  vertical-align: middle;
   white-space: nowrap;
 }
+.analogger .analogger-view .to-esm-line.analogger-removed-notif {
+  background-color: rgba(223, 73, 73, 0.51);
+  color: #abb9b7;
+  font-size: 9px;
+}
+.analogger .analogger-view .to-esm-line.analogger-removed-notif .analogger-col-symbol {
+  font-size: 18px;
+}
 .analogger .analogger-view .to-esm-line .analogger-col {
-  display: inline-block;
   overflow: hidden;
   padding: 0 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(1) {
-  width: 60px;
+.analogger .analogger-view .to-esm-line .analogger-col-contextName {
+  flex-grow: 1;
+  max-width: 60px;
+  text-align: right;
 }
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(2) {
-  width: 40px;
+.analogger .analogger-view .to-esm-line .analogger-col-target {
+  flex-grow: 1;
+  max-width: 60px;
+  text-align: right;
 }
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(3) {
-  width: 20px;
-}
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(4) {
-  width: 64px;
-}
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(5) {
-  width: 60px;
-}
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(6) {
-  width: 70px;
-}
-.analogger .analogger-view .to-esm-line .analogger-col:nth-child(7) {
-  width: auto;
+.analogger .analogger-view .to-esm-line .analogger-col-symbol {
+  flex-grow: 1;
+  max-width: 40px;
+  text-align: center;
 }
 .analogger .analogger-view .to-esm-line .analogger-col-text {
-  min-width: 200px;
+  flex-grow: 1;
 }
 .analogger .analogger-view::-webkit-scrollbar-thumb {
   border: 5px solid transparent;
@@ -67,7 +73,7 @@
   background-clip: content-box;
 }
 .analogger .analogger-view::-webkit-scrollbar {
-  width: 20px;
+  width: 14px;
 }
 .analogger .analogger-view::-webkit-scrollbar-track {
   background-color: #382525;

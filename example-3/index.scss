@@ -28,72 +28,58 @@
 
     .to-esm-line
     {
-      display: block;
+      align-items: stretch;
+      display: flex;
+      justify-content: flex-start;
+      height: 26px;
+      line-height: 26px;
       overflow: hidden;
+      vertical-align: middle;
       white-space: nowrap;
+
+      &.analogger-removed-notif
+      {
+        background-color: rgb(223 73 73 / 51%);
+        color: #abb9b7;
+        font-size: 9px;
+        .analogger-col-symbol
+        {
+          font-size: 18px;
+        }
+      }
 
       .analogger-col
       {
-        display: inline-block;
         overflow: hidden;
         padding: 0 4px;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .analogger-col:nth-child(1)
+      .analogger-col-contextName
       {
-        width: 60px;
+        flex-grow: 1;
+        max-width: 60px;
+        text-align: right;
       }
 
-      .analogger-col:nth-child(2)
+      .analogger-col-target
       {
-        width: 40px;
+        flex-grow: 1;
+        max-width: 60px;
+        text-align: right;
       }
 
-      .analogger-col:nth-child(3)
+      .analogger-col-symbol
       {
-        width: 20px;
-      }
-
-      .analogger-col:nth-child(4)
-      {
-        width: 64px;
-      }
-
-      .analogger-col:nth-child(5)
-      {
-        width: 60px;
-      }
-
-      .analogger-col:nth-child(6)
-      {
-        width: 70px;
-      }
-
-      .analogger-col:nth-child(7)
-      {
-        width: auto;
-      }
-
-      .analogger-col:nth-child(8)
-      {
-
-      }
-
-      .analogger-col:nth-child(9)
-      {
-
-      }
-
-      .analogger-col:nth-child(10)
-      {
-
+        flex-grow: 1;
+        max-width: 40px;
+        text-align: center;
       }
 
       .analogger-col-text
       {
-        min-width: 200px;
+        flex-grow: 1;
       }
     }
 
@@ -108,7 +94,7 @@
 
   .analogger-view::-webkit-scrollbar
   {
-    width: 20px;
+    width: 14px;
   }
 
   .analogger-view::-webkit-scrollbar-track
