@@ -48,7 +48,7 @@ async function init()
 
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
-    options.addArguments("--headless");
+    // options.addArguments("--headless");
     options.addArguments("--sandbox");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1280,960");
@@ -78,43 +78,6 @@ describe("The Browser", async function ()
         driver.quit();
 
         await stopGenServer({name: SERVER_NAME});
-    });
-
-    describe("with the standard html", () =>
-    {
-        before(async function ()
-        {
-            await driver.get(indexHtmlUrl);
-        });
-
-        it("should reach the correct url", async function ()
-        {
-            const url = await driver.getCurrentUrl();
-            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
-        });
-
-        it("should have a reachable DOM", async function ()
-        {
-            const pageSource = await driver.getPageSource();
-            expect(pageSource).to.contain("<body>");
-        });
-
-        it("should find the #analogger div in the DOM", async function ()
-        {
-            await driver.wait(until.elementLocated(By.id("analogger")), 10000);
-            const element = await driver.findElement(By.id("analogger"));
-            expect(await element.isDisplayed()).to.be.true;
-        });
-
-        it("should have the #analogger div containing some specific text", async function ()
-        {
-            const element = driver.findElement(By.id("analogger"));
-            const bodyText = await element.getText();
-            expect(bodyText)
-                .to.contain("Test Log example C1")
-                .to.contain("Test Log example C4");
-        });
-
     });
 
     describe("with the minified html", () =>
@@ -182,6 +145,105 @@ describe("The Browser", async function ()
         });
 
     });
+
+    describe("with the standard html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get(indexHtmlUrl);
+        });
+
+        it("should reach the correct url", async function ()
+        {
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
+        });
+
+        it("should have a reachable DOM", async function ()
+        {
+            const pageSource = await driver.getPageSource();
+            expect(pageSource).to.contain("<body>");
+        });
+
+        it("should find the #analogger div in the DOM", async function ()
+        {
+            await driver.wait(until.elementLocated(By.id("analogger")), 10000);
+            const element = await driver.findElement(By.id("analogger"));
+            expect(await element.isDisplayed()).to.be.true;
+        });
+
+        it("should have the #analogger div containing some specific text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
+        describe("on logging from console", ()=>
+        {
+            it("should scroll down to the bottom of the div", async function ()
+            {
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await button.click();
+                const content = await report.getAttribute("value");
+
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).to.equal("0");
+            });
+
+            it("should not scroll down to the bottom of the div when the scrollbar has moved", async function ()
+            {
+                const scrollUp = driver.findElement(By.id("scroll-up"));
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await scrollUp.click();
+                await button.click();
+                const content = await report.getAttribute("value");
+
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).not.to.equal("0");
+            });
+
+            it("should scroll down to the bottom of the div again", async function ()
+            {
+                const scrollDown = driver.findElement(By.id("scroll-down"));
+                const button = driver.findElement(By.id("add-10"));
+                const report = driver.findElement(By.id("report"));
+
+                await scrollDown.click();
+                await scrollDown.click();
+                await scrollDown.click();
+                await button.click();
+
+                const content = await report.getAttribute("value");
+                const [, , , scrollBottom] = content.split(",");
+
+                expect(scrollBottom).to.equal("0");
+            });
+
+            it("should add an entry to the div", async function ()
+            {
+                const element = driver.findElement(By.id("analogger"));
+                const button = driver.findElement(By.id("add-1"));
+                await button.click();
+
+                const bodyText = await element.getText();
+                expect(bodyText)
+                    .to.contain("Adding something to the log");
+            });
+
+        });
+
+
+    });
+
 
 });
 

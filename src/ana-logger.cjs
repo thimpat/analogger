@@ -826,6 +826,7 @@ class AnaLogger
         const divHeight = $view.clientHeight || $view.offsetHeight;
         if (scrollBottom > divHeight / 2)
         {
+            /* istanbul ignore next */
             return;
         }
         $view.scrollTop = $view.scrollHeight;
