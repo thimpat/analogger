@@ -621,7 +621,7 @@ It is possible to generate multiple AnaLogger instances, so they can point to di
 ### Example
 
 ```javascript
-const {AnaLogger}  = require("analogger");      // or import {AnaLogger} from "analogger"
+const AnaLogger = require("analogger");                 // or import AnaLogger from "analogger"
 const anaLoggerInstance1 = new AnaLogger();
 const anaLoggerInstance2 = new AnaLogger();
 
