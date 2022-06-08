@@ -24,7 +24,7 @@ const indexHtmlUrl = configTest.e2e.indexHTML;
 const indexMinifiedHtmlUrl = configTest.e2e.indexMinifiedHtmlUrl;
 const indexImportMapsHtmlUrl = configTest.e2e.indexHTMLImportMaps;
 
-const {waitForDriverCaptured, sleep, getContent} = require("./lib/test-utils.cjs");
+const {waitForDriverCaptured, sleep, getContent} = require("@thimpat/testutils");
 const path = require("path");
 
 async function init()
@@ -65,7 +65,7 @@ describe("The Browser", async function ()
 
     before(async function ()
     {
-        driver = await waitForDriverCaptured({driver: driver = await init()});
+        driver = await waitForDriverCaptured({driver: await init()});
     });
 
     afterEach(async () =>
