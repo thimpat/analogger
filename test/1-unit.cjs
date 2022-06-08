@@ -23,7 +23,7 @@ chai.use(assertArrays);
 // sut
 const {anaLogger} = require("../src/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/more/contexts-def.cjs");
-const {sleep} = require("./lib/test-utils.cjs");
+const {sleep} = require("@thimpat/testutils");
 
 describe("AnaLogger", function ()
 {

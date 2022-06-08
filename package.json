@@ -72,7 +72,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
-    "@thimpat/testutils": "^1.0.0",
+    "@thimpat/testutils": "^1.1.0",
     "capture-console": "^1.0.1",
     "chai": "^4.3.6",
     "chai-arrays": "^2.2.0",
