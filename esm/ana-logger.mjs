@@ -164,14 +164,6 @@ class AnaLogger
 
     constructor()
     {
-        if (AnaLogger.Instance)
-        {
-            /* istanbul ignore next */
-            return AnaLogger.Instance;
-        }
-
-        AnaLogger.Instance = this;
-
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
@@ -1382,7 +1374,10 @@ class AnaLogger
 
 }
 
+export const Logger  = AnaLogger;
+export default _Logger;
+
+
 export const anaLogger  = new AnaLogger();
-export default anaLogger;
 
 
