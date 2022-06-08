@@ -119,7 +119,7 @@ const symbolNames = {
     writing_hand              : "✍",
 };
 
-class AnaLogger
+class ____AnaLogger
 {
     system = "";
 
@@ -164,14 +164,6 @@ class AnaLogger
 
     constructor()
     {
-        if (AnaLogger.Instance)
-        {
-            /* istanbul ignore next */
-            return AnaLogger.Instance;
-        }
-
-        AnaLogger.Instance = this;
-
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
@@ -202,8 +194,8 @@ class AnaLogger
         console.rawError = this.rawError;
         console.isBrowser0 = this.system === SYSTEM.BROWSER;
 
-        this.ALIGN = AnaLogger.ALIGN;
-        this.ENVIRONMENT_TYPE = AnaLogger.ENVIRONMENT_TYPE;
+        this.ALIGN = ____AnaLogger.ALIGN;
+        this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
     }
 
     keepLogHistory()
@@ -362,7 +354,7 @@ class AnaLogger
         return this.options;
     }
 
-    truncateMessage(input = "", {fit = 0, align = AnaLogger.ALIGN.LEFT, ellipsis = "..."} = {})
+    truncateMessage(input = "", {fit = 0, align = ____AnaLogger.ALIGN.LEFT, ellipsis = "..."} = {})
     {
         input = "" + input;
         if (fit && input.length > fit)
@@ -370,7 +362,7 @@ class AnaLogger
             input = input.substring(0, fit - ellipsis.length) + ellipsis;
         }
 
-        input = align === AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
+        input = align === ____AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
         return input;
     }
 
@@ -569,7 +561,7 @@ class AnaLogger
         time = this.truncateMessage(time, {fit: this.options.timeLenMax});
         contextName = this.truncateMessage(contextName, {
             fit  : this.options.contextLenMax,
-            align: AnaLogger.ALIGN.RIGHT
+            align: ____AnaLogger.ALIGN.RIGHT
         });
         lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
 
@@ -1021,7 +1013,7 @@ class AnaLogger
             /* istanbul ignore next */
             if (this.isBrowser())
             {
-                context.environnment = AnaLogger.ENVIRONMENT_TYPE.BROWSER;
+                context.environnment = ____AnaLogger.ENVIRONMENT_TYPE.BROWSER;
                 /* istanbul ignore next */
                 if (this.options.logToDom)
                 {
@@ -1033,7 +1025,7 @@ class AnaLogger
             }
             else
             {
-                context.environnment = AnaLogger.ENVIRONMENT_TYPE.NODE;
+                context.environnment = ____AnaLogger.ENVIRONMENT_TYPE.NODE;
                 output = toAnsi.getTextFromColor(text, {
                     fg         : context.color,
                     bg         : context.bgColor,
@@ -1382,7 +1374,12 @@ class AnaLogger
 
 }
 
-export const anaLogger  = new AnaLogger();
-export default anaLogger;
+export const AnaLogger  = ____AnaLogger;
+
+
+const __AnaLogger = ____AnaLogger;
+export default __AnaLogger;
+
+export const anaLogger  = new ____AnaLogger();
 
 

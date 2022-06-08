@@ -613,3 +613,22 @@ to them), you can set a handler here. All other console.error will be working as
     anaLogger.error({target: LOG_TARGETS.USER}, "Salut user!");     // Display an alert box
     anaLogger.error("Hi user!");                                    // Log the message to the inspector
 ```
+
+## Multiple instances
+
+It is possible to generate multiple AnaLogger instances, so they can point to different targets. 
+
+### Example
+
+```javascript
+const {AnaLogger}  = require("analogger");      // or import {AnaLogger} from "analogger"
+const anaLoggerInstance1 = new AnaLogger();
+const anaLoggerInstance2 = new AnaLogger();
+
+anaLoggerInstance1.setOptions({logToDom: ".analogger"});
+anaLoggerInstance2.setOptions({logToFile: "./logme.log"});
+```
+
+<br/>
+<br/>
+
