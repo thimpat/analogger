@@ -13,9 +13,14 @@ import {COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, AD
     PREDEFINED_FORMATS, ANALOGGER_NAME, LINE_CLASSNAME
 }  from "./src/constants.mjs";
 import {stringify}  from "flatted";
-terminalSize = {};
+let _terminalSize = {};
 
-/** to-esm-browser: remove **/
+
+
+
+
+
+_terminalSize = terminalSize;
 
 
 
@@ -329,16 +334,14 @@ class ____AnaLogger
             {
                 this.options.logToFile = logToFile || "./analogger.log";
 
-                /** to-esm-browser: remove **/
+                
                 // these require won't get compiled by to-esm
                 this.options.logToFilePath = path.resolve(this.options.logToFile);
                 this.EOL = os.EOL;
-                /** to-esm-browser: end-remove **/
+                
             }
 
-            /** to-esm-browser: add
-             this.#realConsoleLog("LogToFile is not supported in this environment. ")
-             **/
+            
         }
 
         if (silent !== undefined)
@@ -439,11 +442,11 @@ class ____AnaLogger
 
         if (!this.isBrowser0)
         {
-            terminalSize = terminalSize || {};
+            _terminalSize = _terminalSize || {};
 
             if (!availableLength)
             {
-                availableLength = terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
+                availableLength = _terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
             }
         }
 

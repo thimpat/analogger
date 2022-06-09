@@ -1,14 +1,15 @@
-let terminalSize = {};
+let _terminalSize = {};
 
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-terminalSize = require("window-size");
+let terminalSize = require("window-size");
+_terminalSize = terminalSize;
 /** to-esm-browser: end-remove **/
 
 /** to-esm-browser: add
- terminalSize = {}
+ _terminalSize = {}
  **/
 
 const toAnsi = require("to-ansi");
@@ -434,11 +435,11 @@ class ____AnaLogger
 
         if (!this.isBrowser0)
         {
-            terminalSize = terminalSize || {};
+            _terminalSize = _terminalSize || {};
 
             if (!availableLength)
             {
-                availableLength = terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
+                availableLength = _terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
             }
         }
 
