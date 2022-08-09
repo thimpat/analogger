@@ -91,5 +91,6 @@ dist
 *.min.css
 /demo/
 /*.bak.cjs
+esm/
 
 
