@@ -19,11 +19,6 @@ let driver;
 /**
  * TEST CONFIGURATION FILE
  */
-const configTest = require("./0-config.json");
-const indexHtmlUrl = configTest.e2e.indexHTML;
-const indexMinifiedHtmlUrl = configTest.e2e.indexMinifiedHtmlUrl;
-const indexImportMapsHtmlUrl = configTest.e2e.indexHTMLImportMaps;
-
 const {waitForDriverCaptured, sleep, getContent} = require("@thimpat/testutils");
 const path = require("path");
 
@@ -48,7 +43,7 @@ async function init()
 
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
-    options.addArguments("--headless");
+    // options.addArguments("--headless");
     options.addArguments("--sandbox");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1280,960");
@@ -80,83 +75,17 @@ describe("The Browser", async function ()
         await stopGenServer({name: SERVER_NAME});
     });
 
-    describe("with the minified html", () =>
-    {
-        before(async function ()
-        {
-            await driver.get(indexMinifiedHtmlUrl);
-        });
-
-        it("should load the page", async function ()
-        {
-            driver.navigate().refresh();
-            const url = await driver.getCurrentUrl();
-            expect(url).to.equal("http://127.0.0.1:9880/example-3/index-bundle.html");
-        });
-
-        it("should have the #analogger div containing the expected text", async function ()
-        {
-            const element = driver.findElement(By.id("analogger"));
-            const bodyText = await element.getText();
-            expect(bodyText)
-                .to.contain("Test Log example C1")
-                .to.contain("Test Log example C4");
-        });
-
-    });
-
-    describe("with the mapped html", () =>
-    {
-        before(async function ()
-        {
-            await driver.get(indexImportMapsHtmlUrl);
-        });
-
-        it("should load the mapped page", async function ()
-        {
-            driver.navigate().refresh();
-            const url = await driver.getCurrentUrl();
-            expect(url).to.equal("http://127.0.0.1:9880/example-2/index-with-import-maps.html");
-        });
-
-        it("should have its content having some map references", async function ()
-        {
-            const content = getContent("./example-2/index-with-import-maps.html");
-            expect(content)
-                .to.contain(`<script type="importmap">`)
-                .to.contain(`"imports":`)
-                .to.contain(`"to-ansi": "../../node_modules/to-ansi/index.mjs"`)
-                .to.contain(`"to-ansi": "../../node_modules/to-ansi/index.mjs"`);
-        });
-
-        it("should have some .js containing the to-ansi module not resolved", async function ()
-        {
-            const content = getContent("./generated/demo/browser-import-maps/src/ana-logger.mjs");
-            expect(content).to.contain(`import toAnsi  from "to-ansi";`);
-        });
-
-        it("should have the #analogger div containing the expected text", async function ()
-        {
-            const element = driver.findElement(By.id("analogger"));
-            const bodyText = await element.getText();
-            expect(bodyText)
-                .to.contain("Test Log example C1")
-                .to.contain("Test Log example C4");
-        });
-
-    });
-
     describe("with the standard html", () =>
     {
         before(async function ()
         {
-            await driver.get(indexHtmlUrl);
+            await driver.get("http://127.0.0.1:9880/demo/browser/index.html");
         });
 
         it("should reach the correct url", async function ()
         {
             const url = await driver.getCurrentUrl();
-            expect(url).to.equal("http://127.0.0.1:9880/example/index.html");
+            expect(url).to.equal("http://127.0.0.1:9880/demo/browser/index.html");
         });
 
         it("should have a reachable DOM", async function ()
@@ -300,6 +229,72 @@ describe("The Browser", async function ()
 
         });
 
+
+    });
+
+    describe("with the minified html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get("http://127.0.0.1:9880/demo/browser-minified/index-bundle.html");
+        });
+
+        it("should load the page", async function ()
+        {
+            driver.navigate().refresh();
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/demo/browser-minified/index-bundle.html");
+        });
+
+        it("should have the #analogger div containing the expected text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
+
+    });
+
+    describe("with the mapped html", () =>
+    {
+        before(async function ()
+        {
+            await driver.get("http://127.0.0.1:9880/demo/browser-import-maps/index-maps.html");
+        });
+
+        it("should load the mapped page", async function ()
+        {
+            driver.navigate().refresh();
+            const url = await driver.getCurrentUrl();
+            expect(url).to.equal("http://127.0.0.1:9880/demo/browser-import-maps/index-maps.html");
+        });
+
+        it("should have its content having some map references", async function ()
+        {
+            const content = getContent("./demo/browser-import-maps/index-maps.html");
+            expect(content)
+                .to.contain(`<script type="importmap">`)
+                .to.contain(`"imports":`)
+                .to.contain(`"flatted": "../../../node_modules/flatted/esm/index.js"`)
+                .to.contain(`"to-ansi": "../../../node_modules/to-ansi/index.mjs"`);
+        });
+
+        it("should have some .js containing the to-ansi module not resolved", async function ()
+        {
+            const content = getContent("./demo/browser-import-maps/src/ana-logger.mjs");
+            expect(content).to.contain(`import toAnsi  from "to-ansi";`);
+        });
+
+        it("should have the #analogger div containing the expected text", async function ()
+        {
+            const element = driver.findElement(By.id("analogger"));
+            const bodyText = await element.getText();
+            expect(bodyText)
+                .to.contain("Test Log example C1")
+                .to.contain("Test Log example C4");
+        });
 
     });
 
