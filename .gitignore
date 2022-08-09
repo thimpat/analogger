@@ -70,8 +70,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 /src/esm/
-/example/esm/
-/example/esm-browser/
+/models/example-1/esm/
+/models/example-1/esm-browser/
 /src/esm-browser/
 /test-log.txt
 /generated/terminal/node_modules/
@@ -87,5 +87,9 @@ dist
 /generated/terminal/
 /generated/browser-minified/
 /generated/browser-importmaps/
-/example-2/index-with-import-maps.html
+/models/example-2/index-with-import-maps.html
 *.min.css
+/demo/
+/*.bak.cjs
+
+
