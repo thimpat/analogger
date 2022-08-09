@@ -1093,7 +1093,7 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            console.error("AnaLogger:", e.message);
+            console.rawError("AnaLogger:", e.message);
         }
     }
 
