@@ -92,5 +92,5 @@ dist
 /demo/
 /*.bak.cjs
 esm/
-
+/browser/
 
