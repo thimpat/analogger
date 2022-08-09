@@ -1,7 +1,7 @@
 const chai = require("chai");
 const capcon = require("capture-console");
 const {anaLogger} = require("../src/ana-logger.cjs");
-const {LOG_CONTEXTS, LOG_TARGETS} = require("../example/more/contexts-def.cjs");
+const {LOG_CONTEXTS, LOG_TARGETS} = require("../models/jscode/contexts-def.cjs");
 const fs = require("fs");
 const {PREDEFINED_FORMATS} = require("../src/constants.cjs");
 const expect = chai.expect;
