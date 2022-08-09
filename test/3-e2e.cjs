@@ -43,7 +43,7 @@ async function init()
 
     let options = new chrome.Options();
     options.setChromeBinaryPath(chromium.path);
-    // options.addArguments("--headless");
+    options.addArguments("--headless");
     options.addArguments("--sandbox");
     options.addArguments("--disable-gpu");
     options.addArguments("--window-size=1280,960");
