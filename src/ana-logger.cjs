@@ -119,6 +119,9 @@ class ____AnaLogger
 {
     system = "";
 
+    instanceId = "";
+    instanceName = "";
+
     logIndex = 0;
     logCounter = 0;
     contexts = [];
@@ -156,13 +159,20 @@ class ____AnaLogger
         NODE   : "NODE",
         OTHER  : "OTHER"
     };
+
+    static instanceCount = 0;
+
     originalFormatFunction;
 
-    constructor()
+    constructor({name = "default"} = {})
     {
         this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
+
+        this.instanceName = name;
+        ++____AnaLogger.instanceCount;
+        this.instanceId = ____AnaLogger.instanceCount + "-" + Date.now();
 
         this.errorTargetHandler = this.onError.bind(this);
         this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this);
@@ -175,9 +185,14 @@ class ____AnaLogger
         this.rawError = this.#realConsoleError;
 
         console.rawLog = this.#realConsoleLog;
+        console.raw = this.#realConsoleLog;
+
         console.rawInfo = this.#realConsoleInfo;
         console.rawWarn = this.#realConsoleWarn;
         console.rawError = this.#realConsoleError;
+
+        console.keepLogHistory = this.keepLogHistory;
+        console.getLogHistory = this.getLogHistory;
 
         console.table = this.table;
         console.buildTable = this.buildTable;
@@ -192,6 +207,18 @@ class ____AnaLogger
 
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
+
+        this.resetLogHistory();
+    }
+
+    getName()
+    {
+        return this.instanceName;
+    }
+
+    getId()
+    {
+        return this.instanceId;
     }
 
     keepLogHistory()
@@ -211,7 +238,13 @@ class ____AnaLogger
 
     getLogHistory(join = true, symbol = EOL)
     {
-        const history = JSON.parse(JSON.stringify(this.logHistory.slice(0)));
+        const historyLog = this.logHistory;
+        if (!historyLog)
+        {
+            return "";
+        }
+        const logs = this.logHistory.slice(0);
+        const history = JSON.parse(JSON.stringify(logs));
         if (!join)
         {
             return history;
@@ -1065,7 +1098,9 @@ class ____AnaLogger
     }
 
     /**
-     * Check that a parameter (should be the first) uses the expected format.
+     * Check that a parameter uses the expected AnaLogger format.
+     * For this, the first parameter should be an object that contains at least
+     * a logging id (lid), a target, a contextName, etc
      * @param options
      * @returns {boolean}
      */
