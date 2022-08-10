@@ -287,8 +287,6 @@ class ____AnaLogger
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
         this.options.logToDomlogToFile = undefined;
-        this.options.silent = false;
-
     }
 
     resetOptions()
@@ -328,9 +326,20 @@ class ____AnaLogger
             this.options.hideHookMessage = !!hideHookMessage;
         }
 
-        if (hideLog !== undefined)
+        // TODO: Make one of silent or hideToLog options obsolete
+        let solveSilent = undefined;
+        if (silent !== undefined)
         {
-            this.options.hideLog = !!hideLog;
+            solveSilent = !!silent;
+        }
+        else if (hideLog !== undefined)
+        {
+            solveSilent = !!hideLog;
+        }
+
+        if (solveSilent)
+        {
+            this.options.hideLog = !!solveSilent;
         }
 
         if (hideError !== undefined)
@@ -368,12 +377,6 @@ class ____AnaLogger
             /** to-esm-browser: add
              this.#realConsoleLog("LogToFile is not supported in this environment. ")
              **/
-        }
-
-        if (silent !== undefined)
-        {
-            this.options.silent = !!silent;
-            this.options.hideLog = this.options.silent;
         }
 
     }
@@ -1349,7 +1352,7 @@ class ____AnaLogger
     {
         try
         {
-            const silent = false, lidLenMax = 4;
+            const lidLenMax = 4;
 
             const LOG_CONTEXTS = {
                 STANDARD: null,
@@ -1376,7 +1379,7 @@ class ____AnaLogger
 
             activeTarget && this.setActiveTarget(activeTarget);
 
-            this.setOptions({silent, hideError: false, hideHookMessage: true, lidLenMax});
+            this.setOptions({silent: false, hideError: false, hideHookMessage: true, lidLenMax});
             if (override)
             {
                 this.overrideConsole();
