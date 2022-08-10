@@ -317,8 +317,8 @@ Display the browser native message box if run from it; otherwise, it displays th
 
 | **Options**      | **default** | **Expect**            | **Description**                                                                    | 
 |------------------|-------------|-----------------------|------------------------------------------------------------------------------------|
-| silent           | false       | boolean               | _Will display no log (only errors)_                                           |
-| hideLog          | false       | boolean               | _Hide logs from console_                                                           |              
+| silent           | false       | boolean               | _Hide logs from console (not errors)_                                              |
+| hideLog          | false       | boolean               | _Same as above (silent has precedence over hideLog)_                               |              
 | hideError        | false       | boolean               | _Hide errors from console_                                                         |              
 | hideHookMessage  | false       | boolean               | _Hide the automatic message shown when some native console methods are overridden_ |
 | hidePassingTests | false       | boolean               | _Hide Live test results_                                                           |           
