@@ -629,13 +629,71 @@ class ____AnaLogger
         this.log(...args);
     }
 
+    assistStask(error)
+    {
+        try
+        {
+            const lines = error.stack.split("\n");
+            const stack = [];
+
+            for (let i = 0; i < lines.length; ++i)
+            {
+                const line = lines[i];
+                stack.push(line);
+            }
+
+            return stack;
+        }
+        catch (e)
+        {
+            console.rawError(e.message);
+        }
+
+        return error.message;
+    }
+
     /**
      * Forward input to real console log
      * @param args
      */
     onDisplayError(...args)
     {
-        this.error(...args);
+        try
+        {
+            let mainIndex = -1
+            let extracted = null;
+            for (let i = 0; i < args.length; ++i)
+            {
+                const arg = args[i];
+                if (arg instanceof Error)
+                {
+                    if (arg.stack)
+                    {
+                        mainIndex = i;
+                        extracted = this.assistStask(arg) || []
+                        break;
+                    }
+                }
+            }
+
+            if (!extracted)
+            {
+                this.error(...args);
+                return
+            }
+
+            for (let i = 0; i < extracted.length; ++i)
+            {
+                args[mainIndex] = extracted[i];
+                this.error(...args);
+            }
+
+        }
+        catch (e)
+        {
+            console.rawError(e);
+        }
+
     }
 
     /**
