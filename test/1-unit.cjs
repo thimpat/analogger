@@ -92,7 +92,7 @@ describe("AnaLogger", function ()
         {
             anaLogger.setOptions({silent: true});
             const options = anaLogger.getOptions();
-            expect(options.silent).to.be.true;
+            expect(options.hideLog).to.be.true;
         });
 
         it("should throw an exception when called with no parameter", function ()

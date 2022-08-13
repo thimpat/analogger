@@ -5,3 +5,4 @@
 // Bump version for update documentation about active targets
 // Bump version for updating documentation
 // Bump version for updating documentation
+// Bump version for special refactoring
