@@ -92,4 +92,5 @@ out
 /*.bak.cjs
 esm/
 /browser/
+dist/
 
