@@ -92,9 +92,10 @@
     "to-esm": "^2.19.0"
   },
   "dependencies": {
-    "@thimpat/libutils": "^1.5.0",
-    "flatted": "^3.2.5",
-    "to-ansi": "^1.4.3",
-    "window-size": "^1.1.1"
+    "@thimpat/libutils": "1.5.1",
+    "flatted": "3.2.7",
+    "term-size": "3.0.2",
+    "term-size-cjs": "npm:term-size@2.2.1",
+    "to-ansi": "1.4.3"
   }
 }

@@ -1,16 +1,17 @@
-let _terminalSize = {};
+let getTerminalWidth = () => null;
 
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-let terminalSize = require("window-size");
-_terminalSize = terminalSize;
-/** to-esm-browser: end-remove **/
 
-/** to-esm-browser: add
- _terminalSize = {}
- **/
+let terminalSize = require("term-size-cjs");
+getTerminalWidth = () =>
+{
+    return terminalSize().cols;
+};
+
+/** to-esm-browser: end-remove **/
 
 const toAnsi = require("to-ansi");
 
@@ -471,11 +472,9 @@ class ____AnaLogger
 
         if (!this.isBrowser0)
         {
-            _terminalSize = _terminalSize || {};
-
             if (!availableLength)
             {
-                availableLength = _terminalSize.width || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
+                availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
             }
         }
 
@@ -660,7 +659,7 @@ class ____AnaLogger
     {
         try
         {
-            let mainIndex = -1
+            let mainIndex = -1;
             let extracted = null;
             for (let i = 0; i < args.length; ++i)
             {
@@ -670,7 +669,7 @@ class ____AnaLogger
                     if (arg.stack)
                     {
                         mainIndex = i;
-                        extracted = this.assistStask(arg) || []
+                        extracted = this.assistStask(arg) || [];
                         break;
                     }
                 }
@@ -679,7 +678,7 @@ class ____AnaLogger
             if (!extracted)
             {
                 this.error(...args);
-                return
+                return;
             }
 
             for (let i = 0; i < extracted.length; ++i)

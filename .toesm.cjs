@@ -18,15 +18,15 @@ module.exports = {
     ],
     replaceModules:
         {
-            "rgb-hex": {
+            "term-size": {
                 cjs: {
-                    name: "rgb-hex-cjs",
-                    version: "@^3.0.0"
+                    name: "term-size-cjs",
+                    version: "@2.2.1"
                 },
                 esm: {
-                    version: "@latest"
+                    version: "@3.0.2"
                 }
             }
-        }
+         }
 
 }
