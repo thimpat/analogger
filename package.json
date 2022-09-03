@@ -89,13 +89,15 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.19.0"
+    "to-esm": "^2.20.1"
   },
   "dependencies": {
     "@thimpat/libutils": "1.5.1",
     "flatted": "3.2.7",
-    "term-size": "3.0.2",
-    "term-size-cjs": "npm:term-size@2.2.1",
+    "node-fetch": "^3.2.10",
+    "node-fetch-cjs": "npm:node-fetch@^2.6.7",
+    "term-size": "^3.0.2",
+    "term-size-cjs": "npm:term-size@^2.2.1",
     "to-ansi": "1.4.3"
   }
 }
