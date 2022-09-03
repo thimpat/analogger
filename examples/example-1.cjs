@@ -42,7 +42,7 @@ const LOG_CONTEXTS = {
 anaLogger.setContexts(LOG_CONTEXTS);
 anaLogger.setActiveTarget("ME");
 
-anaLogger.setOptions({requiredLogLevel: DEFAULT_LOG_LEVELS.LOG});
+anaLogger.setOptions({requiredLogLevel: DEFAULT_LOG_LEVELS.LOG, logToRemote: true});
 
 anaLogger.keepLogHistory();
 
