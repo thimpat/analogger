@@ -33,21 +33,38 @@ const DEFAULT = {
     logFilename : "./analogger.log"
 };
 
-
 const {
     COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, ADD_TYPE, CONSOLE_AREA_CLASSNAME,
     PREDEFINED_FORMATS, ANALOGGER_NAME, LINE_CLASSNAME
 } = require("./constants.cjs");
 
-const PREDEFINED_CONTEXT_NAMES = {
-    "DEFAULT": "DEFAULT",
-    // "LOG"      : "LOG",
-    // "INFO"     : "INFO",
-    // "WARN"     : "WARN",
-    // "ATTENTION": "ATTENTION",
-    "ERROR": "ERROR"
+const DEFAULT_LOG_TARGETS = {
+    ALL : "ALL",
+    USER: "USER"
 };
 
+const DEFAULT_LOG_LEVELS = {
+    FATAL  : 5000,
+    ERROR  : 4000,
+    WARN   : 3000,
+    INFO   : 2000,
+    LOG    : 1000,
+    DEBUG  : 500,
+    ALL    : 200,
+    OFF    : 0,
+    INHERIT: -1,
+};
+
+const DEFAULT_LOG_CONTEXTS = {
+    // The default context
+    DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG},
+    LOG     : {contextName: "LOG", logLevel: DEFAULT_LOG_LEVELS.LOG},
+    DEBUG   : {contextName: "DEBUG", logLevel: DEFAULT_LOG_LEVELS.DEBUG},
+    INFO    : {contextName: "INFO", logLevel: DEFAULT_LOG_LEVELS.INFO, color: "#B18904", symbol: "diamonds"},
+    WARN    : {contextName: "WARN", logLevel: DEFAULT_LOG_LEVELS.WARN, color: COLOR_TABLE[0], symbol: "cross"},
+    ERROR   : {contextName: "ERROR", logLevel: DEFAULT_LOG_LEVELS.ERROR},
+    CRITICAL: {contextName: "CRITICAL", logLevel: DEFAULT_LOG_LEVELS.CRITICAL},
+};
 
 const {stringify} = require("flatted");
 
@@ -146,10 +163,12 @@ class ____AnaLogger
 
     logIndex = 0;
     logCounter = 0;
-    contexts = [];
-    targets = {};
 
-    activeTarget = null;
+    #contexts = [];
+    #targets = {};
+    #levels = {};
+
+    activeTargets = [];
 
     indexColor = 0;
 
@@ -168,6 +187,7 @@ class ____AnaLogger
     #realConsoleInfo = console.info;
     #realConsoleWarn = console.warn;
     #realConsoleError = console.error;
+    #realConsoleDebug = console.debug;
 
     isBrowser0 = null;
 
@@ -229,6 +249,8 @@ class ____AnaLogger
 
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
+
+        this.#initialiseDefault();
 
         this.resetLogHistory();
     }
@@ -331,6 +353,7 @@ class ____AnaLogger
                    logToFile = undefined,
                    logToRemote = undefined,
                    loopback = DEFAULT.loopback,
+                   requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
                    silent = undefined
                } = null)
@@ -350,6 +373,8 @@ class ____AnaLogger
         {
             this.options.hideHookMessage = !!hideHookMessage;
         }
+
+        this.options.requiredLogLevel = requiredLogLevel;
 
         // TODO: Make one of silent or hideToLog options obsolete
         let solveSilent = undefined;
@@ -647,7 +672,7 @@ class ____AnaLogger
 
     onError(context, ...args)
     {
-        if (context.target === this.targets.USER)
+        if (context.target === this.#targets.USER)
         {
             this.onErrorForUserTarget(context, ...args);
         }
@@ -778,32 +803,42 @@ class ____AnaLogger
         return (context.hasOwnProperty("contextName") && context.hasOwnProperty("target"));
     }
 
-    setContext(contextName, context)
-    {
-        this.contexts[contextName] = context;
-    }
-
+    /**
+     * Set context properties for default context
+     * @param context
+     */
     setDefaultContext(context)
     {
-        this.setContext(PREDEFINED_CONTEXT_NAMES.DEFAULT, context);
+        this.setContext(DEFAULT_LOG_CONTEXTS.DEFAULT.contextName, context);
     }
 
+    /**
+     * Generate a default context with a default color
+     * @returns {*|{}}
+     */
     generateDefaultContext()
     {
-        let defaultContext = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] || {};
+        let defaultContext = this.#contexts[DEFAULT_LOG_CONTEXTS.DEFAULT.contextName] || {};
         defaultContext = Object.assign({},
             {
-                name       : PREDEFINED_CONTEXT_NAMES.DEFAULT,
-                contextName: PREDEFINED_CONTEXT_NAMES.DEFAULT,
-                target     : "ALL",
+                contextName: DEFAULT_LOG_CONTEXTS.DEFAULT.contextName,
+                target     : DEFAULT_LOG_TARGETS.ALL,
                 symbol     : "⚡",
-                color      : COLOR_TABLE[1]
+                color      : COLOR_TABLE[1],
+                logLevel   : DEFAULT_LOG_LEVELS.LOG
             }, defaultContext);
+
+        defaultContext.name = defaultContext.contextName;
 
         defaultContext.id = this.logIndex++;
         return defaultContext;
     }
 
+    /**
+     * Generate a new context based on the default context.
+     * The only difference with default is that a different color will be assign to that context automatically
+     * @returns {*|{}}
+     */
     generateNewContext()
     {
         const newContext = this.generateDefaultContext();
@@ -815,34 +850,24 @@ class ____AnaLogger
     generateErrorContext()
     {
         const errorContext = this.generateDefaultContext();
-        errorContext.name = PREDEFINED_CONTEXT_NAMES.ERROR;
-        errorContext.contextName = PREDEFINED_CONTEXT_NAMES.ERROR;
+        errorContext.contextName = DEFAULT_LOG_CONTEXTS.ERROR.contextName;
+        errorContext.name = errorContext.contextName;
         errorContext.color = COLOR_TABLE[0];
         errorContext.symbol = "❌";
         errorContext.error = true;
+        errorContext.logLevel = DEFAULT_LOG_LEVELS.ERROR;
         return errorContext;
     }
 
-    // TODO: Need testing before activating
-    // generateCustomContext(contextName, {symbol = "", error = false, color = "gray"} = {})
-    // {
-    //     const customContext = this.generateDefaultContext();
-    //     customContext.name = contextName;
-    //     customContext.contextName = contextName;
-    //     customContext.color = color;
-    //     customContext.symbol = symbol;
-    //     customContext.error = error;
-    //     return customContext;
-    // }
-
-    #allegeProperties(entry)
+    /**
+     * Use given context to generate new context
+     * @param entry
+     * @returns {any}
+     */
+    #defineContextProperties(entry)
     {
-        let converted = entry;
-
         const defaultContext = this.generateNewContext();
-
-        converted = Object.assign({}, defaultContext, converted);
-
+        const converted = Object.assign({}, defaultContext, entry);
         if (converted.color.toLowerCase().indexOf("rgb") > -1)
         {
             converted.color = toAnsi.rgbStringToHex(converted.color);
@@ -856,6 +881,24 @@ class ____AnaLogger
     }
 
     /**
+     * Redefine a context
+     * @param contextName
+     * @param context
+     */
+    setContext(contextName, context = {})
+    {
+        context.contextName = contextName;
+        context.name = contextName;
+        context = this.#defineContextProperties(context);
+        this.#contexts[contextName] = context;
+    }
+
+    getContext(contextName)
+    {
+        return this.#contexts[contextName];
+    }
+
+    /**
      * Load the context names that should be available to the environment.
      * They are defined by the user.
      * @see Context definitions {@link ./example/more/contexts-def.cjs}
@@ -864,47 +907,180 @@ class ____AnaLogger
     setContexts(contextTable)
     {
         const arr = Object.keys(contextTable);
-        contextTable[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.contexts[PREDEFINED_CONTEXT_NAMES.DEFAULT] = this.generateDefaultContext();
-        contextTable[PREDEFINED_CONTEXT_NAMES.ERROR] = this.contexts[PREDEFINED_CONTEXT_NAMES.ERROR] = this.generateErrorContext();
-        // contextTable[PREDEFINED_CONTEXT_NAMES.LOG] = this.contexts[PREDEFINED_CONTEXT_NAMES.LOG] =
-        // this.generateCustomContext("LOG", {}); contextTable[PREDEFINED_CONTEXT_NAMES.INFO] =
-        // this.contexts[PREDEFINED_CONTEXT_NAMES.INFO] = this.generateCustomContext("INFO", { symbol:
-        // symbolNames.information, color : "orange" }); contextTable[PREDEFINED_CONTEXT_NAMES.WARN] =
-        // this.contexts[PREDEFINED_CONTEXT_NAMES.WARN] = this.generateCustomContext("WARN", { symbol:
-        // symbolNames.hand, color : "orange" });
-        arr.forEach((key) =>
+        arr.forEach((contextName) =>
         {
-            const contextPassed = contextTable[key] || {};
-            contextPassed.contextName = key;
-            contextPassed.name = key;
-            this.contexts[key] = this.#allegeProperties(contextPassed);
-            contextTable[key] = this.contexts[key];
+            const contextPassed = contextTable[contextName] || {};
+            this.setContext(contextName, contextPassed);
+            contextTable[contextName] = this.#contexts[contextName];
         });
+    }
+
+    getContexts()
+    {
+        return Object.freeze(this.#contexts);
     }
 
     setTargets(targetTable = {})
     {
-        this.targets = Object.assign({}, targetTable, {ALL: "ALL", USER: "USER"});
+        let targetObjects = {};
+        if (Array.isArray(targetTable))
+        {
+            try
+            {
+                for (let i = 0; i < targetTable.length; ++i)
+                {
+                    const entry = targetTable[i];
+                    if (typeof entry === "string" || entry instanceof String)
+                    {
+                        targetObjects[entry] = entry;
+                    }
+                    else if (typeof entry === "object")
+                    {
+                        let found = null;
+                        for (let prop in entry)
+                        {
+                            let valueProp = entry[prop];
+                            prop = prop.trim();
+                            if (!prop)
+                            {
+                                console.error(`Invalid target`);
+                                break;
+                            }
+
+                            if (typeof valueProp === "string" || valueProp instanceof String)
+                            {
+                                valueProp = valueProp.trim();
+                                found = [prop, valueProp];
+                                break;
+                            }
+
+                            if (typeof valueProp === "number")
+                            {
+                                break;
+                            }
+
+                        }
+
+                        if (found)
+                        {
+                            targetObjects[found[0]] = found[1];
+                        }
+
+                    }
+
+                }
+            }
+            catch (e)
+            {
+                console.error({lid: 4321}, e.message);
+            }
+        }
+        else
+        {
+            targetObjects = targetTable;
+        }
+
+        this.#targets = Object.assign({}, targetObjects, {...DEFAULT_LOG_TARGETS});
     }
 
+    addTargets(targets)
+    {
+        const currentTargets = this.#targets;
+        const merged = Object.assign({}, currentTargets, targets);
+        this.setTargets(merged);
+    }
+
+    getTargets()
+    {
+        return Object.freeze(this.#targets);
+    }
+
+    /**
+     * Set one or more active targets
+     * @param targets
+     */
+    setActiveTargets(targets = null)
+    {
+        if (targets === null)
+        {
+            this.activeTargets = [DEFAULT_LOG_TARGETS.ALL];
+            return;
+        }
+        else if (typeof targets === "string" || targets instanceof String)
+        {
+            targets = targets.split(",");
+        }
+        else if (typeof targets === "object" || typeof targets === "function")
+        {
+            return;
+        }
+
+        for (let i = 0; i < targets.length; ++i)
+        {
+            targets[i] = targets[i].trim();
+        }
+
+        this.activeTargets = targets;
+    }
+
+    getActiveTarget()
+    {
+        return this.activeTargets;
+    }
+
+    /**
+     * Set only one active target
+     * NOTE: Kept for backward compatibility.
+     * Use setActiveTargets instead
+     * @param target
+     */
     setActiveTarget(target)
     {
-        this.activeTarget = target;
+        this.activeTargets = [];
+        this.setActiveTargets(target);
+        // In case of strings
+        this.activeTargets = [this.activeTargets[0]];
+    }
+
+    setLogLevel(name, level)
+    {
+        this.#levels[name] = level;
+    }
+
+    getLogLevel(name)
+    {
+        return this.#levels[name];
+    }
+
+    setLogLevels(levels)
+    {
+        this.#levels = levels;
+    }
+
+    getLogLevels()
+    {
+        return Object.freeze(this.#levels);
     }
 
     isTargetAllowed(target)
     {
-        if (!target || !this.activeTarget)
+        // If target or activeTargets undefined, allow everything
+        if (!target || !this.activeTargets || !this.activeTargets.length)
         {
             return true;
         }
 
-        if (target === this.targets.ALL)
+        if (target === DEFAULT_LOG_TARGETS.ALL)
         {
             return true;
         }
 
-        return this.activeTarget === target;
+        if (this.activeTargets.includes(DEFAULT_LOG_TARGETS.ALL))
+        {
+            return true;
+        }
+
+        return this.activeTargets.includes(target);
     }
 
 
@@ -1128,6 +1304,47 @@ class ____AnaLogger
         return text;
     }
 
+    writeToConsole(output, context, {isBrowser})
+    {
+        if (isBrowser)
+        {
+            this.#realConsoleLog(output, `color: ${context.color}`);
+        }
+        else
+        {
+
+        }
+
+        const res = [output];
+        if (isBrowser)
+        {
+            res.push(`color: ${context.color}`);
+        }
+
+        const contextLevel = context.contextLevel || DEFAULT_LOG_LEVELS.LOG;
+        if (contextLevel > DEFAULT_LOG_LEVELS.ERROR)
+        {
+            this.#realConsoleError(...res);
+        }
+        else if (contextLevel > DEFAULT_LOG_LEVELS.WARN)
+        {
+            this.#realConsoleWarn(...res);
+        }
+        else if (contextLevel > DEFAULT_LOG_LEVELS.INFO)
+        {
+            this.#realConsoleInfo(...res);
+        }
+        else if (contextLevel > DEFAULT_LOG_LEVELS.LOG)
+        {
+            this.#realConsoleLog(...res);
+        }
+        else if (contextLevel > DEFAULT_LOG_LEVELS.DEBUG)
+        {
+            this.#realConsoleDebug(...res);
+        }
+
+    }
+
     /**
      * Display log following template
      * @param context
@@ -1139,6 +1356,16 @@ class ____AnaLogger
             let message = "";
 
             if (!this.isTargetAllowed(context.target))
+            {
+                return;
+            }
+
+            if (context.logLevel === DEFAULT_LOG_LEVELS.OFF)
+            {
+                return;
+            }
+
+            if (this.options.requiredLogLevel > context.logLevel)
             {
                 return;
             }
@@ -1194,14 +1421,7 @@ class ____AnaLogger
                 return;
             }
 
-            if (this.isBrowser())
-            {
-                this.#realConsoleLog(output, `color: ${context.color}`);
-            }
-            else
-            {
-                this.#realConsoleLog(output);
-            }
+            this.writeToConsole(output, context, {isBrowser: this.isBrowser()});
 
             this.errorTargetHandler(context, args);
         }
@@ -1233,6 +1453,25 @@ class ____AnaLogger
             options.hasOwnProperty("lid");
     }
 
+    /**
+     * Convert a string into a Context object if possible
+     * TODO: To implement in next version
+     * @param str
+     * @returns {string}
+     */
+    extractContextFromInput(str)
+    {
+        if (typeof str === "string" || str instanceof String)
+        {
+            if (str.toLowerCase().indexOf("lid:") !== 0)
+            {
+                return str;
+            }
+        }
+
+        return str;
+    }
+
     listSymbols()
     {
         for (let key in symbolNames)
@@ -1256,11 +1495,21 @@ class ____AnaLogger
         }
     }
 
+    /**
+     * Convert the first parameter of a console.log to a Context object
+     * @param options
+     * @param defaultContext
+     * @returns {*|{}}
+     */
     convertToContext(options, defaultContext)
     {
-        defaultContext = defaultContext || this.generateDefaultContext();
         options = options || defaultContext;
+
         let context = options;
+
+        // Flatten option object. For instance,
+        // {something: "some1", something2: "some2", context: {lid: 3000, color: "purple"}}
+        // Will become {something: "some1", something2: "some2", lid: 3000, color: "purple"}
         if (options.context && typeof options.context === "object")
         {
             const moreOptions = Object.assign({}, options);
@@ -1288,6 +1537,9 @@ class ____AnaLogger
             this.writeLogToRemote(options, ...args);
         }
 
+        options = this.extractContextFromInput(options);
+        // If the first parameter is not of context format,
+        // We use the default context and display
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext();
@@ -1295,7 +1547,8 @@ class ____AnaLogger
             return;
         }
 
-        let context = this.convertToContext(options);
+        const someContext = this.generateDefaultContext();
+        let context = this.convertToContext(options, someContext);
 
         this.processOutput.apply(this, [context, ...args]);
     }
@@ -1312,6 +1565,10 @@ class ____AnaLogger
             return;
         }
 
+        options = this.extractContextFromInput(options);
+
+        // If the first parameter is not of context format,
+        // We use the error context and display
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateErrorContext();
@@ -1462,6 +1719,31 @@ class ____AnaLogger
     }
 
     /**
+     * Set default targets, contexts and log levels
+     * @returns {boolean}
+     */
+    #initialiseDefault()
+    {
+        try
+        {
+            // Register default targets: ALL and USER
+            this.setTargets(DEFAULT_LOG_TARGETS);
+
+            // Register default log levels
+            this.setLogLevels(DEFAULT_LOG_LEVELS);
+
+            // Register default context
+            this.setContexts(DEFAULT_LOG_CONTEXTS);
+        }
+        catch (e)
+        {
+            console.error({lid: 4321}, e.message);
+        }
+
+        return false;
+    }
+
+    /**
      * Set standard Analogger format
      * @example
      * // Output Example
@@ -1474,30 +1756,14 @@ class ____AnaLogger
     {
         try
         {
-            const lidLenMax = 4;
+            const lidLenMax = 6;
 
             const LOG_CONTEXTS = {
                 STANDARD: null,
                 TEST    : {color: "#B18904", symbol: "diamonds"},
-                C1      : null,
-                C2      : null,
-                C3      : null,
-                DEFAULT : {}
-            };
-
-            const DEV = (typeof process === "object") ? process.env.DEVELOPER : "DEV";
-            const DEV1 = (typeof process === "object") ? process.env.DEVELOPER : "DEV1";
-
-            const LOG_TARGETS = {
-                ALL  : "ALL",
-                DEBUG: "DEBUG",
-                DEV,
-                DEV1,
-                USER : "USER"
             };
 
             this.setDefaultContext(LOG_CONTEXTS.DEFAULT);
-            this.setTargets(LOG_TARGETS);
 
             activeTarget && this.setActiveTarget(activeTarget);
 
@@ -1591,4 +1857,8 @@ module.exports = __AnaLogger;
 
 const ___anaLogger = new ____AnaLogger();
 module.exports.anaLogger = ___anaLogger;
+
+module.exports.DEFAULT_LOG_LEVELS = DEFAULT_LOG_LEVELS;
+module.exports.DEFAULT_LOG_CONTEXTS = DEFAULT_LOG_CONTEXTS;
+module.exports.DEFAULT_LOG_TARGETS = DEFAULT_LOG_TARGETS;
 
