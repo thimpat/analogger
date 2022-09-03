@@ -11,13 +11,34 @@ getTerminalWidth = () =>
     return terminalSize().cols;
 };
 
+const fetch = require("node-fetch-cjs");
+
 /** to-esm-browser: end-remove **/
 
+// to-ansi is also used by the browser
 const toAnsi = require("to-ansi");
 
-const {COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, ADD_TYPE, CONSOLE_AREA_CLASSNAME,
+
+const DEFAULT = {
+    moduleName: "analogger",
+    // Default values for remote-logging
+    protocol: "http://",
+    host    : "localhost",
+    port    : 12000,
+    pathname: "analogger",
+    // ---------------------------------
+    loopback: "localhost",
+    // ---------------------------------
+    consoleDomId: "#analogger",
+    logFilename : "./analogger.log"
+};
+
+
+const {
+    COLOR_TABLE, SYSTEM, MAX_CHILDREN_DOM_ANALOGGER, CLASS_REMOVED_NOTIF, ADD_TYPE, CONSOLE_AREA_CLASSNAME,
     PREDEFINED_FORMATS, ANALOGGER_NAME, LINE_CLASSNAME
 } = require("./constants.cjs");
+
 const PREDEFINED_CONTEXT_NAMES = {
     "DEFAULT": "DEFAULT",
     // "LOG"      : "LOG",

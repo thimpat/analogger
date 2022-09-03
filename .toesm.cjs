@@ -18,6 +18,15 @@ module.exports = {
     ],
     replaceModules:
         {
+            "node-fetch": {
+                cjs: {
+                    name: "node-fetch-cjs",
+                    version: "@2.6.7"
+                },
+                esm: {
+                    version: "@3.2.10"
+                }
+            },
             "term-size": {
                 cjs: {
                     name: "term-size-cjs",
@@ -26,7 +35,7 @@ module.exports = {
                 esm: {
                     version: "@3.0.2"
                 }
-            }
-         }
+            },
+        }
 
 }
