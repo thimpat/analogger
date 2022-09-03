@@ -105,3 +105,4 @@ dist/analogger-browser-demo.min.mjs
 /demo/
 /models/
 /*.bak.cjs
+/examples/
