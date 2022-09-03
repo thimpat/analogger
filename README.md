@@ -315,15 +315,17 @@ Display the browser native message box if run from it; otherwise, it displays th
 ### setOptions()
 
 
-| **Options**      | **default** | **Expect**            | **Description**                                                                    | 
-|------------------|-------------|-----------------------|------------------------------------------------------------------------------------|
-| silent           | false       | boolean               | _Hide logs from console (not errors)_                                              |
-| hideLog          | false       | boolean               | _Same as above (silent has precedence over hideLog)_                               |              
-| hideError        | false       | boolean               | _Hide errors from console_                                                         |              
-| hideHookMessage  | false       | boolean               | _Hide the automatic message shown when some native console methods are overridden_ |
-| hidePassingTests | false       | boolean               | _Hide Live test results_                                                           |           
-| logToDom         | false       | string (DOM Selector) | _display log in a DOM container_                                                   |
-| logToFile        | false       | string (File path)    | _write log to a file if running from Node_                                         |
+| **Options**      | **default** | **Expect**                        | **Description**                                                                    | 
+|------------------|-------------|-----------------------------------|------------------------------------------------------------------------------------|
+| silent           | false       | boolean                           | _Hide logs from console (not errors)_                                              |
+| hideLog          | false       | boolean                           | _Same as above (silent has precedence over hideLog)_                               |              
+| hideError        | false       | boolean                           | _Hide errors from console_                                                         |              
+| hideHookMessage  | false       | boolean                           | _Hide the automatic message shown when some native console methods are overridden_ |
+| hidePassingTests | false       | boolean                           | _Hide Live test results_                                                           |           
+| logToDom         | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
+| logToFile        | false       | string (File path)                | _write log to a file if running from Node_                                         |
+| logToRemote      | undefined   | string (url)                      | _Send log to a remote (more info in the next version)_                             |
+| requiredLogLevel | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 
 
 ```javascript
@@ -416,7 +418,7 @@ A context allows grouping the logs by functionality by assigning them some colou
 
 ```javascript
 const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904"}, C1: null, C2: null, C3: null, DEFAULT: {}}
-const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
+const DEFAULT_LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
 anaLogger.setContexts(LOG_CONTEXTS);
 
@@ -494,29 +496,38 @@ setActiveTarget() allows hiding logs from other devs or roles.
 ##### Examples
 
 ```javascript
+
+// "ALL" & "USER" are predefined targets
+const LOG_TARGETS = ["GROUP1", "GROUP2", "TOM", "TIM"/*, "ALL", "USER"*/];
+
+// Contexts define how the log should be seen 
 const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
-const LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
 anaLogger.setContexts(LOG_CONTEXTS);
-anaLogger.setTargets(LOG_TARGETS);                                    // Allowed targets = "ALL", "TOM", "TIM", "USER"
 
-// Many ways to assign an active target
-anaLogger.setActiveTarget(LOG_TARGETS.DEV1);                          // <- You are "TOM"
+// Allowed targets = "ALL", "TOM", "TIM", "USER"
+anaLogger.setTargets("GROUP1", "GROUP2", "TOM", "TIM"/*, "ALL", "USER"*/); 
+
+// Assign an active target
+anaLogger.setActiveTarget("TOM");                          // <- You are "TOM"
 
 // Seen as TOM
-anaLogger.log({target: LOG_TARGETS.DEV1}, `Testing log 1`);           // You will see this
-anaLogger.log({target: "TOM"}, `Testing log 1`);                      // You will see this
+anaLogger.log({target: "TOM"}, `Testing log 1`);           // You will see this
 
 // Not seen (only for TIM)
-anaLogger.log({target: LOG_TARGETS.DEV2}, `Testing log 2`);           // You will not see this
-anaLogger.log({target: "TIM"}, `Testing log 2`);                      // You will not see this
+anaLogger.log({target: "TOM"}, `Testing log 2`);           // You will not see this
+
+
+anaLogger.setActiveTarget(["TOM", "GROUP1"]);
+anaLogger.log({target: "TOM"}, `Testing log 3`);           // You will see this
+anaLogger.log({target: "TIM"}, `Testing log 4`);           // You will not see this
+anaLogger.log({target: "GROUP1"}, `Testing log 5`);        // You will see this
 
 // No target defined. Everybody sees this
-anaLogger.log({context: LOG_CONTEXTS.STANDARD}, `Testing log 3`);     // You will see this    
-anaLogger.log(`Testing log 4`);                                       // You will see this. No context = LOG_CONTEXTS.ALL
+anaLogger.log({context: null}, `Testing log 6`);           // You will see this    
+anaLogger.log(`Testing log 4`);                            // You will see this. No context = "ALL"
 
 
-anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);               // You will see this
 ```
 
 To assign the active target, you could use IPs, read a file, read an environment variable, etc. 
