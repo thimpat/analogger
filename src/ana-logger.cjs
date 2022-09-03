@@ -308,6 +308,7 @@ class ____AnaLogger
         this.options.oneConsolePerContext = true;
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
+        this.options.logToRemote = undefined;
         this.options.logToDomlogToFile = undefined;
     }
 
@@ -328,6 +329,8 @@ class ____AnaLogger
                    hidePassingTests = undefined,
                    logToDom = undefined,
                    logToFile = undefined,
+                   logToRemote = undefined,
+                   loopback = DEFAULT.loopback,
                    oneConsolePerContext = undefined,
                    silent = undefined
                } = null)
@@ -376,7 +379,17 @@ class ____AnaLogger
 
         if (logToDom !== undefined)
         {
-            this.options.logToDom = logToDom || "#analogger";
+            this.options.logToDom = logToDom || DEFAULT.consoleDomId;
+        }
+
+        if (loopback !== undefined)
+        {
+            this.options.loopback = loopback;
+        }
+
+        if (logToRemote !== undefined)
+        {
+            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote);
         }
 
         if (logToFile === false)
@@ -387,7 +400,7 @@ class ____AnaLogger
         {
             if (!this.isBrowser())
             {
-                this.options.logToFile = logToFile || "./analogger.log";
+                this.options.logToFile = logToFile || DEFAULT.logFilename;
 
                 /** to-esm-browser: remove **/
                 // these require won't get compiled by to-esm
@@ -1056,6 +1069,27 @@ class ____AnaLogger
         }
     }
 
+    writeLogToRemote(...data)
+    {
+        try
+        {
+            const entry = [...data];
+            const stringified = JSON.stringify(entry);
+            fetch(this.options.logToRemote, {
+                method : "post",
+                body   : stringified,
+                headers: {"Content-Type": "application/json"},
+            })
+                .then(res => res.json())
+                .catch(() => null);
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.rawError("LOG_TO_REMOTE_FAILURE: ", e.message);
+        }
+    }
+
     convertArgumentsToText(args)
     {
         const strs = [];
@@ -1249,6 +1283,11 @@ class ____AnaLogger
      */
     log(options, ...args)
     {
+        if (this.options.logToRemote)
+        {
+            this.writeLogToRemote(options, ...args);
+        }
+
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext();
@@ -1263,6 +1302,11 @@ class ____AnaLogger
 
     error(options, ...args)
     {
+        if (this.options.logToRemote)
+        {
+            this.writeLogToRemote(options, ...args);
+        }
+
         if (this.options.hideError)
         {
             return;
@@ -1484,6 +1528,59 @@ class ____AnaLogger
         }
     }
 
+    convertToUrl({protocol, host, port, pathname})
+    {
+        const url = new URL("http://localhost");
+        url.protocol = protocol;
+        url.host = host;
+        url.port = port;
+        if (pathname)
+        {
+            url.pathname = pathname;
+        }
+
+        return url.toString();
+    }
+
+    generateLogToRemoteUrl(logToRemote)
+    {
+        let protocol = DEFAULT.protocol;
+        let host = DEFAULT.host || this.options.loopback;
+        let port = DEFAULT.port;
+        let pathname = DEFAULT.pathname;
+
+        if (!logToRemote)
+        {
+            return false;
+        }
+
+        if (logToRemote === true)
+        {
+            port = DEFAULT.port;
+        }
+        else if (Number.isInteger(logToRemote))
+        {
+            if (logToRemote < 0 || logToRemote > 65535)
+            {
+                console.error({lid: 3037}, `Invalid port number for logToRemoteValue`);
+                return false;
+            }
+        }
+        else if (typeof logToRemote === "string" || logToRemote instanceof String)
+        {
+            return logToRemote;
+        }
+        else if (Array.isArray(logToRemote))
+        {
+            return false;
+        }
+        else if (typeof logToRemote === "object")
+        {
+            ({protocol, host, port, pathname} = logToRemote);
+        }
+
+        return this.convertToUrl({protocol, host, port, pathname});
+    }
 }
 
 const _AnaLogger = ____AnaLogger;
