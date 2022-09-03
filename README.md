@@ -97,6 +97,9 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 #### FileSystem
 ![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_5.png)
 
+#### Remote logging
+![img.png](https://github.com/thimpat/analogger/blob/main/docs/images/img_6.png)
+
 <br/>
 
 ---
