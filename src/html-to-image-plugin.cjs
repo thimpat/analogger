@@ -30,7 +30,7 @@ const takeScreenshot = ({element = document.body, callback = null} = {}) =>
             .then(function (data)
             {
                 anaLogger.uploadDataToRemote(data);
-                callback(data);
+                callback && callback(data);
             })
             .catch(function (error)
             {
