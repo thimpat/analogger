@@ -9,11 +9,13 @@
  * with to-esm.
  * The code has already been generated.
  * To regenerate with to-esm
- * $> to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs --target browser
+ * $> to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs
+ * --target browser
  */
 /** to-esm-all: end-remove **/
 
 const {anaLogger} = require("./ana-logger.cjs");
+const PLUGIN_NAME = "HTML_TO_IMAGE";
 
 /**
  * Take a screenshot
@@ -50,9 +52,9 @@ const takeScreenshot = ({element = document.body, callback = null} = {}) =>
 /**
  * {@link takeScreenshot}
  */
-anaLogger.addPlugin("takeScreenshot", takeScreenshot);
+anaLogger.addPlugin("takeScreenshot", takeScreenshot, PLUGIN_NAME);
 
-
+module.exports.PLUGIN_NAME = PLUGIN_NAME;
 
 
 

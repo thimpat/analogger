@@ -1939,6 +1939,32 @@ class ____AnaLogger
     {
         return Object.freeze(____AnaLogger.pluginList);
     }
+
+    /**
+     * At the moment, this method behaviour is equivalent to an eventual isPluginRegistered method
+     * @param name
+     * @returns {boolean}
+     */
+    validatePlugin(name)
+    {
+        let okay = false;
+
+        for (let i = 0; i < ____AnaLogger.pluginList.length; ++i)
+        {
+            const pluginProperties = ____AnaLogger.pluginList[i];
+            if (pluginProperties.pluginName === name)
+            {
+                break;
+           }
+        }
+
+        if (!okay)
+        {
+            console.warn(`The plugin ${name} is not registered`);
+        }
+
+        return okay;
+    }
 }
 
 const _AnaLogger = ____AnaLogger;
