@@ -36,7 +36,7 @@ const takeScreenshot = ({element = document.body, callback = null} = {}) =>
             })
             .catch(function (error)
             {
-                console.error("oops, something went wrong!", error);
+                console.error("Something went wrong:", error);
             });
 
         return true;
