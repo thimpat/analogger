@@ -25,7 +25,10 @@ const DEFAULT = {
     protocol: "http://",
     host    : "localhost",
     port    : 12000,
+    // Path for analogger text data
     pathname: "analogger",
+    // Path for analogger raw data
+    binarypathname: "uploaded",
     // ---------------------------------
     loopback: "localhost",
     // ---------------------------------
@@ -355,7 +358,13 @@ class ____AnaLogger
                    loopback = DEFAULT.loopback,
                    requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
-                   silent = undefined
+                   silent = undefined,
+                   /** Remote - all optional **/
+                   protocol = undefined,
+                   host = undefined,
+                   port = undefined,
+                   pathname = undefined,
+                   binarypathname = undefined
                } = null)
     {
         this.options.contextLenMax = contextLenMax;
@@ -414,7 +423,19 @@ class ____AnaLogger
 
         if (logToRemote !== undefined)
         {
-            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote);
+            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote, {
+                protocol,
+                host,
+                port,
+                pathname
+            });
+
+            this.options.logToBinaryRemote = this.generateLogToRemoteUrl(logToRemote, {
+                protocol,
+                host,
+                port,
+                pathname: binarypathname || DEFAULT.binpathname
+            });
         }
 
         if (logToFile === false)
@@ -1266,6 +1287,29 @@ class ____AnaLogger
         }
     }
 
+    uploadDataToRemote(data)
+    {
+        try
+        {
+            if (!this.options.logToRemote)
+            {
+                return;
+            }
+
+            fetch(this.options.logToBinRemote, {
+                method: "post",
+                body  : data,
+            })
+                .then(() => true)
+                .catch(e => e);
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.rawError("BINARY_TO_REMOTE_FAILURE: ", e.message);
+        }
+    }
+
     convertArgumentsToText(args)
     {
         const strs = [];
@@ -1796,6 +1840,11 @@ class ____AnaLogger
 
     convertToUrl({protocol, host, port, pathname})
     {
+        if (!protocol || !host || !port || !pathname)
+        {
+            return null;
+        }
+
         const url = new URL("http://localhost");
         url.protocol = protocol;
         url.host = host;
