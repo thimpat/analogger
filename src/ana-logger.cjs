@@ -1350,15 +1350,6 @@ class ____AnaLogger
 
     writeToConsole(output, context, {isBrowser})
     {
-        if (isBrowser)
-        {
-            this.#realConsoleLog(output, `color: ${context.color}`);
-        }
-        else
-        {
-
-        }
-
         const res = [output];
         if (isBrowser)
         {
