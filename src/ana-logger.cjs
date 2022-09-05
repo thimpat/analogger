@@ -1947,23 +1947,17 @@ class ____AnaLogger
      */
     validatePlugin(name)
     {
-        let okay = false;
-
         for (let i = 0; i < ____AnaLogger.pluginList.length; ++i)
         {
             const pluginProperties = ____AnaLogger.pluginList[i];
             if (pluginProperties.pluginName === name)
             {
-                break;
-           }
+                return true;
+            }
         }
 
-        if (!okay)
-        {
-            console.warn(`The plugin ${name} is not registered`);
-        }
-
-        return okay;
+        console.warn(`The plugin ${name} is not registered`);
+        return false;
     }
 }
 
