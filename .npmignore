@@ -106,3 +106,6 @@ dist/analogger-browser-demo.min.mjs
 /models/
 /*.bak.cjs
 /examples/
+/help/
+/licensee/
+/lid-generator.cjs

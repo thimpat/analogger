@@ -25,7 +25,10 @@ const DEFAULT = {
     protocol: "http://",
     host    : "localhost",
     port    : 12000,
+    // Path for analogger text data
     pathname: "analogger",
+    // Path for analogger raw data
+    binarypathname: "uploaded",
     // ---------------------------------
     loopback: "localhost",
     // ---------------------------------
@@ -355,7 +358,13 @@ class ____AnaLogger
                    loopback = DEFAULT.loopback,
                    requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
-                   silent = undefined
+                   silent = undefined,
+                   /** Remote - all optional **/
+                   protocol = undefined,
+                   host = undefined,
+                   port = undefined,
+                   pathname = undefined,
+                   binarypathname = undefined
                } = null)
     {
         this.options.contextLenMax = contextLenMax;
@@ -414,7 +423,19 @@ class ____AnaLogger
 
         if (logToRemote !== undefined)
         {
-            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote);
+            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote, {
+                protocol,
+                host,
+                port,
+                pathname
+            });
+
+            this.options.logToBinaryRemote = this.generateLogToRemoteUrl(logToRemote, {
+                protocol,
+                host,
+                port,
+                pathname: binarypathname || DEFAULT.binarypathname
+            });
         }
 
         if (logToFile === false)
@@ -1266,6 +1287,29 @@ class ____AnaLogger
         }
     }
 
+    uploadDataToRemote(data)
+    {
+        try
+        {
+            if (!this.options.logToRemote)
+            {
+                return;
+            }
+
+            fetch(this.options.logToBinaryRemote, {
+                method: "post",
+                body  : data,
+            })
+                .then(() => true)
+                .catch(e => e);
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            console.rawError("BINARY_TO_REMOTE_FAILURE: ", e.message);
+        }
+    }
+
     convertArgumentsToText(args)
     {
         const strs = [];
@@ -1306,15 +1350,6 @@ class ____AnaLogger
 
     writeToConsole(output, context, {isBrowser})
     {
-        if (isBrowser)
-        {
-            this.#realConsoleLog(output, `color: ${context.color}`);
-        }
-        else
-        {
-
-        }
-
         const res = [output];
         if (isBrowser)
         {
@@ -1796,6 +1831,11 @@ class ____AnaLogger
 
     convertToUrl({protocol, host, port, pathname})
     {
+        if (!protocol || !host || !port || !pathname)
+        {
+            return null;
+        }
+
         const url = new URL("http://localhost");
         url.protocol = protocol;
         url.host = host;
@@ -1808,44 +1848,76 @@ class ____AnaLogger
         return url.toString();
     }
 
-    generateLogToRemoteUrl(logToRemote)
+    generateLogToRemoteUrl(logToRemote, {
+        protocol = DEFAULT.protocol,
+        host = DEFAULT.host || this.options.loopback,
+        port = DEFAULT.port,
+        pathname = DEFAULT.pathname
+    } = {})
     {
-        let protocol = DEFAULT.protocol;
-        let host = DEFAULT.host || this.options.loopback;
-        let port = DEFAULT.port;
-        let pathname = DEFAULT.pathname;
-
         if (!logToRemote)
         {
             return false;
         }
 
-        if (logToRemote === true)
+        if (typeof logToRemote === "string" || logToRemote instanceof String)
         {
-            port = DEFAULT.port;
+            return logToRemote;
         }
-        else if (Number.isInteger(logToRemote))
+
+        if (Array.isArray(logToRemote))
+        {
+            protocol = logToRemote[0] || protocol;
+            host = logToRemote[1] || host;
+            port = logToRemote[2] || port;
+            pathname = logToRemote[3] || pathname;
+
+            return this.convertToUrl({protocol, host, port, pathname});
+        }
+
+        if (typeof logToRemote === "object")
+        {
+            // ({protocol, host, port, pathname} = logToRemote);
+            protocol = logToRemote.protocol || protocol;
+            host = logToRemote.host || host;
+            port = logToRemote.port || port;
+            pathname = logToRemote.pathname || pathname;
+
+            return this.convertToUrl({protocol, host, port, pathname});
+        }
+
+        if (Number.isInteger(logToRemote))
         {
             if (logToRemote < 0 || logToRemote > 65535)
             {
                 console.error({lid: 3037}, `Invalid port number for logToRemoteValue`);
                 return false;
             }
-        }
-        else if (typeof logToRemote === "string" || logToRemote instanceof String)
-        {
-            return logToRemote;
-        }
-        else if (Array.isArray(logToRemote))
-        {
-            return false;
-        }
-        else if (typeof logToRemote === "object")
-        {
-            ({protocol, host, port, pathname} = logToRemote);
+
+            port = logToRemote;
         }
 
         return this.convertToUrl({protocol, host, port, pathname});
+    }
+
+    /**
+     * Install a plugin against the active instance
+     * @param methodName
+     * @param callback
+     */
+    addPlugin(methodName, callback)
+    {
+        this[methodName] = callback;
+    }
+
+    /**
+     * Install a plugin against the class (an instantiation with new is needed)
+     * @param methodName
+     * @param callback
+     */
+    addGlobalPlugin(methodName, callback)
+    {
+        ____AnaLogger[methodName] = callback;
     }
 }
 

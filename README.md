@@ -330,12 +330,13 @@ Display the browser native message box if run from it; otherwise, it displays th
 | logToRemote      | undefined   | string (url)                      | _Send log to a remote (more info in the next version)_                             |
 | requiredLogLevel | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 
+<br/>
 
 ```javascript
 // No hook alert message + Log messages in the div #analogger
 anaLogger.setOptions({hideHookMessage: true, logToDom: "#analogger"})
 ```
-<br/>
+
 <br/>
 
 #### Examples
@@ -352,6 +353,18 @@ anaLogger.setOptions({silent: true, logToFile: logFilePath});
 
 ```javascript
 anaLogger.setOptions({silent: false, logToFile: logFilePath});
+```
+
+<br/>
+
+##### Write logs to a remote server
+
+```javascript
+// Use a predefined remote server
+anaLogger.setOptions({logToRemote: true});                                           
+
+// Use your remote server (You are resposible for the back-end implementation)
+anaLogger.setOptions({logToRemote: "http://your.server.com/data"});                  
 ```
 
 <br/>
@@ -644,5 +657,63 @@ anaLoggerInstance2.setOptions({logToFile: "./logme.log"});
 ```
 
 <br/>
+
+
+## Take a screenshot
+
+### takeScreenshot()
+
+You can take screenshot via the "html-to-image" plugin (integrated in the module).
+html-to-image is an external module that this module uses to take screenshots.
+
+
+```javascript
+// Load an AnaLogger instance
+import {anaLogger} from "./node_modules/analogger/browser/src/ana-logger.mjs";
+
+// Register the plugin
+import "./node_modules/analogger/browser/src/html-to-image-plugin.mjs";
+
+// Ask AnaLogger to upload the image to the predefined server (not available yet - should be ready by 08/08/2022)
+anaLogger.setOptions({logToRemote: true});
+
+// Take a screenshot then upload to the server
+anaLogger.takeScreenshot({callback: (data) =>
+ {
+    // Add the image to the DOM 
+    const img = new Image();
+    img.src = data;
+    document.body.appendChild(img);
+ }});
+
+
+```
+
 <br/>
+
+---
+
+## Plugins
+
+### Implement a plugin
+
+```javascript
+// Load anaLogger
+import {anaLogger}  from "./ana-logger.mjs";
+
+// Implement
+const doSomething = ({node = document.body, container = document.body} = {}) =>
+{
+    console.log(`Hello plugin`)
+};
+
+// Register the plugin
+anaLogger.addPlugin("doSomething", doSomething);
+
+
+
+```
+
+---
+
 
