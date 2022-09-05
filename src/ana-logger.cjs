@@ -207,6 +207,8 @@ class ____AnaLogger
 
     static instanceCount = 0;
 
+    static pluginList = [];
+
     originalFormatFunction;
 
     constructor({name = "default"} = {})
@@ -1158,7 +1160,7 @@ class ____AnaLogger
      */
     scrollDivToBottom = ($view) =>
     {
-        const scrollBottom =  $view.scrollHeight - ($view.clientHeight + $view.scrollTop);
+        const scrollBottom = $view.scrollHeight - ($view.clientHeight + $view.scrollTop);
         const divHeight = $view.clientHeight || $view.offsetHeight;
         if (scrollBottom > divHeight / 2)
         {
@@ -1202,7 +1204,7 @@ class ____AnaLogger
             context.className = CLASS_REMOVED_NOTIF;
 
             clearTimeout(this.timerAddLineToDomID);
-            this.timerAddLineToDomID = setTimeout(()=>
+            this.timerAddLineToDomID = setTimeout(() =>
             {
                 this.timerAddLineToDomID = null;
                 /* istanbul ignore next */
@@ -1244,7 +1246,7 @@ class ____AnaLogger
 
             // Prevent the application to be stuck when many logs are entered at once
             /* istanbul ignore next */
-            setTimeout(/* istanbul ignore next */function($view, $line, {addType, context})
+            setTimeout(/* istanbul ignore next */function ($view, $line, {addType, context})
             {
                 /* istanbul ignore next */
                 this.addLineToDom($view, $line, {addType, context});
@@ -1904,20 +1906,38 @@ class ____AnaLogger
      * Install a plugin against the active instance
      * @param methodName
      * @param callback
+     * @param pluginName
      */
-    addPlugin(methodName, callback)
+    addPlugin(methodName, callback, pluginName)
     {
         this[methodName] = callback;
+        ____AnaLogger.pluginList.push({
+            pluginName,
+            type: "local"
+        });
+
     }
 
     /**
      * Install a plugin against the class (an instantiation with new is needed)
      * @param methodName
      * @param callback
+     * @param pluginName
      */
-    addGlobalPlugin(methodName, callback)
+    addGlobalPlugin(methodName, callback, pluginName)
     {
         ____AnaLogger[methodName] = callback;
+
+        ____AnaLogger.pluginList.push({
+            pluginName,
+            type: "global"
+        });
+
+    }
+
+    getPluginList()
+    {
+        return Object.freeze(____AnaLogger.pluginList);
     }
 }
 
