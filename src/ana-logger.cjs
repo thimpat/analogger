@@ -1857,44 +1857,76 @@ class ____AnaLogger
         return url.toString();
     }
 
-    generateLogToRemoteUrl(logToRemote)
+    generateLogToRemoteUrl(logToRemote, {
+        protocol = DEFAULT.protocol,
+        host = DEFAULT.host || this.options.loopback,
+        port = DEFAULT.port,
+        pathname = DEFAULT.pathname
+    } = {})
     {
-        let protocol = DEFAULT.protocol;
-        let host = DEFAULT.host || this.options.loopback;
-        let port = DEFAULT.port;
-        let pathname = DEFAULT.pathname;
-
         if (!logToRemote)
         {
             return false;
         }
 
-        if (logToRemote === true)
+        if (typeof logToRemote === "string" || logToRemote instanceof String)
         {
-            port = DEFAULT.port;
+            return logToRemote;
         }
-        else if (Number.isInteger(logToRemote))
+
+        if (Array.isArray(logToRemote))
+        {
+            protocol = logToRemote[0] || protocol;
+            host = logToRemote[1] || host;
+            port = logToRemote[2] || port;
+            pathname = logToRemote[3] || pathname;
+
+            return this.convertToUrl({protocol, host, port, pathname});
+        }
+
+        if (typeof logToRemote === "object")
+        {
+            // ({protocol, host, port, pathname} = logToRemote);
+            protocol = logToRemote.protocol || protocol;
+            host = logToRemote.host || host;
+            port = logToRemote.port || port;
+            pathname = logToRemote.pathname || pathname;
+
+            return this.convertToUrl({protocol, host, port, pathname});
+        }
+
+        if (Number.isInteger(logToRemote))
         {
             if (logToRemote < 0 || logToRemote > 65535)
             {
                 console.error({lid: 3037}, `Invalid port number for logToRemoteValue`);
                 return false;
             }
-        }
-        else if (typeof logToRemote === "string" || logToRemote instanceof String)
-        {
-            return logToRemote;
-        }
-        else if (Array.isArray(logToRemote))
-        {
-            return false;
-        }
-        else if (typeof logToRemote === "object")
-        {
-            ({protocol, host, port, pathname} = logToRemote);
+
+            port = logToRemote;
         }
 
         return this.convertToUrl({protocol, host, port, pathname});
+    }
+
+    /**
+     * Install a plugin against the active instance
+     * @param methodName
+     * @param callback
+     */
+    addPlugin(methodName, callback)
+    {
+        this[methodName] = callback;
+    }
+
+    /**
+     * Install a plugin against the class (an instantiation with new is needed)
+     * @param methodName
+     * @param callback
+     */
+    addGlobalPlugin(methodName, callback)
+    {
+        ____AnaLogger[methodName] = callback;
     }
 }
 
