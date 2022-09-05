@@ -434,7 +434,7 @@ class ____AnaLogger
                 protocol,
                 host,
                 port,
-                pathname: binarypathname || DEFAULT.binpathname
+                pathname: binarypathname || DEFAULT.binarypathname
             });
         }
 
@@ -1296,7 +1296,7 @@ class ____AnaLogger
                 return;
             }
 
-            fetch(this.options.logToBinRemote, {
+            fetch(this.options.logToBinaryRemote, {
                 method: "post",
                 body  : data,
             })
