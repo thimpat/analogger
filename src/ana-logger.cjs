@@ -157,6 +157,42 @@ const symbolNames = {
     writing_hand              : "✍",
 };
 
+// --------------------------------------------------
+// Helpers
+// --------------------------------------------------
+/**
+ * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
+ * @returns {string}
+ */
+function detectEnvironment()
+{
+    if (typeof process === "object")
+    {
+        if (typeof process.versions === "object")
+        {
+            if (typeof process.versions.node !== "undefined")
+            {
+                return SYSTEM.NODE;
+            }
+        }
+    }
+    return SYSTEM.BROWSER;
+}
+
+const currentSystem = detectEnvironment();
+
+/**
+ * Tell whether we are in a Node environment
+ * @returns {boolean}
+ */
+function isNode()
+{
+    return currentSystem === SYSTEM.NODE;
+}
+
+/**
+ *
+ */
 class ____AnaLogger
 {
     system = "";
@@ -211,9 +247,11 @@ class ____AnaLogger
 
     originalFormatFunction;
 
+
     constructor({name = "default"} = {})
     {
-        this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
+        this.system = detectEnvironment();
+
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
 
@@ -243,14 +281,11 @@ class ____AnaLogger
 
         console.table = this.table;
         console.buildTable = this.buildTable;
-        console.isNode = this.isNode;
-        console.isBrowser = this.isBrowser;
         console.truncateMessage = this.truncateMessage;
         console.rawLog = this.rawLog;
         console.rawInfo = this.rawInfo;
         console.rawWarn = this.rawWarn;
         console.rawError = this.rawError;
-        console.isBrowser0 = this.system === SYSTEM.BROWSER;
 
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
@@ -301,13 +336,23 @@ class ____AnaLogger
         return history.join(symbol);
     }
 
+    forceEnvironment(system)
+    {
+        this.forcedSystem = system;
+    }
+
     /**
      * Tell whether we are in a Node environment
      * @returns {boolean}
      */
     isNode()
     {
-        return this.system === SYSTEM.NODE;
+        if (this && this.forcedSystem)
+        {
+            return this.forcedSystem === SYSTEM.NODE;
+        }
+
+        return isNode();
     }
 
     /**
@@ -1375,10 +1420,10 @@ class ____AnaLogger
         return text;
     }
 
-    writeToConsole(output, context, {isBrowser})
+    writeToConsole(output, context)
     {
         const res = [output];
-        if (isBrowser)
+        if (this.isBrowser())
         {
             res.push(`color: ${context.color}`);
         }
@@ -1483,7 +1528,7 @@ class ____AnaLogger
                 return;
             }
 
-            this.writeToConsole(output, context, {isBrowser: this.isBrowser()});
+            this.writeToConsole(output, context);
 
             this.errorTargetHandler(context, args);
         }
