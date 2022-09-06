@@ -1314,7 +1314,7 @@ class ____AnaLogger
     {
         try
         {
-            const urlDest = this.generateLogToRemoteUrl( this.options.logToRemoteUrl);
+            const urlDest = this.generateLogToRemoteUrl(this.options.logToRemoteUrl);
             if (!urlDest)
             {
                 return null;
@@ -1352,7 +1352,7 @@ class ____AnaLogger
                 return;
             }
 
-            const urlDest = this.generateLogToRemoteUrl( this.options.logToRemoteBinaryUrl, {pathname: DEFAULT.binarypathname});
+            const urlDest = this.generateLogToRemoteUrl(this.options.logToRemoteBinaryUrl, {pathname: DEFAULT.binarypathname});
             if (!urlDest)
             {
                 return null;
