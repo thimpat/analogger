@@ -18,12 +18,12 @@ const {anaLogger} = require("./ana-logger.cjs");
 const PLUGIN_NAME = "HTML_TO_IMAGE";
 
 /**
- * Take a screenshot
+ * Take a screenshot then send to a remote
  * @param element
  * @param container
  * @returns {boolean}
  */
-const takeScreenshot = ({element = document.body, callback = null} = {}) =>
+const takeScreenshot = ({element = document.body, callback = null, info = null, lid = null} = {}) =>
 {
     try
     {
@@ -31,7 +31,7 @@ const takeScreenshot = ({element = document.body, callback = null} = {}) =>
             .toPng(element)
             .then(function (data)
             {
-                anaLogger.uploadDataToRemote(data);
+                anaLogger.uploadDataToRemote(data, info, lid);
                 callback && callback(data);
             })
             .catch(function (error)

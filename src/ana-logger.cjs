@@ -1289,13 +1289,25 @@ class ____AnaLogger
         }
     }
 
-    uploadDataToRemote(data)
+    /**
+     * Send data to the registered remote server
+     * @param raw
+     * @param info
+     * @param lid
+     */
+    uploadDataToRemote(raw, info = null, lid = null)
     {
         try
         {
             if (!this.options.logToRemote)
             {
                 return;
+            }
+
+            let data = raw;
+            if (info || lid)
+            {
+                data = JSON.stringify({raw, info, lid});
             }
 
             fetch(this.options.logToBinaryRemote, {
