@@ -336,7 +336,14 @@ class ____AnaLogger
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
         this.options.logToRemote = undefined;
+        this.options.logToRemoteUrl = undefined;
+        this.options.logToRemoteBinaryUrl = undefined;
         this.options.logToDomlogToFile = undefined;
+        this.options.protocol = undefined;
+        this.options.host = undefined;
+        this.options.port = undefined;
+        this.options.pathname = undefined;
+        this.options.binarypathname = undefined;
     }
 
     resetOptions()
@@ -357,6 +364,8 @@ class ____AnaLogger
                    logToDom = undefined,
                    logToFile = undefined,
                    logToRemote = undefined,
+                   logToRemoteUrl = undefined,
+                   logToRemoteBinaryUrl = undefined,
                    loopback = DEFAULT.loopback,
                    requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
@@ -375,16 +384,6 @@ class ____AnaLogger
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
 
-        if (hidePassingTests !== undefined)
-        {
-            this.options.hidePassingTests = !!hidePassingTests;
-        }
-
-        if (hideHookMessage !== undefined)
-        {
-            this.options.hideHookMessage = !!hideHookMessage;
-        }
-
         this.options.requiredLogLevel = requiredLogLevel;
 
         // TODO: Make one of silent or hideToLog options obsolete
@@ -398,46 +397,48 @@ class ____AnaLogger
             solveSilent = !!hideLog;
         }
 
-        if (solveSilent)
+        // Force boolean type
+        [
+            {hideLog: solveSilent},
+            {oneConsolePerContext},
+            {hideError},
+            {hideHookMessage},
+            {hidePassingTests},
+            {logToRemote},
+        ].forEach((feature) =>
         {
-            this.options.hideLog = !!solveSilent;
-        }
+            const key = Object.keys(feature)[0];
+            const val = feature[key];
+            if (val !== undefined)
+            {
+                this.options[key] = !!val;
+            }
+        });
 
-        if (hideError !== undefined)
+        // Any type
+        [
+            {logToRemoteBinaryUrl},
+            {logToRemoteUrl},
+            {loopback},
+            {protocol},
+            {host},
+            {port},
+            {pathname},
+            {binarypathname},
+        ].forEach((feature) =>
         {
-            this.options.hideError = !!hideError;
-        }
+            const key = Object.keys(feature)[0];
+            const val = feature[key];
+            if (val !== undefined)
+            {
+                this.options[key] = val;
+            }
+        });
 
-        if (oneConsolePerContext !== undefined)
-        {
-            this.options.oneConsolePerContext = !!oneConsolePerContext;
-        }
-
+        // Special cases
         if (logToDom !== undefined)
         {
             this.options.logToDom = logToDom || DEFAULT.consoleDomId;
-        }
-
-        if (loopback !== undefined)
-        {
-            this.options.loopback = loopback;
-        }
-
-        if (logToRemote !== undefined)
-        {
-            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote, {
-                protocol,
-                host,
-                port,
-                pathname
-            });
-
-            this.options.logToBinaryRemote = this.generateLogToRemoteUrl(logToRemote, {
-                protocol,
-                host,
-                port,
-                pathname: binarypathname || DEFAULT.binarypathname
-            });
         }
 
         if (logToFile === false)
@@ -1272,9 +1273,15 @@ class ____AnaLogger
     {
         try
         {
+            const urlDest = this.generateLogToRemoteUrl( this.options.logToRemoteUrl);
+            if (!urlDest)
+            {
+                return null;
+            }
+
             const entry = [...data];
             const stringified = JSON.stringify(entry);
-            fetch(this.options.logToRemote, {
+            fetch(urlDest, {
                 method : "post",
                 body   : stringified,
                 headers: {"Content-Type": "application/json"},
@@ -1304,13 +1311,19 @@ class ____AnaLogger
                 return;
             }
 
+            const urlDest = this.generateLogToRemoteUrl( this.options.logToRemoteBinaryUrl, {pathname: DEFAULT.binarypathname});
+            if (!urlDest)
+            {
+                return null;
+            }
+
             let data = raw;
             if (info || lid)
             {
                 data = JSON.stringify({raw, info, lid});
             }
 
-            fetch(this.options.logToBinaryRemote, {
+            fetch(urlDest, {
                 method: "post",
                 body  : data,
             })
@@ -1862,54 +1875,22 @@ class ____AnaLogger
         return url.toString();
     }
 
-    generateLogToRemoteUrl(logToRemote, {
-        protocol = DEFAULT.protocol,
-        host = DEFAULT.host || this.options.loopback,
-        port = DEFAULT.port,
-        pathname = DEFAULT.pathname
-    } = {})
+    generateLogToRemoteUrl(logToRemoteUrl = null, {pathname = DEFAULT.pathname} = {})
     {
-        if (!logToRemote)
+        if (typeof logToRemoteUrl === "string" || logToRemoteUrl instanceof String)
         {
-            return false;
+            return logToRemoteUrl;
         }
 
-        if (typeof logToRemote === "string" || logToRemote instanceof String)
+        if (!this.isBrowser())
         {
-            return logToRemote;
+            return null;
         }
 
-        if (Array.isArray(logToRemote))
-        {
-            protocol = logToRemote[0] || protocol;
-            host = logToRemote[1] || host;
-            port = logToRemote[2] || port;
-            pathname = logToRemote[3] || pathname;
-
-            return this.convertToUrl({protocol, host, port, pathname});
-        }
-
-        if (typeof logToRemote === "object")
-        {
-            // ({protocol, host, port, pathname} = logToRemote);
-            protocol = logToRemote.protocol || protocol;
-            host = logToRemote.host || host;
-            port = logToRemote.port || port;
-            pathname = logToRemote.pathname || pathname;
-
-            return this.convertToUrl({protocol, host, port, pathname});
-        }
-
-        if (Number.isInteger(logToRemote))
-        {
-            if (logToRemote < 0 || logToRemote > 65535)
-            {
-                console.error({lid: 3037}, `Invalid port number for logToRemoteValue`);
-                return false;
-            }
-
-            port = logToRemote;
-        }
+        const protocol = this.options.protocol || window.location.protocol + "//";
+        const host = this.options.host || window.location.host || DEFAULT.host;
+        const port = this.options.port || DEFAULT.port;
+        pathname = this.options.pathname || pathname;
 
         return this.convertToUrl({protocol, host, port, pathname});
     }
