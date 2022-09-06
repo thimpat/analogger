@@ -227,8 +227,7 @@ class ____AnaLogger
     #realConsoleWarn = console.warn;
     #realConsoleError = console.error;
     #realConsoleDebug = console.debug;
-
-    isBrowser0 = null;
+    #realConsoleTable = console.table;
 
     static ALIGN = {
         LEFT : "LEFT",
@@ -598,12 +597,9 @@ class ____AnaLogger
             }
         }
 
-        if (!this.isBrowser0)
+        if (!availableLength)
         {
-            if (!availableLength)
-            {
-                availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
-            }
+            availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
         }
 
         availableLength = availableLength - 4;
@@ -1768,12 +1764,17 @@ class ____AnaLogger
 
     table(...args)
     {
+        if (this.isBrowser())
+        {
+            return this.#realConsoleTable(...args);
+        }
+
         return this.buildTable(...args);
     }
 
     alert(...args)
     {
-        if (this.isNode())
+        if (!this.isBrowser())
         {
             return this.log(...args);
         }
