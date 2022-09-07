@@ -58,6 +58,22 @@ const DEFAULT_LOG_LEVELS = {
     INHERIT: -1,
 };
 
+/**
+ * @typedef PLUGIN_TYPE
+ * @type {{LOCAL: string, GLOBAL: string}}
+ */
+const PLUGIN_TYPE = {
+    LOCAL : "local",
+    GLOBAL: "global"
+};
+
+/**
+ * @typedef PLUGIN_PROPERTIES_TYPE
+ * @property {string} methodName AnaLogger's real method name that is set to the AnaLogger instance *
+ * @property {function} callback AnaLogger method that will be called when invoking the plugin
+ * @property {PLUGIN_TYPE} type Whether the plugin is accessible to the AnaLogger class or an instance
+ */
+
 const DEFAULT_LOG_CONTEXTS = {
     // The default context
     DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG, symbol: "check"},
@@ -192,7 +208,8 @@ function isNode()
 }
 
 /**
- *
+ * @module ____AnaLogger
+ * @class ____AnaLogger
  */
 class ____AnaLogger
 {
@@ -243,7 +260,7 @@ class ____AnaLogger
 
     static instanceCount = 0;
 
-    static pluginList = [];
+    static pluginTable = {};
 
     originalFormatFunction;
 
@@ -1154,6 +1171,12 @@ class ____AnaLogger
     // ------------------------------------------------
     // Logging methods
     // ------------------------------------------------
+    /**
+     * Add many sections (columns) to a given DOM line
+     * @param $line
+     * @param context
+     * @param text
+     */
     setColumns($line, context, text)
     {
         let index = 0;
@@ -1172,10 +1195,18 @@ class ____AnaLogger
             $line.append($col);
         }
 
-        const $col = document.createElement("span");
+        let $col = document.createElement("span");
         $col.classList.add("analogger-col", "analogger-col-text", `analogger-col-${index}`);
         $col.textContent = text;
         $line.append($col);
+
+        // Add 3 more columns
+        for (let i = 1; i <= 3; ++i)
+        {
+            $col = document.createElement("span");
+            $col.classList.add("analogger-col", "analogger-col-extra", `analogger-extra-${i}`);
+            $line.append($col);
+        }
     }
 
     /**
@@ -1215,6 +1246,23 @@ class ____AnaLogger
         $view.scrollTop = $view.scrollHeight;
     };
 
+    checkOnLoggingToDom(context, param2)
+    {
+        try
+        {
+            let callback = context.onLoggingToDom;
+            if (typeof callback !== "function")
+            {
+                return;
+            }
+
+            return callback.call(this, context, param2);
+        }
+        catch (e)
+        {
+        }
+    }
+
     /**
      * Add a line to the Analogger div.
      * Remove older lines if exceeding limit.
@@ -1222,9 +1270,28 @@ class ____AnaLogger
      * @param $line
      * @param context
      * @param addType
+     * @param message
+     * @param text
+     * @param args
      */
-    addLineToDom($view, $line, {context, addType})
+    addLineToDom($view, $line, {context, addType, message, text, args})
     {
+        let proceedFurther = this.checkOnLoggingToDom(context, {
+            message,
+            text,
+            args,
+            logCounter: this.logCounter,
+            $view,
+            $line,
+            addType
+        });
+
+        // If one of the plugins returns false, no further operation will follow
+        if (proceedFurther === false)
+        {
+            return;
+        }
+
         if (addType === ADD_TYPE.BOTTOM)
         {
             $view.append($line);
@@ -1242,18 +1309,7 @@ class ____AnaLogger
                 return;
             }
 
-            context.contextName = ANALOGGER_NAME;
-            context.symbol = "🗑";
-            context.color = "orange";
-            context.className = CLASS_REMOVED_NOTIF;
-
-            clearTimeout(this.timerAddLineToDomID);
-            this.timerAddLineToDomID = setTimeout(() =>
-            {
-                this.timerAddLineToDomID = null;
-                /* istanbul ignore next */
-                this.writeLogToDom(context, "", {addType: ADD_TYPE.TOP, message: `Oldest entries removed`});
-            }, 500);
+            this.showRemovedNotification(context);
             return;
         }
 
@@ -1261,7 +1317,23 @@ class ____AnaLogger
 
     }
 
-    writeLogToDom(context, fullText, {addType = ADD_TYPE.BOTTOM, message = ""} = {})
+    showRemovedNotification(context)
+    {
+        context.contextName = ANALOGGER_NAME;
+        context.symbol = "🗑";
+        context.color = "orange";
+        context.className = CLASS_REMOVED_NOTIF;
+
+        clearTimeout(this.timerAddLineToDomID);
+        this.timerAddLineToDomID = setTimeout(() =>
+        {
+            this.timerAddLineToDomID = null;
+            /* istanbul ignore next */
+            this.writeLogToDom(context, "", {addType: ADD_TYPE.TOP, message: `Oldest entries removed`});
+        }, 500);
+    }
+
+    writeLogToDom(context, fullText, {addType = ADD_TYPE.BOTTOM, message = "", args = null} = {})
     {
         this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom);
         fullText = message || fullText;
@@ -1312,15 +1384,15 @@ class ____AnaLogger
             }
             $line.style.color = context.color;
 
-            this.setColumns($line, context, fullText);
+            this.setColumns($line, context, fullText, args);
 
             // Prevent the application to be stuck when many logs are entered at once
             /* istanbul ignore next */
-            setTimeout(/* istanbul ignore next */function ($view, $line, {addType, context})
+            setTimeout(/* istanbul ignore next */function ($view, $line, {addType, context, message, text, args})
             {
                 /* istanbul ignore next */
-                this.addLineToDom($view, $line, {addType, context});
-            }.bind(this, $view, $line, {addType, context}), 0);
+                this.addLineToDom($view, $line, {addType, context, message, text, args});
+            }.bind(this, $view, $line, {addType, context, message, text: fullText, args}), 0);
 
         }
     }
@@ -1368,10 +1440,10 @@ class ____AnaLogger
     /**
      * Send data to the registered remote server
      * @param raw
-     * @param info
-     * @param lid
+     * @param context
+     * @param done
      */
-    uploadDataToRemote(raw, info = null, lid = null)
+    uploadDataToRemote(raw, context = null, done = null)
     {
         try
         {
@@ -1387,16 +1459,17 @@ class ____AnaLogger
             }
 
             let data = raw;
-            if (info || lid)
+            if (context)
             {
-                data = JSON.stringify({raw, info, lid});
+                data = JSON.stringify({raw, context});
             }
 
             fetch(urlDest, {
                 method: "post",
                 body  : data,
             })
-                .then(() => true)
+                .then((response) => response.json())
+                .then((data) => done && done(data))
                 .catch(e => e);
         }
         catch (e)
@@ -1453,27 +1526,138 @@ class ____AnaLogger
         }
 
         const contextLevel = context.contextLevel || DEFAULT_LOG_LEVELS.LOG;
-        if (contextLevel > DEFAULT_LOG_LEVELS.ERROR)
+        if (contextLevel >= DEFAULT_LOG_LEVELS.ERROR)
         {
             this.#realConsoleError(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.WARN)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.WARN)
         {
             this.#realConsoleWarn(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.INFO)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.INFO)
         {
             this.#realConsoleInfo(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.LOG)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.LOG)
         {
             this.#realConsoleLog(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.DEBUG)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.DEBUG)
         {
             this.#realConsoleDebug(...res);
         }
 
+    }
+
+    /**
+     * Parse the context. If one of its keys has the same name as a registered plugin,
+     * the system will invoke the plugin (the value of the key must be anything truthy).
+     * @param context
+     * @param extras
+     * @returns {undefined|boolean}
+     */
+    checkPlugins(context, {message, text, args, logCounter})
+    {
+        try
+        {
+            if (!Object.keys(____AnaLogger.pluginTable).length)
+            {
+                return;
+            }
+
+            let proceedFurther = true;
+            for (let keyName in context)
+            {
+                const pluginArgs = context[keyName];
+
+                /**
+                 * The key has been passed in the context, but has a falsy value,
+                 * so let's ignore it
+                 */
+                if (!pluginArgs)
+                {
+                    continue;
+                }
+
+                /**
+                 * Extract plugin properties
+                 * @type PLUGIN_TYPE
+                 */
+                const pluginProperties = ____AnaLogger.pluginTable[keyName];
+
+                /**
+                 * Check plugin properties exists
+                 * @see addPlugin
+                 * @see addGlobalPlugin
+                 */
+                if (!pluginProperties)
+                {
+                    continue;
+                }
+
+                // Should be an object
+                if (typeof pluginProperties !== "object")
+                {
+                    continue;
+                }
+
+                /**
+                 * Extract plugin properties
+                 */
+                const {callback, methodName, type} = pluginProperties;
+                if (typeof callback !== "function")
+                {
+                    continue;
+                }
+
+                /**
+                 * If the key given in the context was a function, invoke that function
+                 */
+                if (typeof pluginArgs === "function")
+                {
+                    context = pluginArgs;
+                }
+
+                /**
+                 * Invoke the plugin
+                 */
+                let res = callback.call(this, context, {message, text, args, logCounter, methodName, type, pluginArgs});
+
+                // If the plugin returns exactly false, the log entry will be ignored by anaLogger
+                if (res === false)
+                {
+                    proceedFurther = false;
+                }
+            }
+            return proceedFurther;
+        }
+        catch (e)
+        {
+        }
+    }
+
+    /**
+     * If the context contain a key onLogging that is a function,
+     * execute
+     * @param context
+     * @param extras
+     * @returns {*}
+     */
+    checkOnLogging(context, extras)
+    {
+        try
+        {
+            let callback = context.onLogging;
+            if (typeof callback !== "function")
+            {
+                return;
+            }
+
+            return callback.call(this, context, extras);
+        }
+        catch (e)
+        {
+        }
     }
 
     /**
@@ -1513,6 +1697,28 @@ class ____AnaLogger
 
             ++this.logCounter;
 
+            let proceedFurther;
+
+            proceedFurther = this.checkOnLogging(context, {message, text, args, logCounter: this.logCounter});
+            // If one of the plugins returns false, no further operation will follow
+            if (proceedFurther === false)
+            {
+                return;
+            }
+
+            proceedFurther = this.checkPlugins(context, {message, text, args, logCounter: this.logCounter});
+
+            // If one of the plugins returns false, no further operation will follow
+            if (proceedFurther === false)
+            {
+                return;
+            }
+
+            if (this.options.logToRemote)
+            {
+                this.writeLogToRemote(context, ...args);
+            }
+
             /* istanbul ignore next */
             if (this.isBrowser())
             {
@@ -1521,7 +1727,7 @@ class ____AnaLogger
                 if (this.options.logToDom)
                 {
                     /* istanbul ignore next */
-                    this.writeLogToDom(context, text, {message});
+                    this.writeLogToDom(context, text, {message, args,});
                 }
 
                 output = `%c${text}`;
@@ -1662,11 +1868,6 @@ class ____AnaLogger
      */
     log(options, ...args)
     {
-        if (this.options.logToRemote)
-        {
-            this.writeLogToRemote(options, ...args);
-        }
-
         options = this.extractContextFromInput(options);
         // If the first parameter is not of context format,
         // We use the default context and display
@@ -1685,11 +1886,6 @@ class ____AnaLogger
 
     error(options, ...args)
     {
-        if (this.options.logToRemote)
-        {
-            this.writeLogToRemote(options, ...args);
-        }
-
         if (this.options.hideError)
         {
             return;
@@ -1974,14 +2170,16 @@ class ____AnaLogger
      * @param callback
      * @param pluginName
      */
-    addPlugin(methodName, callback, pluginName)
+    addPlugin(methodName, callback, pluginName = "")
     {
+        pluginName = pluginName || methodName;
         this[methodName] = callback;
-        ____AnaLogger.pluginList.push({
-            pluginName,
-            type: "local"
-        });
 
+        ____AnaLogger.pluginTable[pluginName] = {
+            type: PLUGIN_TYPE.LOCAL,
+            methodName,
+            callback
+        };
     }
 
     /**
@@ -1994,16 +2192,17 @@ class ____AnaLogger
     {
         ____AnaLogger[methodName] = callback;
 
-        ____AnaLogger.pluginList.push({
-            pluginName,
-            type: "global"
-        });
+        ____AnaLogger.pluginTable[pluginName] = {
+            type: PLUGIN_TYPE.GLOBAL,
+            methodName,
+            callback
+        };
 
     }
 
     getPluginList()
     {
-        return Object.freeze(____AnaLogger.pluginList);
+        return Object.keys(____AnaLogger.pluginTable);
     }
 
     /**
@@ -2013,18 +2212,15 @@ class ____AnaLogger
      */
     validatePlugin(name)
     {
-        for (let i = 0; i < ____AnaLogger.pluginList.length; ++i)
+        if (____AnaLogger.pluginTable[name])
         {
-            const pluginProperties = ____AnaLogger.pluginList[i];
-            if (pluginProperties.pluginName === name)
-            {
-                return true;
-            }
+            return true;
         }
 
         console.warn(`The plugin ${name} is not registered`);
         return false;
     }
+
 }
 
 const _AnaLogger = ____AnaLogger;

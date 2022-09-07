@@ -152,6 +152,12 @@ body
       {
         flex-grow: 1;
       }
+
+      .analogger-col-extra
+      {
+        display: none;
+      }
+
     }
 
     &::-webkit-scrollbar-thumb
