@@ -38,7 +38,7 @@
     "build:plugins": "                                to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs --target browser --nmBrowserImported imported  --bundle-browser ./dist/analogger-browser.min.mjs --update-all",
     "build:esm:browser": "                            to-esm src/ana-logger.cjs            --output browser/                       --config .toesm.cjs --target browser     --nmBrowserImported imported        --update-all",
     "build:esm:browser:minified": "                   to-esm src/ana-logger.cjs            --bundle dist/analogger-browser.min.mjs --config .toesm.cjs --target browser             --update-all      --bundle-browser ./dist/analogger-browser.min.mjs ",
-    "build:esm": "npm run clean:all && npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins",
+    "build:esm": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code - They don't need to have the AnaLogger library built to work!!!",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
