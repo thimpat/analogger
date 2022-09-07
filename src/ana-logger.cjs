@@ -60,8 +60,8 @@ const DEFAULT_LOG_LEVELS = {
 
 const DEFAULT_LOG_CONTEXTS = {
     // The default context
-    DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG},
-    LOG     : {contextName: "LOG", logLevel: DEFAULT_LOG_LEVELS.LOG},
+    DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG, symbol: "check"},
+    LOG     : {contextName: "LOG", logLevel: DEFAULT_LOG_LEVELS.LOG, symbol: "check"},
     DEBUG   : {contextName: "DEBUG", logLevel: DEFAULT_LOG_LEVELS.DEBUG},
     INFO    : {contextName: "INFO", logLevel: DEFAULT_LOG_LEVELS.INFO, color: "#B18904", symbol: "diamonds"},
     WARN    : {contextName: "WARN", logLevel: DEFAULT_LOG_LEVELS.WARN, color: COLOR_TABLE[0], symbol: "cross"},
@@ -887,6 +887,7 @@ class ____AnaLogger
         let defaultContext = this.#contexts[DEFAULT_LOG_CONTEXTS.DEFAULT.contextName] || {};
         defaultContext = Object.assign({},
             {
+                lid        : "",
                 contextName: DEFAULT_LOG_CONTEXTS.DEFAULT.contextName,
                 target     : DEFAULT_LOG_TARGETS.ALL,
                 symbol     : "⚡",
@@ -1484,6 +1485,7 @@ class ____AnaLogger
         try
         {
             let message = "";
+            this.applySymbolByName(context);
 
             if (!this.isTargetAllowed(context.target))
             {
@@ -1500,8 +1502,8 @@ class ____AnaLogger
                 return;
             }
 
-            let args = Array.prototype.slice.call(arguments);
-            args.shift();
+            // Clone arguments without the context (= the first argument passed) to generate the message
+            let args = Array.prototype.slice.call(arguments, 1 /* => Ignore arguments[0] = context */);
 
             message = this.convertArgumentsToText(args);
 
@@ -1649,8 +1651,6 @@ class ____AnaLogger
 
         context = Object.assign({}, defaultContext, context);
         delete context.context;
-
-        this.applySymbolByName(context);
 
         return context;
     }
