@@ -60,8 +60,8 @@ const DEFAULT_LOG_LEVELS = {
 
 const DEFAULT_LOG_CONTEXTS = {
     // The default context
-    DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG},
-    LOG     : {contextName: "LOG", logLevel: DEFAULT_LOG_LEVELS.LOG},
+    DEFAULT : {contextName: "DEFAULT", logLevel: DEFAULT_LOG_LEVELS.LOG, symbol: "check"},
+    LOG     : {contextName: "LOG", logLevel: DEFAULT_LOG_LEVELS.LOG, symbol: "check"},
     DEBUG   : {contextName: "DEBUG", logLevel: DEFAULT_LOG_LEVELS.DEBUG},
     INFO    : {contextName: "INFO", logLevel: DEFAULT_LOG_LEVELS.INFO, color: "#B18904", symbol: "diamonds"},
     WARN    : {contextName: "WARN", logLevel: DEFAULT_LOG_LEVELS.WARN, color: COLOR_TABLE[0], symbol: "cross"},
@@ -1484,6 +1484,7 @@ class ____AnaLogger
         try
         {
             let message = "";
+            this.applySymbolByName(context);
 
             if (!this.isTargetAllowed(context.target))
             {
@@ -1649,8 +1650,6 @@ class ____AnaLogger
 
         context = Object.assign({}, defaultContext, context);
         delete context.context;
-
-        this.applySymbolByName(context);
 
         return context;
     }
