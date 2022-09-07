@@ -22,7 +22,7 @@ npm install analogger
 
 ## Usage
 
-### CommonJs
+### CommonJs (in Node)
 
 ```javascript
 const {anaLogger}  = require("analogger");
@@ -30,7 +30,7 @@ const {anaLogger}  = require("analogger");
 
 <br/>
 
-### ESM
+### ESM (in Node)
 
 ```javascript
 import {anaLogger} from "analogger"
@@ -38,7 +38,7 @@ import {anaLogger} from "analogger"
 
 <br/>
 
-### In the Browser
+### As ESM module (In the Browser)
 
 ```html
 <!DOCTYPE html>
@@ -50,6 +50,10 @@ import {anaLogger} from "analogger"
  <!-- AnaLogger Theme -->
  <link rel="stylesheet" href="../dist/analogger.min.css">
 
+ <!-- or another AnaLogger Theme 
+  <link rel="stylesheet" href="../dist/ana-light.min.css">
+ -->
+ 
 </head>
 <body>
 
