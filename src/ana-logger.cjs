@@ -887,6 +887,7 @@ class ____AnaLogger
         let defaultContext = this.#contexts[DEFAULT_LOG_CONTEXTS.DEFAULT.contextName] || {};
         defaultContext = Object.assign({},
             {
+                lid        : "",
                 contextName: DEFAULT_LOG_CONTEXTS.DEFAULT.contextName,
                 target     : DEFAULT_LOG_TARGETS.ALL,
                 symbol     : "⚡",
@@ -1501,8 +1502,8 @@ class ____AnaLogger
                 return;
             }
 
-            let args = Array.prototype.slice.call(arguments);
-            args.shift();
+            // Clone arguments without the context (= the first argument passed) to generate the message
+            let args = Array.prototype.slice.call(arguments, 1 /* => Ignore arguments[0] = context */);
 
             message = this.convertArgumentsToText(args);
 
