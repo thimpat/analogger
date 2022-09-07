@@ -70,6 +70,7 @@ const DEFAULT_LOG_CONTEXTS = {
 };
 
 const {stringify} = require("flatted");
+const {CONSOLE_HEADER_CLASSNAME, CONSOLE_FOOTER_CLASSNAME} = require("./constants.cjs");
 
 const EOL = `
 `;
@@ -1268,12 +1269,38 @@ class ____AnaLogger
         {
             const $container = this.$containers[i];
 
+            let $header = $container.querySelector("." + CONSOLE_HEADER_CLASSNAME);
+            if (!$header)
+            {
+                $header = document.createElement("div");
+                $header.classList.add(CONSOLE_HEADER_CLASSNAME);
+
+                $header.append(document.createElement("span"));
+                $header.append(document.createElement("span"));
+                $header.append(document.createElement("span"));
+
+                $container.append($header);
+            }
+
             let $view = $container.querySelector("." + CONSOLE_AREA_CLASSNAME);
             if (!$view)
             {
                 $view = document.createElement("div");
                 $view.classList.add(CONSOLE_AREA_CLASSNAME);
                 $container.append($view);
+            }
+
+            let $footer = $container.querySelector("." + CONSOLE_FOOTER_CLASSNAME);
+            if (!$footer)
+            {
+                $footer = document.createElement("div");
+                $footer.classList.add(CONSOLE_FOOTER_CLASSNAME);
+
+                $footer.append(document.createElement("span"));
+                $footer.append(document.createElement("span"));
+                $footer.append(document.createElement("span"));
+
+                $container.append($footer);
             }
 
             const $line = document.createElement("div");
