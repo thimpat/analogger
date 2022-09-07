@@ -1453,27 +1453,138 @@ class ____AnaLogger
         }
 
         const contextLevel = context.contextLevel || DEFAULT_LOG_LEVELS.LOG;
-        if (contextLevel > DEFAULT_LOG_LEVELS.ERROR)
+        if (contextLevel >= DEFAULT_LOG_LEVELS.ERROR)
         {
             this.#realConsoleError(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.WARN)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.WARN)
         {
             this.#realConsoleWarn(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.INFO)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.INFO)
         {
             this.#realConsoleInfo(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.LOG)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.LOG)
         {
             this.#realConsoleLog(...res);
         }
-        else if (contextLevel > DEFAULT_LOG_LEVELS.DEBUG)
+        else if (contextLevel >= DEFAULT_LOG_LEVELS.DEBUG)
         {
             this.#realConsoleDebug(...res);
         }
 
+    }
+
+    /**
+     * Parse the context. If one of its keys has the same name as a registered plugin,
+     * the system will invoke the plugin (the value of the key must be anything truthy).
+     * @param context
+     * @param extras
+     * @returns {undefined|boolean}
+     */
+    checkPlugins(context, {message, text, args, logCounter})
+    {
+        try
+        {
+            if (!Object.keys(____AnaLogger.pluginTable).length)
+            {
+                return;
+            }
+
+            let proceedFurther = true;
+            for (let keyName in context)
+            {
+                const pluginArgs = context[keyName];
+
+                /**
+                 * The key has been passed in the context, but has a falsy value,
+                 * so let's ignore it
+                 */
+                if (!pluginArgs)
+                {
+                    continue;
+                }
+
+                /**
+                 * Extract plugin properties
+                 * @type PLUGIN_TYPE
+                 */
+                const pluginProperties = ____AnaLogger.pluginTable[keyName];
+
+                /**
+                 * Check plugin properties exists
+                 * @see addPlugin
+                 * @see addGlobalPlugin
+                 */
+                if (!pluginProperties)
+                {
+                    continue;
+                }
+
+                // Should be an object
+                if (typeof pluginProperties !== "object")
+                {
+                    continue;
+                }
+
+                /**
+                 * Extract plugin properties
+                 */
+                const {callback, methodName, type} = pluginProperties;
+                if (typeof callback !== "function")
+                {
+                    continue;
+                }
+
+                /**
+                 * If the key given in the context was a function, invoke that function
+                 */
+                if (typeof pluginArgs === "function")
+                {
+                    context = pluginArgs;
+                }
+
+                /**
+                 * Invoke the plugin
+                 */
+                let res = callback.call(this, context, {message, text, args, logCounter, methodName, type, pluginArgs});
+
+                // If the plugin returns exactly false, the log entry will be ignored by anaLogger
+                if (res === false)
+                {
+                    proceedFurther = false;
+                }
+            }
+            return proceedFurther;
+        }
+        catch (e)
+        {
+        }
+    }
+
+    /**
+     * If the context contain a key onLogging that is a function,
+     * execute
+     * @param context
+     * @param extras
+     * @returns {*}
+     */
+    checkOnLogging(context, extras)
+    {
+        try
+        {
+            let callback = context.onLogging;
+            if (typeof callback !== "function")
+            {
+                return;
+            }
+
+            return callback.call(this, context, extras);
+        }
+        catch (e)
+        {
+        }
     }
 
     /**
