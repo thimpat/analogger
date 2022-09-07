@@ -24,6 +24,7 @@ chai.use(assertArrays);
 const {anaLogger} = require("../src/ana-logger.cjs");
 const {LOG_CONTEXTS, LOG_TARGETS} = require("../models/jscode/contexts-def.cjs");
 const {sleep} = require("@thimpat/testutils");
+const {SYSTEM} = require("../src/constants.cjs");
 
 describe("AnaLogger", function ()
 {
@@ -596,9 +597,10 @@ describe("AnaLogger", function ()
         {
             it("should add log to the DOM when the logToDom option is on", async function ()
             {
+                anaLogger.forceEnvironment(SYSTEM.BROWSER);
                 anaLogger.setOptions({logToDom: "body"});
                 anaLogger.log("Hello you - How is it?");
-
+                anaLogger.forceEnvironment("");
                 await sleep(100);
 
                 expect(document.body.textContent).to.contain("Hello you - How is it?");

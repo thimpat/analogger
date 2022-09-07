@@ -70,6 +70,7 @@ const DEFAULT_LOG_CONTEXTS = {
 };
 
 const {stringify} = require("flatted");
+const {CONSOLE_HEADER_CLASSNAME, CONSOLE_FOOTER_CLASSNAME} = require("./constants.cjs");
 
 const EOL = `
 `;
@@ -157,6 +158,42 @@ const symbolNames = {
     writing_hand              : "✍",
 };
 
+// --------------------------------------------------
+// Helpers
+// --------------------------------------------------
+/**
+ * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
+ * @returns {string}
+ */
+function detectEnvironment()
+{
+    if (typeof process === "object")
+    {
+        if (typeof process.versions === "object")
+        {
+            if (typeof process.versions.node !== "undefined")
+            {
+                return SYSTEM.NODE;
+            }
+        }
+    }
+    return SYSTEM.BROWSER;
+}
+
+const currentSystem = detectEnvironment();
+
+/**
+ * Tell whether we are in a Node environment
+ * @returns {boolean}
+ */
+function isNode()
+{
+    return currentSystem === SYSTEM.NODE;
+}
+
+/**
+ *
+ */
 class ____AnaLogger
 {
     system = "";
@@ -191,8 +228,7 @@ class ____AnaLogger
     #realConsoleWarn = console.warn;
     #realConsoleError = console.error;
     #realConsoleDebug = console.debug;
-
-    isBrowser0 = null;
+    #realConsoleTable = console.table;
 
     static ALIGN = {
         LEFT : "LEFT",
@@ -211,9 +247,11 @@ class ____AnaLogger
 
     originalFormatFunction;
 
+
     constructor({name = "default"} = {})
     {
-        this.system = (typeof process === "object") ? SYSTEM.NODE : SYSTEM.BROWSER;
+        this.system = detectEnvironment();
+
         this.format = this.onBuildLog.bind(this);
         this.originalFormatFunction = this.format;
 
@@ -243,14 +281,11 @@ class ____AnaLogger
 
         console.table = this.table;
         console.buildTable = this.buildTable;
-        console.isNode = this.isNode;
-        console.isBrowser = this.isBrowser;
         console.truncateMessage = this.truncateMessage;
         console.rawLog = this.rawLog;
         console.rawInfo = this.rawInfo;
         console.rawWarn = this.rawWarn;
         console.rawError = this.rawError;
-        console.isBrowser0 = this.system === SYSTEM.BROWSER;
 
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
@@ -301,13 +336,23 @@ class ____AnaLogger
         return history.join(symbol);
     }
 
+    forceEnvironment(system)
+    {
+        this.forcedSystem = system;
+    }
+
     /**
      * Tell whether we are in a Node environment
      * @returns {boolean}
      */
     isNode()
     {
-        return this.system === SYSTEM.NODE;
+        if (this && this.forcedSystem)
+        {
+            return this.forcedSystem === SYSTEM.NODE;
+        }
+
+        return isNode();
     }
 
     /**
@@ -336,7 +381,14 @@ class ____AnaLogger
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
         this.options.logToRemote = undefined;
+        this.options.logToRemoteUrl = undefined;
+        this.options.logToRemoteBinaryUrl = undefined;
         this.options.logToDomlogToFile = undefined;
+        this.options.protocol = undefined;
+        this.options.host = undefined;
+        this.options.port = undefined;
+        this.options.pathname = undefined;
+        this.options.binarypathname = undefined;
     }
 
     resetOptions()
@@ -357,6 +409,8 @@ class ____AnaLogger
                    logToDom = undefined,
                    logToFile = undefined,
                    logToRemote = undefined,
+                   logToRemoteUrl = undefined,
+                   logToRemoteBinaryUrl = undefined,
                    loopback = DEFAULT.loopback,
                    requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
@@ -375,16 +429,6 @@ class ____AnaLogger
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
 
-        if (hidePassingTests !== undefined)
-        {
-            this.options.hidePassingTests = !!hidePassingTests;
-        }
-
-        if (hideHookMessage !== undefined)
-        {
-            this.options.hideHookMessage = !!hideHookMessage;
-        }
-
         this.options.requiredLogLevel = requiredLogLevel;
 
         // TODO: Make one of silent or hideToLog options obsolete
@@ -398,46 +442,48 @@ class ____AnaLogger
             solveSilent = !!hideLog;
         }
 
-        if (solveSilent)
+        // Force boolean type
+        [
+            {hideLog: solveSilent},
+            {oneConsolePerContext},
+            {hideError},
+            {hideHookMessage},
+            {hidePassingTests},
+            {logToRemote},
+        ].forEach((feature) =>
         {
-            this.options.hideLog = !!solveSilent;
-        }
+            const key = Object.keys(feature)[0];
+            const val = feature[key];
+            if (val !== undefined)
+            {
+                this.options[key] = !!val;
+            }
+        });
 
-        if (hideError !== undefined)
+        // Any type
+        [
+            {logToRemoteBinaryUrl},
+            {logToRemoteUrl},
+            {loopback},
+            {protocol},
+            {host},
+            {port},
+            {pathname},
+            {binarypathname},
+        ].forEach((feature) =>
         {
-            this.options.hideError = !!hideError;
-        }
+            const key = Object.keys(feature)[0];
+            const val = feature[key];
+            if (val !== undefined)
+            {
+                this.options[key] = val;
+            }
+        });
 
-        if (oneConsolePerContext !== undefined)
-        {
-            this.options.oneConsolePerContext = !!oneConsolePerContext;
-        }
-
+        // Special cases
         if (logToDom !== undefined)
         {
             this.options.logToDom = logToDom || DEFAULT.consoleDomId;
-        }
-
-        if (loopback !== undefined)
-        {
-            this.options.loopback = loopback;
-        }
-
-        if (logToRemote !== undefined)
-        {
-            this.options.logToRemote = this.generateLogToRemoteUrl(logToRemote, {
-                protocol,
-                host,
-                port,
-                pathname
-            });
-
-            this.options.logToBinaryRemote = this.generateLogToRemoteUrl(logToRemote, {
-                protocol,
-                host,
-                port,
-                pathname: binarypathname || DEFAULT.binarypathname
-            });
         }
 
         if (logToFile === false)
@@ -552,12 +598,9 @@ class ____AnaLogger
             }
         }
 
-        if (!this.isBrowser0)
+        if (!availableLength)
         {
-            if (!availableLength)
-            {
-                availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
-            }
+            availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
         }
 
         availableLength = availableLength - 4;
@@ -1226,12 +1269,38 @@ class ____AnaLogger
         {
             const $container = this.$containers[i];
 
+            let $header = $container.querySelector("." + CONSOLE_HEADER_CLASSNAME);
+            if (!$header)
+            {
+                $header = document.createElement("div");
+                $header.classList.add(CONSOLE_HEADER_CLASSNAME);
+
+                $header.append(document.createElement("span"));
+                $header.append(document.createElement("span"));
+                $header.append(document.createElement("span"));
+
+                $container.append($header);
+            }
+
             let $view = $container.querySelector("." + CONSOLE_AREA_CLASSNAME);
             if (!$view)
             {
                 $view = document.createElement("div");
                 $view.classList.add(CONSOLE_AREA_CLASSNAME);
                 $container.append($view);
+            }
+
+            let $footer = $container.querySelector("." + CONSOLE_FOOTER_CLASSNAME);
+            if (!$footer)
+            {
+                $footer = document.createElement("div");
+                $footer.classList.add(CONSOLE_FOOTER_CLASSNAME);
+
+                $footer.append(document.createElement("span"));
+                $footer.append(document.createElement("span"));
+                $footer.append(document.createElement("span"));
+
+                $container.append($footer);
             }
 
             const $line = document.createElement("div");
@@ -1272,9 +1341,15 @@ class ____AnaLogger
     {
         try
         {
+            const urlDest = this.generateLogToRemoteUrl(this.options.logToRemoteUrl);
+            if (!urlDest)
+            {
+                return null;
+            }
+
             const entry = [...data];
             const stringified = JSON.stringify(entry);
-            fetch(this.options.logToRemote, {
+            fetch(urlDest, {
                 method : "post",
                 body   : stringified,
                 headers: {"Content-Type": "application/json"},
@@ -1304,13 +1379,19 @@ class ____AnaLogger
                 return;
             }
 
+            const urlDest = this.generateLogToRemoteUrl(this.options.logToRemoteBinaryUrl, {pathname: DEFAULT.binarypathname});
+            if (!urlDest)
+            {
+                return null;
+            }
+
             let data = raw;
             if (info || lid)
             {
                 data = JSON.stringify({raw, info, lid});
             }
 
-            fetch(this.options.logToBinaryRemote, {
+            fetch(urlDest, {
                 method: "post",
                 body  : data,
             })
@@ -1362,10 +1443,10 @@ class ____AnaLogger
         return text;
     }
 
-    writeToConsole(output, context, {isBrowser})
+    writeToConsole(output, context)
     {
         const res = [output];
-        if (isBrowser)
+        if (this.isBrowser())
         {
             res.push(`color: ${context.color}`);
         }
@@ -1470,7 +1551,7 @@ class ____AnaLogger
                 return;
             }
 
-            this.writeToConsole(output, context, {isBrowser: this.isBrowser()});
+            this.writeToConsole(output, context);
 
             this.errorTargetHandler(context, args);
         }
@@ -1710,12 +1791,17 @@ class ____AnaLogger
 
     table(...args)
     {
+        if (this.isBrowser())
+        {
+            return this.#realConsoleTable(...args);
+        }
+
         return this.buildTable(...args);
     }
 
     alert(...args)
     {
-        if (this.isNode())
+        if (!this.isBrowser())
         {
             return this.log(...args);
         }
@@ -1862,54 +1948,22 @@ class ____AnaLogger
         return url.toString();
     }
 
-    generateLogToRemoteUrl(logToRemote, {
-        protocol = DEFAULT.protocol,
-        host = DEFAULT.host || this.options.loopback,
-        port = DEFAULT.port,
-        pathname = DEFAULT.pathname
-    } = {})
+    generateLogToRemoteUrl(logToRemoteUrl = null, {pathname = DEFAULT.pathname} = {})
     {
-        if (!logToRemote)
+        if (typeof logToRemoteUrl === "string" || logToRemoteUrl instanceof String)
         {
-            return false;
+            return logToRemoteUrl;
         }
 
-        if (typeof logToRemote === "string" || logToRemote instanceof String)
+        if (!this.isBrowser())
         {
-            return logToRemote;
+            return null;
         }
 
-        if (Array.isArray(logToRemote))
-        {
-            protocol = logToRemote[0] || protocol;
-            host = logToRemote[1] || host;
-            port = logToRemote[2] || port;
-            pathname = logToRemote[3] || pathname;
-
-            return this.convertToUrl({protocol, host, port, pathname});
-        }
-
-        if (typeof logToRemote === "object")
-        {
-            // ({protocol, host, port, pathname} = logToRemote);
-            protocol = logToRemote.protocol || protocol;
-            host = logToRemote.host || host;
-            port = logToRemote.port || port;
-            pathname = logToRemote.pathname || pathname;
-
-            return this.convertToUrl({protocol, host, port, pathname});
-        }
-
-        if (Number.isInteger(logToRemote))
-        {
-            if (logToRemote < 0 || logToRemote > 65535)
-            {
-                console.error({lid: 3037}, `Invalid port number for logToRemoteValue`);
-                return false;
-            }
-
-            port = logToRemote;
-        }
+        const protocol = this.options.protocol || window.location.protocol + "//";
+        const host = this.options.host || window.location.host || DEFAULT.host;
+        const port = this.options.port || DEFAULT.port;
+        pathname = this.options.pathname || pathname;
 
         return this.convertToUrl({protocol, host, port, pathname});
     }

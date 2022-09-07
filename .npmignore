@@ -99,9 +99,9 @@ dist/analogger-browser-demo.min.mjs
 /src/index.scss
 /src/index.css
 /src/index.css.map
-/src/ana-logger.css
-/src/ana-logger.scss
-/src/analogger.min.css
+/src/analogger.css
+/src/*.scss
+/src/*.css
 /demo/
 /models/
 /*.bak.cjs

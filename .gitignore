@@ -87,7 +87,6 @@ out
 /generated/browser-minified/
 /generated/browser-importmaps/
 /models/example-2/index-with-import-maps.html
-*.min.css
 /demo/
 /*.bak.cjs
 esm/
