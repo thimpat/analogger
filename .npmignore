@@ -101,7 +101,7 @@ dist/analogger-browser-demo.min.mjs
 /src/index.css.map
 /src/analogger.css
 /src/*.scss
-/src/analogger.min.css
+/src/*.css
 /demo/
 /models/
 /*.bak.cjs
