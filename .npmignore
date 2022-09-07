@@ -99,8 +99,8 @@ dist/analogger-browser-demo.min.mjs
 /src/index.scss
 /src/index.css
 /src/index.css.map
-/src/ana-logger.css
-/src/ana-logger.scss
+/src/analogger.css
+/src/*.scss
 /src/analogger.min.css
 /demo/
 /models/
