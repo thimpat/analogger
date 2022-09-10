@@ -375,6 +375,34 @@ anaLogger.setOptions({logToRemote: "http://your.server.com/data"});
 
 ---
 
+### attachConsole();
+
+Allows to use the methods defined in the anaLogger instance directly from the console
+
+```javascript
+
+// Attach methods like keepLogHistory(), hasSeenLid(), etc. to the console
+anaLogger.attachConsole();
+
+console.keepLogHistory();
+
+[1, -1, 3, -1, -1].forEach((n) =>
+{
+    if (n === -1)
+    {
+      if (!console.hasSeenLid(3000))
+      {
+         console.log({lid: 3000}, `-1 is not allowed`);          
+      }        
+    }
+})
+
+```
+
+<br/>
+
+---
+
 ### overrideConsole()
 
 ```javascript
@@ -620,6 +648,76 @@ anaLogger.assert((a, b)=> a === b, true, 2, 2)
 
 <br/>
 
+---
+
+
+### setErrorHandlerForUserTarget()
+
+Tells whether a log has already been displayed. keepLogHistory must be activated
+
+```javascript
+anaLogger.keepLogHistory()
+
+anaLogger.log({lid: 1234}, `My name is log`)
+anaLogger.hasSeenLid(1234)          // true
+anaLogger.hasSeenLid(1000)          // false
+
+// Optional
+anaLogger.releaseLogHistory()
+```
+<br/>
+---
+
+### isBrowser()()
+
+Tells whether the console runs from the browser
+
+```javascript
+anaLogger.isBrowser()
+```
+<br/>
+
+---
+### keepLogHistory()
+
+Keeps log entries in memory
+
+```javascript
+anaLogger.keepLogHistory()
+```
+<br/>
+---
+
+### releaseLogHistory()
+
+Tells the system to no longer keep log entries in memory
+
+```javascript
+anaLogger.releaseLogHistory()
+```
+<br/>
+---
+
+### resetLogHistory()
+
+Delete memorized log entries
+
+```javascript
+anaLogger.resetLogHistory()
+```
+
+<br/>
+---
+
+### getLogHistory()
+
+Returns log entries
+
+```javascript
+anaLogger.getLogHistory()
+```
+
+<br/>
 ---
 
 

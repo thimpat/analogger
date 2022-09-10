@@ -207,6 +207,21 @@ function isNode()
     return currentSystem === SYSTEM.NODE;
 }
 
+const COMMON_METHODS = [
+    "keepLogHistory",
+    "getLogHistory",
+    "table",
+    "buildTable",
+    "truncateMessage",
+    "truncateMessage",
+    "rawLog",
+    "rawInfo",
+    "rawWarn",
+    "rawError",
+    "hasSeenLid"
+];
+
+
 /**
  * @module ____AnaLogger
  * @class ____AnaLogger
@@ -286,24 +301,6 @@ class ____AnaLogger
         this.rawWarn = this.#realConsoleWarn;
         this.rawError = this.#realConsoleError;
 
-        console.rawLog = this.#realConsoleLog;
-        console.raw = this.#realConsoleLog;
-
-        console.rawInfo = this.#realConsoleInfo;
-        console.rawWarn = this.#realConsoleWarn;
-        console.rawError = this.#realConsoleError;
-
-        console.keepLogHistory = this.keepLogHistory;
-        console.getLogHistory = this.getLogHistory;
-
-        console.table = this.table;
-        console.buildTable = this.buildTable;
-        console.truncateMessage = this.truncateMessage;
-        console.rawLog = this.rawLog;
-        console.rawInfo = this.rawInfo;
-        console.rawWarn = this.rawWarn;
-        console.rawError = this.rawError;
-
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
 
@@ -337,20 +334,57 @@ class ____AnaLogger
         this.logHistory = [];
     }
 
+    addToLogHistory(obj)
+    {
+        obj = obj || {};
+        this.logHistory.push(Object.assign({}, obj));
+    }
+
+    /**
+     * Returns log entries
+     * @note This method should return the list of objects rather than
+     * the array of text
+     * @param join
+     * @param symbol
+     * @returns {string|*[]}
+     */
     getLogHistory(join = true, symbol = EOL)
     {
-        const historyLog = this.logHistory;
-        if (!historyLog)
+        const historyLog = this.logHistory || [];
+        const history = [];
+        historyLog.forEach((logEntry) =>
         {
-            return "";
-        }
-        const logs = this.logHistory.slice(0);
-        const history = JSON.parse(JSON.stringify(logs));
+            const {text} = logEntry;
+            history.push(text);
+        });
+
         if (!join)
         {
             return history;
         }
+
         return history.join(symbol);
+    }
+
+    getRawLogHistory()
+    {
+        return this.logHistory || [];
+    }
+
+    hasSeenLid(lid)
+    {
+        this.logHistory = this.logHistory || [];
+        for (let i = 0; i < this.logHistory.length; ++i)
+        {
+            const log = this.logHistory[i] || {};
+            const context = log.context || {};
+            if (lid === context.lid)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     forceEnvironment(system)
@@ -558,7 +592,7 @@ class ____AnaLogger
      * @param onCompleteSeparators
      * @param onCompleteLines
      */
-    buildTable(objList, {
+    #buildTable(objList, {
         ellipsis = "...",
         ColumnMinChars = 6,
         columnMaxChars = 0,
@@ -1568,13 +1602,13 @@ class ____AnaLogger
             let proceedFurther = true;
             for (let keyName in context)
             {
-                const pluginArgs = context[keyName];
+                const pluginOptions = context[keyName];
 
                 /**
                  * The key has been passed in the context, but has a falsy value,
                  * so let's ignore it
                  */
-                if (!pluginArgs)
+                if (!pluginOptions)
                 {
                     continue;
                 }
@@ -1611,17 +1645,17 @@ class ____AnaLogger
                 }
 
                 /**
-                 * If the key given in the context was a function, invoke that function
-                 */
-                if (typeof pluginArgs === "function")
-                {
-                    context = pluginArgs;
-                }
-
-                /**
                  * Invoke the plugin
                  */
-                let res = callback.call(this, context, {message, text, args, logCounter, methodName, type, pluginArgs});
+                let res = callback.call(this, context, {
+                    message,
+                    text,
+                    args,
+                    logCounter,
+                    methodName,
+                    type,
+                    pluginOptions
+                });
 
                 // If the plugin returns exactly false, the log entry will be ignored by anaLogger
                 if (res === false)
@@ -1695,6 +1729,11 @@ class ____AnaLogger
             let text = "";
             text = this.format({...context, message});
 
+            if (this.keepLog)
+            {
+                this.addToLogHistory({context, message, text});
+            }
+
             ++this.logCounter;
 
             let proceedFurther;
@@ -1747,11 +1786,6 @@ class ____AnaLogger
                 {
                     this.writeLogToFile(text);
                 }
-            }
-
-            if (this.keepLog)
-            {
-                this.logHistory.push(output);
             }
 
             if (this.options.hideLog)
@@ -1918,32 +1952,60 @@ class ____AnaLogger
         console.error = this.onDisplayError.bind(this);
     }
 
-    overrideConsole({log = true, info = true, warn = true, error = false} = {})
+    attachConsole()
+    {
+        try
+        {
+            console.rawLog = this.#realConsoleLog;
+            console.raw = this.#realConsoleLog;
+
+            console.rawInfo = this.#realConsoleInfo;
+            console.rawWarn = this.#realConsoleWarn;
+            console.rawError = this.#realConsoleError;
+
+            console.logHistory = this.logHistory;
+
+            console.logHistory = this.logHistory;
+            COMMON_METHODS.forEach((name) =>
+            {
+                console[name] = function (...args)
+                {
+                    this[name](...args);
+                }.bind(this);
+            });
+
+            return true;
+        }
+        catch (e)
+        {
+            console.error({lid: 4321}, e.message);
+        }
+
+        return false;
+    }
+
+    overrideConsole({log = true, info = true, warn = true, error = false} = {}, Console = null)
     {
         if (!this.options.hideHookMessage)
         {
             this.#realConsoleLog("AnaLogger: Hook placed on console.log");
         }
 
-        if (log)
+        [{log}, {info}, {warn}, ].forEach((methodObj)=>
         {
-            console.log = this.onDisplayLog.bind(this);
-        }
-
-        if (info)
-        {
-            console.info = this.onDisplayLog.bind(this);
-        }
-
-        if (warn)
-        {
-            console.warn = this.onDisplayLog.bind(this);
-        }
+            const methodName = Object.keys(methodObj)[0];
+            if (methodObj[methodName])
+            {
+                console[methodName] = this.onDisplayLog.bind(this);
+            }
+        });
 
         if (error)
         {
             this.overrideError();
         }
+
+        this.attachConsole();
     }
 
     removeOverrideError()
@@ -1992,7 +2054,7 @@ class ____AnaLogger
             return this.#realConsoleTable(...args);
         }
 
-        return this.buildTable(...args);
+        return this.#buildTable(...args);
     }
 
     alert(...args)
