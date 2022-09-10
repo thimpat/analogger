@@ -340,20 +340,35 @@ class ____AnaLogger
         this.logHistory.push(Object.assign({}, obj));
     }
 
+    /**
+     * Returns log entries
+     * @note This method should return the list of objects rather than
+     * the array of text
+     * @param join
+     * @param symbol
+     * @returns {string|*[]}
+     */
     getLogHistory(join = true, symbol = EOL)
     {
-        const historyLog = this.logHistory;
-        if (!historyLog)
+        const historyLog = this.logHistory || [];
+        const history = [];
+        historyLog.forEach((logEntry) =>
         {
-            return "";
-        }
-        const logs = this.logHistory.slice(0);
-        const history = JSON.parse(JSON.stringify(logs));
+            const {text} = logEntry;
+            history.push(text);
+        });
+
         if (!join)
         {
             return history;
         }
+
         return history.join(symbol);
+    }
+
+    getRawLogHistory()
+    {
+        return this.logHistory || [];
     }
 
     hasSeenLid(lid)
@@ -1716,7 +1731,7 @@ class ____AnaLogger
 
             if (this.keepLog)
             {
-                this.addToLogHistory({context, message});
+                this.addToLogHistory({context, message, text});
             }
 
             ++this.logCounter;
