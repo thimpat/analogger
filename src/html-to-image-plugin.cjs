@@ -28,11 +28,18 @@ const PLUGIN_NAME = "takeScreenshot";
  * @param text
  * @param methodName
  * @param type
+ * @example
+ * anaLogger.log({lid: 1234, takeScreenshot: {
+ *     divSource: document.body,n
+ *     onScreenshot: () => {},
+ *     onResponse: () => {},
+ *     filter    : {width: 500,}
+ * }}, "Take a screenshot 500px wide")
  * @returns {boolean}
  */
 const takeScreenshot = (context,
                         {
-                            pluginArgs = {},
+                            pluginOptions = {},
                             divSource = document.body,
                             args = null,
                             logCounter = -1,
@@ -44,14 +51,15 @@ const takeScreenshot = (context,
 {
     try
     {
+        pluginOptions.options = pluginOptions.options || {};
         htmlToImage
-            .toPng(divSource)
+            .toPng(divSource, pluginOptions.options)
             .then(function (imageData)
             {
                 // ------------------------------------
                 // Phase 1: We have the screenshot
                 // ------------------------------------
-                const onScreenshot = pluginArgs ? pluginArgs.onScreenshot : null;
+                const onScreenshot = pluginOptions ? pluginOptions.onScreenshot : null;
                 onScreenshot && onScreenshot({
                     imageData,
                     context,
@@ -68,7 +76,7 @@ const takeScreenshot = (context,
                     // ------------------------------------
                     // Phase 1: We have the screenshot url from the server
                     // ------------------------------------
-                    const onResponse = pluginArgs ? pluginArgs.onResponse : null;
+                    const onResponse = pluginOptions ? pluginOptions.onResponse : null;
                     // We transfer as much information as we can to the plugin
                     onResponse && onResponse({
                         imageData,
@@ -96,8 +104,6 @@ const takeScreenshot = (context,
         console.error({lid: 4321}, e.message);
     }
 
-    response = false;
-    return response;
 };
 
 anaLogger.addPlugin(PLUGIN_NAME, takeScreenshot);
