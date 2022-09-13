@@ -7,7 +7,7 @@
 
 ---
 
-Analogger is a logger for Node and Browser environments that is highly customisable.
+Analogger is a logger for Node and Browser environments that is highly customizable.
 It logs to terminals, browser DOM and inspectors and files.
 
 ## Installation
@@ -115,7 +115,7 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 
 ### log() / info() / warn() / error()
 
-Display a message in the terminal or the inspector, depending on where the process is running.
+Display a message in the terminal or the inspector, depending on where the process runs.
 
 #### Example 1
 
@@ -331,7 +331,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | hidePassingTests | false       | boolean                           | _Hide Live test results_                                                           |           
 | logToDom         | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
 | logToFile        | false       | string (File path)                | _write log to a file if running from Node_                                         |
-| logToRemote      | undefined   | string (url)                      | _Send log to a remote (more info in the next version)_                             |
+| logToRemote      | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
 | requiredLogLevel | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 
 <br/>
@@ -400,7 +400,7 @@ _The data received by your server may look like this:_
 
 ##### Write logs to the Remote Logging module
 
-If you don't want to implement the back-end, you can also use the Remote-Logging module.
+You can also use the Remote-Logging module if you don't want to implement the back-end.
 
 
 > ###### https://www.npmjs.com/package/remote-logging
@@ -418,9 +418,9 @@ If you don't want to implement the back-end, you can also use the Remote-Logging
 $> npm remote-logging
 ```
 
-> ##### If you're on Windows, the system may ask you the permission to reach the port. Select private access.
+> ##### If you're on Windows, the system may ask you permission to reach the port. Select private access.
 
-> ##### On Linux, You will have to open the port 12000 by default. To change it, pass the option --port number to the command above
+> ##### On Linux, You will have to open port 12000 by default. To change it, pass the option --port number to the command above.
 
 
 ### 2- Copy the server URL in the AnaLogger options (In your client code)
@@ -453,7 +453,7 @@ anaLogger.log({lid: 1000}, `Example 1`)
 ```
 
 ```javascript
-// See in the screensht section below, how to enable the plugin
+// See in the screenshot section below how to enable the plugin
 anaLogger.lid({takeScreenshot: true, lid: 1000}, `Example 1`)
 ```
 
@@ -483,7 +483,7 @@ _Data received by your server may look like this:_
 
 ### attachConsole();
 
-Allows to use the methods defined in the anaLogger instance directly from the console
+Allows to use of the methods defined in the anaLogger instance directly from the console
 
 ```javascript
 
@@ -581,11 +581,11 @@ anaLogger.log(LOG_CONTEXTS.C2, `Test Log example C2`);
 anaLogger.log(LOG_CONTEXTS.C3, `Test Log example C3`);
 ```
 
-See LOG_CONTEXTS.C1 in this example to categorise the functionality we want to monitor.
+See LOG_CONTEXTS.C1 in this example to categorize the functionality we want to monitor.
 For instance, LOG_CONTEXTS.INVESTIGATING_TIMER_EFFECT could display output related to something that has to
 do with a timer.
 
-The "Testing log 2" log will not show up in the console or the terminal.
+The "Testing log 2" log will not appear in the console or the terminal.
 
 **Preview In a terminal (NodeJs)**
 
@@ -742,7 +742,7 @@ analogger.setTargets()
 ### assert()
 
 You can set some tests directly in the code. It serves as early feedback.
-It is helpful to guarantee that the code is running straight away rather than waiting on the CI to send its feedback.
+It is helpful to guarantee that the code runs straight away rather than waiting for the CI to send its feedback.
 
 
 ```javascript
@@ -759,7 +759,7 @@ anaLogger.assert((a, b)=> a === b, true, 2, 2)
 
 ### setErrorHandlerForUserTarget()
 
-Tells whether a log has already been displayed. keepLogHistory must be activated
+It tells whether a log has already been displayed. keepLogHistory must be activated
 
 ```javascript
 anaLogger.keepLogHistory()
@@ -776,7 +776,7 @@ anaLogger.releaseLogHistory()
 
 ### isBrowser()()
 
-Tells whether the console runs from the browser
+It tells whether the console runs from the browser
 
 ```javascript
 anaLogger.isBrowser()
@@ -796,7 +796,7 @@ anaLogger.keepLogHistory()
 
 ### releaseLogHistory()
 
-Tells the system to no longer keep log entries in memory
+It tells the system to no longer keep log entries in memory
 
 ```javascript
 anaLogger.releaseLogHistory()
@@ -837,7 +837,7 @@ to them), you can set a handler here. All other console.error will be working as
     anaLogger.setErrorHandlerForUserTarget(function (context/*, ...args*/)
     {
         // Detect whether we are in a browser
-        if (context.environnment === anaLogger.ENVIRONMENT_TYPE.BROWSER)
+        if (context.environment === anaLogger.ENVIRONMENT_TYPE.BROWSER)
         {
             // When the Browser detects an error, users will see this message
             anaLogger.alert(`Users explicitly see this message`)
@@ -851,7 +851,7 @@ to them), you can set a handler here. All other console.error will be working as
 
 ## Multiple instances
 
-It is possible to generate multiple AnaLogger instances, so they can point to different targets. 
+It is possible to generate multiple AnaLogger instances so that they can point to different targets. 
 
 ### Example
 
@@ -871,7 +871,7 @@ anaLoggerInstance2.setOptions({logToFile: "./logme.log"});
 
 ### takeScreenshot()
 
-You can take screenshot via the "html-to-image" plugin (integrated in the module).
+You can take a screenshot via the "html-to-image" plugin (integrated in the module).
 html-to-image is an external module that this module uses to take screenshots.
 
 
