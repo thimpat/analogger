@@ -415,7 +415,7 @@ You can also use the Remote-Logging module if you don't want to implement the ba
 ### 1- Launch Remote-Logging
 
 ```shell
-$> npm remote-logging
+$> npx remote-logging
 ```
 
 > ##### If you're on Windows, the system may ask you permission to reach the port. Select private access.
@@ -425,7 +425,7 @@ $> npm remote-logging
 
 ### 2- Copy the server URL in the AnaLogger options (In your client code)
 
-![Copy URL](https://github.com/thimpat/demos/blob/main/remote-logging/images/preview-7.png "Remote Logs")
+![Copy URL](https://github.com/thimpat/analogger/blob/main/docs/images/img_7.png "Remote Logs")
 
 ```javascript
 
@@ -462,7 +462,7 @@ anaLogger.lid({takeScreenshot: true, lid: 1000}, `Example 1`)
 > curl --request POST 'http://localhost:12000/analogger' --header 'Content-Type: application/json' --data-raw '[[{"lid": 123888, "color": "blue"}, "My message 1"], [{"lid": 123999, "color": "blue"}, "My message 2"]]
 ```
 
-> ![Test from CLI](https://github.com/thimpat/demos/blob/main/remote-logging/images/preview-7.png "Remote Logs")
+> ![Test from CLI](https://github.com/thimpat/analogger/blob/main/docs/images/img_8.png "Remote Logs")
 
 <br/>
 
