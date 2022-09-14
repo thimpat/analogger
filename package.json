@@ -5,6 +5,9 @@
   "main": "./src/ana-logger.cjs",
   "module": "./esm/src/ana-logger.mjs",
   "type": "commonjs",
+  "bin": {
+    "analogger": "cli.cjs"
+  },
   "imports": {
     "flatted": "./node_modules/flatted/esm/index.js",
     "to-ansi": "./node_modules/to-ansi/index.mjs"
@@ -97,6 +100,7 @@
   },
   "dependencies": {
     "@thimpat/libutils": "1.5.1",
+    "commander": "^9.4.0",
     "flatted": "3.2.7",
     "node-fetch": "^3.2.10",
     "node-fetch-cjs": "npm:node-fetch@^2.6.7",
