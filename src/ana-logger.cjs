@@ -531,6 +531,26 @@ class ____AnaLogger
             }
         });
 
+        if (this.options.logToRemote && !this.options.logToRemoteUrl)
+        {
+            this.options.logToRemoteUrl = this.convertToUrl({
+                protocol: DEFAULT.protocol,
+                host    : DEFAULT.host,
+                port    : DEFAULT.port,
+                pathname: DEFAULT.pathname
+            });
+        }
+
+        if (this.options.logToRemote && !this.options.logToRemoteBinaryUrl)
+        {
+            this.options.logToRemoteBinaryUrl = this.convertToUrl({
+                protocol: DEFAULT.protocol,
+                host    : DEFAULT.host,
+                port    : DEFAULT.port,
+                pathname: DEFAULT.binarypathname
+            });
+        }
+
         // Special cases
         if (logToDom !== undefined)
         {
