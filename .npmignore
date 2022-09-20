@@ -109,3 +109,4 @@ dist/analogger-browser-demo.min.mjs
 /help/
 /licensee/
 /lid-generator.cjs
+*.log
