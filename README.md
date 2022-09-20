@@ -982,3 +982,50 @@ anaLogger.addPlugin("doSomething", doSomething);
 ---
 
 
+
+
+## Changelog
+
+*  Update documentation
+*  Set up AnaLogger as a Mocha reporter
+*  Launch a remote from AnaLogger
+*  Fix remote related options passed to setOptions
+*  Launch a remote server from the CLI
+*  Default remote to localhost by default when enabled
+*  Fix errors in documentation
+*  Bump version for updating improved docs
+*  Bump version for updating docs on npmjs.com
+*  Restore same behaviour as before for getLogHistory
+*  Add functionnalities to AnaLogger instances
+*  Fix log level applied one level down
+*  Update themes
+*  Apply empty log id by default for contexts
+*  Apply missing symbols
+*  Add missing files from build
+*  Recolor title bar
+*  Add a theme file
+*  Add a header and o footer to the layout
+*  Use native console.table on browsers
+*  Apply better environment detection
+*  Review logToRemote option
+*  Review sentence failure for screenshot
+*  Fix plugin validation
+*  Export and validate plugin names
+*  Fix default address for remote binary
+*  Fix error on missing callback
+*  Fix log displayed twice
+*  Add takeScreenshot plugin
+*  Add documentation implementation related
+*  Update readme
+*  Add context levels
+*  Add a logToRemote option
+*  Replace and lock down some modules
+*  Apply real fix for missing dist/ folder
+*  Add minified to build
+*  Apply workaround for missing dist/ folder from build
+*  Display stack error
+*  Fix silent and hideLog options
+*  Fix the Maximum call stack size error
+*  Bump for special refactoring
+
+---
