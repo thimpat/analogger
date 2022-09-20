@@ -534,20 +534,20 @@ class ____AnaLogger
         if (this.options.logToRemote && !this.options.logToRemoteUrl)
         {
             this.options.logToRemoteUrl = this.convertToUrl({
-                protocol: DEFAULT.protocol,
-                host    : DEFAULT.host,
-                port    : DEFAULT.port,
-                pathname: DEFAULT.pathname
+                protocol: this.options.protocol,
+                host    : this.options.host,
+                port    : this.options.port,
+                pathname: this.options.pathname
             });
         }
 
         if (this.options.logToRemote && !this.options.logToRemoteBinaryUrl)
         {
             this.options.logToRemoteBinaryUrl = this.convertToUrl({
-                protocol: DEFAULT.protocol,
-                host    : DEFAULT.host,
-                port    : DEFAULT.port,
-                pathname: DEFAULT.binarypathname
+                protocol: this.options.protocol,
+                host    : this.options.host,
+                port    : this.options.port,
+                pathname: this.options.binarypathname
             });
         }
 
@@ -2011,7 +2011,7 @@ class ____AnaLogger
             this.#realConsoleLog("AnaLogger: Hook placed on console.log");
         }
 
-        [{log}, {info}, {warn}, ].forEach((methodObj)=>
+        [{log}, {info}, {warn},].forEach((methodObj) =>
         {
             const methodName = Object.keys(methodObj)[0];
             if (methodObj[methodName])
@@ -2207,13 +2207,13 @@ class ____AnaLogger
         }
     }
 
-    convertToUrl({protocol, host, port, pathname})
+    convertToUrl({
+                     protocol = DEFAULT.protocol,
+                     host = DEFAULT.host,
+                     port = DEFAULT.port,
+                     pathname = DEFAULT.pathname
+                 } = {})
     {
-        if (!protocol || !host || !port || !pathname)
-        {
-            return null;
-        }
-
         const url = new URL("http://localhost");
         url.protocol = protocol;
         url.host = host;
