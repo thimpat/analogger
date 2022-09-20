@@ -398,24 +398,24 @@ _The data received by your server may look like this:_
 
 ---
 
-##### Write logs to the Remote Logging module
+### Write logs to the Remote Logging module
 
 You can also use the Remote-Logging module if you don't want to implement the back-end.
 
 
 > ###### https://www.npmjs.com/package/remote-logging
 
-
-
 > ##### Note that Remote Logging is free to use, with no license as there is no use in bundle it in an application.
 
+<br/>
 
-## Set up:
-
-### 1- Launch Remote-Logging
+#### 1- Launch a remote from the command line
 
 ```shell
 $> npx remote-logging
+
+# or if AnaLogger is installed globally
+$> analogger
 ```
 
 > ##### If you're on Windows, the system may ask you permission to reach the port. Select private access.
@@ -423,7 +423,7 @@ $> npx remote-logging
 > ##### On Linux, You will have to open port 12000 by default. To change it, pass the option --port number to the command above.
 
 
-### 2- Copy the server URL in the AnaLogger options (In your client code)
+#### 2- Copy the server URL in the AnaLogger options (In your client code)
 
 ![Copy URL](https://github.com/thimpat/analogger/blob/main/docs/images/img_7.png "Remote Logs")
 
@@ -434,7 +434,6 @@ anaLogger.setOptions({logToRemote: true});                  // <= By default, if
                                                             // logToRemote will be set to "http://localhost:12000/analogger"
 
 
-
 // Enter server URLs
 anaLogger.setOptions({logToRemoteUrl: "http://192.168.1.20:2000/analogger"});           // Standard message       
 anaLogger.setOptions({logToRemoteBinaryUrl: "http://192.168.1.20:2000/uploaded"});      // Screenshots            
@@ -443,7 +442,7 @@ anaLogger.setOptions({logToRemoteBinaryUrl: "http://192.168.1.20:2000/uploaded"}
 <br/>
 
 
-### 3- That's it
+#### 3- That's it
 
 
 Every call to anaLogger.log will send the log to your server
@@ -458,7 +457,7 @@ anaLogger.lid({takeScreenshot: true, lid: 1000}, `Example 1`)
 ```
 
 ```shell
-# Test the server is listening 
+# Test the server is listening from the command line
 > curl --request POST 'http://localhost:12000/analogger' --header 'Content-Type: application/json' --data-raw '[[{"lid": 123888, "color": "blue"}, "My message 1"], [{"lid": 123999, "color": "blue"}, "My message 2"]]
 ```
 
@@ -872,34 +871,90 @@ anaLoggerInstance2.setOptions({logToFile: "./logme.log"});
 ### takeScreenshot()
 
 You can take a screenshot via the "html-to-image" plugin (integrated in the module).
-html-to-image is an external module that this module uses to take screenshots.
 
+> **"html-to-image"** is an external npm package that this module uses to take screenshots.
+
+<br/>
+
+1. **Run a logging server from the command line**
+
+```shell
+$> analogger --port 8754
+```
+<br/>
+
+2. **Report the address displayed in the console into your client code**
+
+![Browser to Remote Logging view](https://github.com/thimpat/demos/blob/main/remote-logging/images/rl-setup-1.png)
+
+<br/>
+
+3. **Link AnaLogger to the remote**
 
 ```javascript
-// Load an AnaLogger instance
+// Load an AnaLogger instance (We use "import" here because the client is a browser)
 import {anaLogger} from "./node_modules/analogger/browser/src/ana-logger.mjs";
 
 // Register the plugin
-import "./node_modules/analogger/browser/src/html-to-image-plugin.mjs";
+import {PLUGIN_NAME} from "./node_modules/analogger/browser/src/html-to-image-plugin.mjs";
 
-// Ask AnaLogger to upload the image to the predefined server
-// logToRemote 
+// Set AnaLogger to upload logs and images to the remote 
 anaLogger.setOptions({
-    logToRemote: true,                                              // Tells AnaLogger to also log to a remote
-    logToRemoteUrl: "http://192.168.2.12/endpoint1",                // Standard log message
-    logToRemoteBinaryUrl: "http://192.168.2.12/enpoint2"            // Binary data for images
+    logToRemote: true,                                                  // Tells AnaLogger to also log to a remote
+    logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors) to this url
+    logToRemoteBinaryUrl: "http://192.168.2.12/uploaded"                // To process screenshot data on this url
 });
 
+```
+
+<br/>
+
+4. **Add the code for taking a screenshot**
+
+* Method 1
+
+```javascript
+// Trigger the plugin
+anaLogger.log({
+ lid                                : 1234,
+ [PLUGIN_NAME]                      : {
+  
+  divSource: document.body,       // Tell the plugin from what div to generate a screenshot
+  /**
+   * The client has generated data for the screenshot, but has not uploaded them yet
+   * @param event
+   */   
+  onScreenshot: function(event)   
+  { 
+      // do something with your data
+  },
+  /**
+   * The server has saved the screenshot server-side and it's
+   * now sending back information about it
+   */
+  onResponse: (event) =>
+  {
+      console.log(`Success. The server has saved the screenshot`)
+  },
+  options   : {
+   canvasHeight,
+   canvasWidth,
+  }
+ }
+}, `Taking screenshot...`);
+
+```
+
+* Method 2 (May no longer be supported in the future)
+
+```javascript
 // Take a screenshot then upload to the server
 anaLogger.takeScreenshot({callback: (data) =>
  {
      console.log(`Uploaded`)
  }});
 
-
 ```
-
-<br/>
 
 ---
 
