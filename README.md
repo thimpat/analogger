@@ -993,10 +993,8 @@ anaLogger.addPlugin("doSomething", doSomething);
 *  Launch a remote server from the CLI
 *  Default remote to localhost by default when enabled
 *  Fix errors in documentation
-*  Bump version for updating improved docs
-*  Bump version for updating docs on npmjs.com
 *  Restore same behaviour as before for getLogHistory
-*  Add functionnalities to AnaLogger instances
+*  Add functionalities to AnaLogger instances
 *  Fix log level applied one level down
 *  Update themes
 *  Apply empty log id by default for contexts
@@ -1016,7 +1014,6 @@ anaLogger.addPlugin("doSomething", doSomething);
 *  Fix log displayed twice
 *  Add takeScreenshot plugin
 *  Add documentation implementation related
-*  Update readme
 *  Add context levels
 *  Add a logToRemote option
 *  Replace and lock down some modules
@@ -1026,6 +1023,5 @@ anaLogger.addPlugin("doSomething", doSomething);
 *  Display stack error
 *  Fix silent and hideLog options
 *  Fix the Maximum call stack size error
-*  Bump for special refactoring
 
 ---
