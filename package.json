@@ -82,10 +82,9 @@
     "chai-spies": "^1.0.0",
     "chromedriver": "^2.33.0",
     "chromium": "^3.0.3",
-    "clonefile": "^2.1.1",
-    "concat": "^1.0.3",
+    "clonefile": "^3.0.3",
     "eslint": "^8.8.0",
-    "genserve": "^2.9.0",
+    "genserve": "^3.6.1",
     "glob": "^8.0.3",
     "html-to-image": "^1.10.8",
     "jsdom": "19.0.0",
@@ -96,7 +95,7 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.21.0"
+    "to-esm": "^2.22.3"
   },
   "dependencies": {
     "@thimpat/libutils": "1.5.1",
