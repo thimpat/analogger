@@ -104,8 +104,6 @@
     "flatted": "3.2.7",
     "node-fetch": "^3.2.10",
     "node-fetch-cjs": "npm:node-fetch@^2.6.7",
-    "term-size": "^3.0.2",
-    "term-size-cjs": "npm:term-size@^2.2.1",
-    "to-ansi": "1.4.3"
+    "to-ansi": "^1.4.3"
   }
 }
