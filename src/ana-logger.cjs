@@ -811,7 +811,7 @@ class ____AnaLogger
 
     /**
      * Generate a new context based on the default context.
-     * The only difference with default is that a different color will be assign to that context automatically
+     * The only difference with default is that a different color will be assigned to that context automatically
      * @returns {*|{}}
      */
     generateNewContext()
@@ -1370,6 +1370,73 @@ class ____AnaLogger
         }
     }
 
+    stringifyEntry(arg)
+    {
+        let str;
+
+        try
+        {
+            str = JSON.stringify(arg);
+        }
+        catch (e)
+        {
+
+        }
+
+        if (!str)
+        {
+            try
+            {
+                str = stringify(arg);
+            }
+            catch (e)
+            {
+
+            }
+        }
+
+        return str;
+    }
+
+    /**
+     * If a variable is too complex for the logger, stringify it
+     */
+    convertEntry(arg)
+    {
+        try
+        {
+            if (arg === null || arg === undefined || arg === "")
+            {
+                return arg;
+            }
+            else if (typeof arg === "boolean")
+            {
+                return arg;
+            }
+            else if (typeof arg === "symbol")
+            {
+                return arg;
+            }
+            if (typeof arg === "number")
+            {
+                return arg;
+            }
+            else if (typeof arg === "string" || myVar instanceof arg)
+            {
+                return arg;
+            }
+            else if (arg instanceof Date)
+            {
+                return arg;
+            }
+        }
+        catch (e)
+        {
+        }
+
+        return this.stringifyEntry(arg);
+    }
+
     convertArgumentsToText(args)
     {
         const strs = [];
@@ -1380,26 +1447,7 @@ class ____AnaLogger
             let str;
             let arg = args[i];
 
-            try
-            {
-                str = JSON.stringify(arg);
-            }
-            catch (e)
-            {
-
-            }
-
-            if (!str)
-            {
-                try
-                {
-                    str = stringify(arg);
-                }
-                catch (e)
-                {
-
-                }
-            }
+            str = this.convertEntry(arg);
 
             strs.push(str);
         }
@@ -1583,8 +1631,7 @@ class ____AnaLogger
             message = this.convertArgumentsToText(args);
 
             let output = "";
-            let text = "";
-            text = this.format({...context, message});
+            let text = this.format({...context, message});
 
             if (this.keepLog)
             {
