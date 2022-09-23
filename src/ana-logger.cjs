@@ -1,18 +1,13 @@
-let getTerminalWidth = () => null;
+/** to-esm-browser: add
+let fetch = null;
+ **/
 
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
 
-let terminalSize = require("term-size-cjs");
-getTerminalWidth = () =>
-{
-    return terminalSize().cols;
-};
-
-const fetch = require("node-fetch-cjs");
-
+let fetch = require("node-fetch-cjs");
 /** to-esm-browser: end-remove **/
 
 // to-ansi is also used by the browser
@@ -210,15 +205,18 @@ function isNode()
 const COMMON_METHODS = [
     "keepLogHistory",
     "getLogHistory",
-    "table",
-    "buildTable",
     "truncateMessage",
     "truncateMessage",
     "rawLog",
+    "removeOverride",
+    "removeOverrideError",
+    "overrideConsole",
+    "overrideError",
+    "table",
     "rawInfo",
     "rawWarn",
     "rawError",
-    "hasSeenLid"
+    "hasSeenLid",
 ];
 
 
@@ -261,6 +259,15 @@ class ____AnaLogger
     #realConsoleError = console.error;
     #realConsoleDebug = console.debug;
     #realConsoleTable = console.table;
+
+    #overridenMap = {
+        log  : false,
+        info : false,
+        warn : false,
+        error: false,
+        debug: false,
+        table: false,
+    };
 
     static ALIGN = {
         LEFT : "LEFT",
@@ -596,176 +603,6 @@ class ____AnaLogger
 
         input = align === ____AnaLogger.ALIGN.LEFT ? input.padEnd(fit, " ") : input.padStart(fit, " ");
         return input;
-    }
-
-    /**
-     * Display data
-     * @param {any[]} table
-     * @param objList
-     * @param ellipsis
-     * @param ColumnMinChars
-     * @param columnMaxChars
-     * @param verticalSeparator
-     * @param horizontalSeparator
-     * @param availableLength
-     * @param onCompleteHeaders
-     * @param onCompleteSeparators
-     * @param onCompleteLines
-     */
-    #buildTable(objList, {
-        ellipsis = "...",
-        ColumnMinChars = 6,
-        columnMaxChars = 0,
-        verticalSeparator = " │ ",
-        horizontalSeparator = "─",
-        availableLength = 0,
-        onCompleteHeaders = null,
-        onCompleteSeparators = null,
-        onCompleteLines = null
-    } = {})
-    {
-        let text = "";
-
-        const isArray = Array.isArray(objList);
-        if (!isArray)
-        {
-            objList = Object.values(Object.values(objList));
-        }
-
-        if (!objList || !objList.length)
-        {
-            return "";
-        }
-
-        let table = objList.map(a => Object.assign({}, a));
-
-        const firstLine = table[0];
-        const titles = Object.keys(firstLine);
-        table.unshift(titles);
-
-        horizontalSeparator = horizontalSeparator.repeat(100);
-
-        const fits = {};
-        for (let i = 1; i < table.length; ++i)
-        {
-            const line = table[i];
-            for (let ii = 0; ii < titles.length; ++ii)
-            {
-                const colName = titles[ii];
-                const colContent = line[colName];
-
-                fits[colName] = fits[colName] || 0;
-                let colLength;
-                try
-                {
-                    colLength = JSON.stringify(colContent).length;
-                }
-                catch (e)
-                {
-                }
-
-                colLength = colLength || ColumnMinChars;
-                fits[colName] = Math.max(fits[colName], colLength, colName.length);
-            }
-        }
-
-        if (!availableLength)
-        {
-            availableLength = getTerminalWidth() || process.stdout.columns || 120 - verticalSeparator.length - 1 - 5;
-        }
-
-        availableLength = availableLength - 4;
-
-        let totalLength = Object.values(fits).reduce((a, b) => a + b, 0);
-
-        /* istanbul ignore next */
-        if (availableLength < totalLength)
-        {
-            const ratio = (availableLength) / totalLength;
-            for (let key in fits)
-            {
-                fits[key] = Math.floor(fits[key] * ratio) - 1;
-                if (ColumnMinChars && fits[key] < ColumnMinChars)
-                {
-                    fits[key] = ColumnMinChars;
-                }
-
-                if (columnMaxChars && fits[key] > columnMaxChars)
-                {
-                    fits[key] = columnMaxChars;
-                }
-
-                fits[key] = fits[key];
-            }
-
-        }
-
-        let strLine;
-
-        // Headers
-        strLine = "";
-        for (let i = 0; i < titles.length; ++i)
-        {
-            const colName = titles[i];
-            const fit = fits[colName];
-            strLine += this.truncateMessage(colName, {fit, ellipsis});
-            strLine += verticalSeparator;
-        }
-
-        if (onCompleteHeaders)
-        {
-            strLine = onCompleteHeaders(strLine, titles);
-        }
-        text += this.truncateMessage(strLine, {fit: availableLength});
-        text += EOL;
-
-
-        // Separators
-        strLine = "";
-        const colContent = horizontalSeparator;
-        for (let i = 0; i < titles.length; ++i)
-        {
-            const colName = titles[i];
-            const fit = fits[colName];
-            strLine += this.truncateMessage(colContent, {fit, ellipsis: ""});
-            strLine += verticalSeparator;
-        }
-
-        if (onCompleteSeparators)
-        {
-            strLine = onCompleteSeparators(strLine, titles);
-        }
-
-        text += this.truncateMessage(strLine, {fit: availableLength});
-        text += EOL;
-
-        // Content
-        for (let i = 1; i < table.length; ++i)
-        {
-            strLine = "";
-            const line = table[i];
-            for (let ii = 0; ii < titles.length; ++ii)
-            {
-                const colName = titles[ii];
-                const colContent = line[colName];
-                const fit = fits[colName];
-
-                strLine += this.truncateMessage(colContent, {fit, ellipsis});
-                strLine += verticalSeparator;
-            }
-
-            if (onCompleteLines)
-            {
-                strLine = onCompleteLines(strLine, line);
-            }
-
-            text += this.truncateMessage(strLine, {fit: availableLength});
-            text += EOL;
-        }
-
-        this.rawLog(text);
-
-        return text;
     }
 
     /**
@@ -1969,6 +1806,7 @@ class ____AnaLogger
         {
             this.#realConsoleLog("AnaLogger: Hook placed on console.error");
         }
+        this.#overridenMap.error = true;
         console.error = this.onDisplayError.bind(this);
     }
 
@@ -2004,21 +1842,22 @@ class ____AnaLogger
         return false;
     }
 
-    overrideConsole({log = true, info = true, warn = true, error = false} = {}, Console = null)
+    overrideConsole({log = true, info = true, warn = true, error = false} = {})
     {
         if (!this.options.hideHookMessage)
         {
             this.#realConsoleLog("AnaLogger: Hook placed on console.log");
         }
 
-        [{log}, {info}, {warn},].forEach((methodObj) =>
+        [{log}, {info}, {warn},].forEach(function (methodObj)
         {
             const methodName = Object.keys(methodObj)[0];
             if (methodObj[methodName])
             {
+                this.#overridenMap[methodName] = true;
                 console[methodName] = this.onDisplayLog.bind(this);
             }
-        });
+        }.bind(this));
 
         if (error)
         {
@@ -2030,7 +1869,8 @@ class ____AnaLogger
 
     removeOverrideError()
     {
-        console.warn = this.#realConsoleError;
+        console.error = this.#realConsoleError;
+        this.#overridenMap.error = false;
     }
 
     removeOverride({log = true, info = true, warn = true, error = false} = {})
@@ -2038,16 +1878,19 @@ class ____AnaLogger
         if (log)
         {
             console.log = this.#realConsoleLog;
+            this.#overridenMap.log = false;
         }
 
         if (info)
         {
             console.info = this.#realConsoleInfo;
+            this.#overridenMap.info = false;
         }
 
         if (warn)
         {
             console.warn = this.#realConsoleWarn;
+            this.#overridenMap.warn = false;
         }
 
         if (error)
@@ -2069,12 +1912,16 @@ class ____AnaLogger
 
     table(...args)
     {
-        if (this.isBrowser())
+        if (!this.#overridenMap.log)
         {
-            return this.#realConsoleTable(...args);
+            this.#realConsoleTable(...args);
+            return;
         }
 
-        return this.#buildTable(...args);
+        const currentLog = console.log;
+        console.log = this.#realConsoleLog;
+        this.#realConsoleTable(...args);
+        console.log = currentLog;
     }
 
     alert(...args)
