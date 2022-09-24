@@ -890,42 +890,60 @@ anaLogger.addPlugin("doSomething", doSomething);
 
 ## Changelog
 
-*  Update documentation
+##### current:
+*  Review display for js primitive types
+*  Use native console table
 *  Set up AnaLogger as a Mocha reporter
 *  Launch a remote from AnaLogger
-*  Fix remote related options passed to setOptions
+*  Fix remote-related options passed to the setOptions method
 *  Launch a remote server from the CLI
-*  Default remote to localhost by default when enabled
-*  Fix errors in documentation
-*  Restore same behaviour as before for getLogHistory
+
+
+##### 1.21.4:
+*  Default the remote to localhost when enabled
+
+##### 1.21.0:
+*  Restore the same behaviour as before for getLogHistory
 *  Add functionalities to AnaLogger instances
+
+
+##### 1.20.4:
 *  Fix log level applied one level down
 *  Update themes
+
+
+##### 1.20.3:
 *  Apply empty log id by default for contexts
 *  Apply missing symbols
-*  Add missing files from build
+
+
+##### 1.20.2:
+*  Add missing files from the build
 *  Recolor title bar
 *  Add a theme file
 *  Add a header and o footer to the layout
-*  Use native console.table on browsers
+*  Use native console table on browsers
 *  Apply better environment detection
 *  Review logToRemote option
+
+
+##### 1.20.1:
 *  Review sentence failure for screenshot
 *  Fix plugin validation
 *  Export and validate plugin names
+
+
+##### 1.20.0:
 *  Fix default address for remote binary
-*  Fix error on missing callback
+*  Fix error on a missing callback
 *  Fix log displayed twice
 *  Add takeScreenshot plugin
-*  Add documentation implementation related
+
+
+##### 1.19.0:
 *  Add context levels
 *  Add a logToRemote option
-*  Replace and lock down some modules
-*  Apply real fix for missing dist/ folder
-*  Add minified to build
-*  Apply workaround for missing dist/ folder from build
-*  Display stack error
-*  Fix silent and hideLog options
-*  Fix the Maximum call stack size error
+
+
 
 ---
