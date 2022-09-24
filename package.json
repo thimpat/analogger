@@ -41,7 +41,7 @@
     "build:plugins": "                                to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs --target browser --nmBrowserImported imported  --bundle-browser ./dist/html-to-image-plugin.min.mjs --update-all",
     "build:esm:browser": "                            to-esm src/ana-logger.cjs            --output browser/                       --config .toesm.cjs --target browser     --nmBrowserImported imported        --update-all",
     "build:esm:browser:minified": "                   to-esm src/ana-logger.cjs            --bundle dist/analogger-browser.min.mjs --config .toesm.cjs --target browser             --update-all      --bundle-browser ./dist/analogger-browser.min.mjs ",
-    "build:esm:all": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins",
+    "build:all": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code - They don't need to have the AnaLogger library built to work!!!",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
@@ -53,7 +53,7 @@
     "*** In the Browser with importmap-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser with importmap-2 ****": "# Generate models code with import map",
     "*** In the Browser with importmap-3 ****": "# ----------------------------------------------------------------------------------------------------------",
-    "build:demo:all": "npm run build:esm:all && npm run build:demo:terminal && npm run build:demo:browser && npm run build:demo:browser:importmaps && npm run build:demo:minified",
+    "build:demo": "npm run build:all && npm run build:demo:terminal && npm run build:demo:browser && npm run build:demo:browser:importmaps && npm run build:demo:minified",
     "quick:run": "node models/jscode/demo.cjs"
   },
   "author": "Patrice Thimothee",
