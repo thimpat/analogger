@@ -22,7 +22,7 @@ jobs:
       - name: Generate AnaLogger for Node & browsers
         shell: powershell
         run: |
-          npm run build:esm
+          npm run build:all
       - name: Test
         shell: powershell
         run: |
