@@ -764,6 +764,10 @@ to them), you can set a handler here. All other console.error will be working as
     anaLogger.error("Hi user!");                                    // Log the message to the inspector
 ```
 
+<br/>
+
+---
+
 ## Multiple instances
 
 It is possible to generate multiple AnaLogger instances so that they can point to different targets. 
@@ -779,8 +783,25 @@ anaLoggerInstance1.setOptions({logToDom: ".analogger"});
 anaLoggerInstance2.setOptions({logToFile: "./logme.log"});
 ```
 
+
 <br/>
 
+---
+
+## Automated Tests
+
+When combined with Remote-logger, you can use AnaLogger as a Mocha reporter.
+
+See: https://www.npmjs.com/package/remote-logging
+
+<br/>
+
+![Preview](https://github.com/thimpat/demos/blob/main/remote-logging/images/rl-report.gif "Mocha Reporter")
+
+
+<br/>
+
+---
 
 ## Take a screenshot
 
@@ -980,8 +1001,8 @@ const init = () =>
         anaLogger.validatePlugin(PLUGIN_NAME);
         anaLogger.setOptions({
             logToRemote: true,
-            logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors) to this url
-            logToRemoteBinaryUrl: "http://192.168.2.12/uploaded"                // To process screenshot data on this url
+            logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors)
+            logToRemoteBinaryUrl: "http://192.168.2.12:8754/uploaded",          // To process screenshot data
             logToDom: true
         });
         
