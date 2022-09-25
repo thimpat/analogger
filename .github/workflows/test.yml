@@ -23,6 +23,8 @@ jobs:
         shell: powershell
         run: |
           npm run build:all
+          # The E2E tests need this build
+          npm run build:demo
       - name: Test
         shell: powershell
         run: |
