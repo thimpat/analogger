@@ -22,7 +22,9 @@
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
     "test": "npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
-    "manual:check": "genserve.cmd start analogger-demo --port 9877 --dir ./ --open ./demo-viewer.html",
+    "manual:check": "genserve.cmd start analogger-manual-check --port 9877 --dir ./demo --openPage ./demo",
+    "demo:server": "genserve.cmd restart analogger-demo --port 9880 --dir ./",
+    "open:browser:remote": "genserve.cmd restart analogger-demo-remote --port 9882 --dir ./demo/browser-remote --openPage ./index-remote.html",
     "demo:terminal:cjs": "node models/jscode/demo.cjs",
     "*** Pre-Cleaning-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** Pre-Cleaning-2 ****": "# Clean directory",
@@ -49,12 +51,13 @@
     "build:demo:browser": "            rimraf ./demo/browser-minified         && clonefile --force models/example-1/index.html          demo/browser/                  &&  to-esm.cmd models/jscode/demo.cjs      --output demo/browser/              --config .toesm.cjs  --target browser",
     "build:demo:browser:importmaps": " rimraf ./demo/browser-import-maps      && clonefile --force models/example-2/index-maps.html     demo/browser-import-maps/      &&  to-esm.cmd models/jscode/demo.cjs      --output demo/browser-import-maps/  --config .toesm.cjs  --target browser  --html demo/browser-import-maps/*.html                  --useImportMaps      ",
     "build:demo:minified": "           rimraf ./demo/browser-minified         && clonefile --force models/example-3/index-bundle.html   demo/browser-minified/         &&  to-esm.cmd models/jscode/demo.cjs                                          --config .toesm.cjs  --target browser  --bundle ./demo/browser-minified/analogger-browser-demo.min.mjs",
-    "build:demo:remote": "    npx remote-logging --yes && npm run build:esm:browser &&  rimraf ./demo/browser-remote  && clonefile --force models/example-4 demo/browser-remote && clonefile --force browser/ demo/browser-remote/browser/ && genserve.cmd start analogger-demo --port 9877 --dir ./ --open demo/browser-remote/index-remote.html",
     "*** In the Browser with importmap-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser with importmap-2 ****": "# Generate models code with import map",
     "*** In the Browser with importmap-3 ****": "# ----------------------------------------------------------------------------------------------------------",
-    "build:demo": "npm run build:all && npm run build:demo:terminal && npm run build:demo:browser && npm run build:demo:browser:importmaps && npm run build:demo:minified",
-    "quick:run": "node models/jscode/demo.cjs"
+    "build:demo": "npm run demo:server && npm run build:demo:terminal && npm run build:demo:browser && npm run build:demo:browser:importmaps && npm run build:demo:minified",
+    "quick:run": "node models/jscode/demo.cjs",
+    "run:remote:console": "npx remote-logging --yes",
+    "run:demo:remote": "npm run build:all && rimraf ./demo/browser-remote && npm run build:esm:browser && clonefile --force --source models/example-4 --sources browser/** demo/browser-remote/ --source dist/analogger.min.css && npm run open:browser:remote"
   },
   "author": "Patrice Thimothee",
   "license": "MIT",
@@ -83,9 +86,9 @@
     "chai-spies": "^1.0.0",
     "chromedriver": "^2.33.0",
     "chromium": "^3.0.3",
-    "clonefile": "^3.0.3",
+    "clonefile": "^3.1.0",
     "eslint": "^8.8.0",
-    "genserve": "^3.6.1",
+    "genserve": "^3.7.6",
     "glob": "^8.0.3",
     "html-to-image": "^1.10.8",
     "jsdom": "19.0.0",
@@ -99,7 +102,7 @@
     "to-esm": "^2.22.3"
   },
   "dependencies": {
-    "@thimpat/libutils": "1.5.1",
+    "@thimpat/libutils": "^1.9.5",
     "commander": "^9.4.0",
     "flatted": "3.2.7",
     "node-fetch": "^3.2.10",

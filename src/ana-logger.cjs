@@ -1,7 +1,3 @@
-/** to-esm-browser: add
-let fetch = null;
- **/
-
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
@@ -554,14 +550,18 @@ class ____AnaLogger
                 protocol: this.options.protocol,
                 host    : this.options.host,
                 port    : this.options.port,
-                pathname: this.options.binarypathname
+                pathname: this.options.binarypathname || DEFAULT.binarypathname
             });
         }
 
         // Special cases
-        if (logToDom !== undefined)
+        if (logToDom === false)
         {
-            this.options.logToDom = logToDom || DEFAULT.consoleDomId;
+            this.options.logToDom = false;
+        }
+        else if (logToDom !== undefined)
+        {
+            this.options.logToDom = (logToDom === true) ? DEFAULT.consoleDomId : logToDom;
         }
 
         if (logToFile === false)
