@@ -1,10 +1,8 @@
-// Load the AnaLogger library
+// Load the AnaLogger library ( Available in ./node_modules/analogger/browser/ )
 import {anaLogger} from "./browser/ana-logger.mjs";
 
 // Register plugin
 import {PLUGIN_NAME} from "./browser/html-to-image-plugin.mjs";
-
-let $container, timerId;
 
 /**
  * Create a container to draw the screenshot
@@ -24,7 +22,7 @@ const buildImageContainer = () =>
  * https://www.npmjs.com/package/html-to-image
  * @returns {boolean}
  */
-const takeScreenshot = () =>
+const takeScreenshot = ($container) =>
 {
     try
     {
@@ -43,53 +41,42 @@ const takeScreenshot = () =>
 
         // Trigger the plugin has its name is passed to the context
         anaLogger.log({
-            lid                                : 1234,
+            lid                                : 1234,          // <= Random number
             [PLUGIN_NAME] /** takeScreenshot */: {
                 /**
-                 * Tell the plugin from what div to generate the screenshot
+                 * Tell the plugin from which div to generate the screenshot
                  */
                 divSource: box,
                 /**
-                 * AnaLogger has called the plugin, and we have the image,
+                 * AnaLogger has called the plugin, and we have the data image,
                  * however data have not been uploaded yet
                  * @returns {boolean}
                  * @param event
                  */
-                onScreenshot: function displayScreenshotInDom(event /* args, context,  logCounter, message,
-                 methodName, pluginCallResult, text, type*/)
+                onScreenshot: function displayScreenshotInDom(event)
                 {
+                    // Add image to DOM
                     document.getElementById("image-container").style.display = "block";
                     const img = new Image();
                     img.src = event.imageData;
                     $container.append(img);
                 },
                 /**
-                 * The server has saved the screenshot
+                 * The server has saved the screenshot on the machine host.
                  * @param response
                  * @returns {boolean}
                  */
-                onResponse: function({
-                                 serverResponse, args, context, logCounter, message, methodName, pluginCallResult, text, type
-                             })
+                onResponse: function ({serverResponse})
                 {
-                    try
-                    {
-                        const {message, success, urlPath} = serverResponse;
+                    const {message, success, urlPath} = serverResponse;
 
-                        if (!success)
-                        {
-                            anaLogger.error({lid: 3007,}, "Something went wrong server-side", message, urlPath)
-                            return false;
-                        }
-                        anaLogger.log({lid: 3008,}, message, urlPath)
-                        return true;
-                    }
-                    catch (e)
+                    if (!success)
                     {
-                        console.error({lid: 4321}, e.message);
+                        console.error({lid: 3007}, "Something went wrong server-side", message, urlPath)
+                        return false;
                     }
-
-                    return false;
+                    console.log({lid: 3008}, message, urlPath)
+                    return true;
                 },
                 options   : {
                     canvasHeight,
@@ -108,29 +95,11 @@ const takeScreenshot = () =>
     return false;
 };
 
-/**
- * The user has clicked the "Take a screenshot" button
- */
-const onTakeScreenshot = () =>
-{
-    if (timerId)
-    {
-        return;
-    }
-
-    timerId = setTimeout(function ()
-    {
-        takeScreenshot()
-        timerId = null;
-    }, 400);
-};
-
 const init = () =>
 {
     try
     {
-        // $container = document.getElementById("screenshot-container");
-        $container = buildImageContainer();
+        let $container = buildImageContainer();
 
         anaLogger.validatePlugin(PLUGIN_NAME);
         anaLogger.setOptions({logToRemote: true, logToDom: true});
@@ -141,7 +110,10 @@ const init = () =>
             anaLogger.log({lid: 1232}, `Sending a random number to the remote: ${Math.random()}`);
         });
 
-        document.getElementById("take-screenshot").addEventListener("click", onTakeScreenshot);
+        document.getElementById("take-screenshot").addEventListener("click", () =>
+        {
+            takeScreenshot($container)
+        });
     }
     catch (e)
     {
