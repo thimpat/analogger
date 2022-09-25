@@ -1040,6 +1040,11 @@ anaLogger.addPlugin("doSomething", doSomething);
 ## Changelog
 
 ##### current:
+*  Fix screenshot endpoint
+*  Fix remote breaking in browser due to misconfiguration
+
+
+##### 1.22.0:
 *  Review display for js primitive types
 *  Use native console table
 *  Set up AnaLogger as a Mocha reporter
@@ -1087,12 +1092,5 @@ anaLogger.addPlugin("doSomething", doSomething);
 *  Fix error on a missing callback
 *  Fix log displayed twice
 *  Add takeScreenshot plugin
-
-
-##### 1.19.0:
-*  Add context levels
-*  Add a logToRemote option
-
-
 
 ---
