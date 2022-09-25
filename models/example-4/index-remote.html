@@ -2,10 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Demo</title>
+    <link rel="stylesheet" href="./analogger.min.css">
+    <style>
+        .analogger {
+            height: 340px;
+            width: 420px;
+        }
+
+        .image-container
+        {
+            display: block;
+            background: rgb(222, 199, 189);
+            position: absolute;
+            height: 100%;
+            left: 496px;
+            overflow: auto;
+            text-align: right;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .screenshot-container img
+        {
+            height: 340px;
+            width: 420px;
+        }
+    </style>
 </head>
 <body>
 
-<script src="./demo-remote.mjs" type="module"></script>
+<button id="send-to-remote" class="add-button">Send log to remote</button>
+<button id="take-screenshot" class="add-button">Take a screenshot</button>
+
+<div id="analogger" class="analogger">
+</div>
+
+<script src="browser/html-to-image.js"></script>
+<script type="module" src="./demo-remote.mjs"></script>
+
 </body>
 </html>
