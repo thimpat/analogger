@@ -1,7 +1,3 @@
-/** to-esm-browser: add
-let fetch = null;
- **/
-
 /** to-esm-browser: remove **/
 const path = require("path");
 const fs = require("fs");
