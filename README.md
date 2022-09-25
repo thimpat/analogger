@@ -302,6 +302,8 @@ _The data received by your server may look like this:_
 
 ---
 
+<br/>
+
 ### Write logs to the Remote Logging module
 
 You can also use the Remote-Logging module if you don't want to implement the back-end.
@@ -326,6 +328,7 @@ $> analogger
 
 > ##### On Linux, You will have to open port 12000 by default. To change it, pass the option --port number to the command above.
 
+<br/>
 
 #### 2- Copy the server URL in the AnaLogger options (In your client code)
 
@@ -379,6 +382,15 @@ _Data received by your server may look like this:_
     [{"lid": 123999, "color": "#654785"}, "My message 2"]
 ]
 ```
+
+<br/>
+
+> ##### 
+> ```
+> Scroll down to the bottom to see a complete example
+> ```
+>  
+
 
 <br/>
 
@@ -793,72 +805,209 @@ $> analogger --port 8754
 
 <br/>
 
-3. **Link AnaLogger to the remote**
+3. **Set up the client (Browser in our case)**
 
-```javascript
-// Load an AnaLogger instance (We use "import" here because the client is a browser)
-import {anaLogger} from "./node_modules/analogger/browser/src/ana-logger.mjs";
+HTML (Client-Side)
 
-// Register the plugin
-import {PLUGIN_NAME} from "./node_modules/analogger/browser/src/html-to-image-plugin.mjs";
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <!-- Theme file available in node_modules/analogger/dist/ -->
+    <link rel="stylesheet" href="./analogger.min.css">
+    <style>
+        .analogger {
+            height: 340px;
+            width: 420px;
+        }
 
-// Set AnaLogger to upload logs and images to the remote 
-anaLogger.setOptions({
-    logToRemote: true,                                                  // Tells AnaLogger to also log to a remote
-    logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors) to this url
-    logToRemoteBinaryUrl: "http://192.168.2.12/uploaded"                // To process screenshot data on this url
-});
+        .image-container
+        {
+            display: block;
+            background: rgb(222, 199, 189);
+            position: absolute;
+            height: 100%;
+            left: 496px;
+            overflow: auto;
+            text-align: right;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
 
+        .screenshot-container img
+        {
+            height: 340px;
+            width: 420px;
+        }
+    </style>
+</head>
+<body>
+
+<button id="send-to-remote" class="add-button">Send log to remote</button>
+<button id="take-screenshot" class="add-button">Take a screenshot</button>
+
+<!-- Client logging view (We'll be sending logs to both this view and the remote ) -->
+<div id="analogger" class="analogger">
+</div>
+
+<!-- This file is in the AnaLogger module_directory.  
+Note that you could use a version from the html-to-image module directly at:
+https://www.npmjs.com/package/html-to-image
+ -->
+<script src="browser/html-to-image.js"></script>
+
+<!-- For this file, see 4. Link AnaLogger to the remote  -->
+<script type="module" src="./demo-remote.mjs"></script>
+
+</body>
+</html>
 ```
 
 <br/>
 
-4. **Add the code for taking a screenshot**
+4. **Link AnaLogger to the remote**
 
-* Method 1
+<br/>
 
+JavaScript (**./demo-remote.mjs**)
 ```javascript
-// Trigger the plugin
-anaLogger.log({
- lid                                : 1234,
- [PLUGIN_NAME]                      : {
-  
-  divSource: document.body,       // Tell the plugin from what div to generate a screenshot
-  /**
-   * The client has generated data for the screenshot, but has not uploaded them yet
-   * @param event
-   */   
-  onScreenshot: function(event)   
-  { 
-      // do something with your data
-  },
-  /**
-   * The server has saved the screenshot server-side and it's
-   * now sending back information about it
-   */
-  onResponse: (event) =>
-  {
-      console.log(`Success. The server has saved the screenshot`)
-  },
-  options   : {
-   canvasHeight,
-   canvasWidth,
-  }
- }
-}, `Taking screenshot...`);
+// Load the AnaLogger library ( Available in ./node_modules/analogger/browser/ )
+import {anaLogger} from "./browser/ana-logger.mjs";
+
+// Register plugin
+import {PLUGIN_NAME} from "./browser/html-to-image-plugin.mjs";
+
+/**
+ * Create a container to draw the screenshot
+ * @returns {HTMLDivElement}
+ */
+const buildImageContainer = () =>
+{
+    const item = document.createElement("div");
+    document.body.appendChild(item);
+    item.classList.add("image-container");
+    item.id = "image-container";
+    return item;
+};
+
+/**
+ * AnaLogger is about to trigger a screenshot using the html-to-image module
+ * https://www.npmjs.com/package/html-to-image
+ * @returns {boolean}
+ */
+const takeScreenshot = ($container) =>
+{
+    try
+    {
+        document.getElementById("image-container").style.display = "none";
+        const box = document.body;
+
+        let canvasWidth = box.offsetWidth;
+        let canvasHeight = box.offsetHeight;
+
+        const desiredHeight = 380;
+        if (canvasHeight > desiredHeight)
+        {
+            canvasWidth = Math.floor(desiredHeight / canvasHeight * canvasWidth);
+            canvasHeight = desiredHeight;
+        }
+
+        // Trigger the plugin has its name is passed to the context
+        anaLogger.log({
+            lid                                : 1234,          // <= Random number
+            [PLUGIN_NAME] /** takeScreenshot */: {
+                /**
+                 * Tell the plugin from which div to generate the screenshot
+                 */
+                divSource: box,
+                /**
+                 * AnaLogger has called the plugin, and we have the data image,
+                 * however data have not been uploaded yet
+                 * @returns {boolean}
+                 * @param event
+                 */
+                onScreenshot: function displayScreenshotInDom(event)
+                {
+                    // Add image to DOM
+                    document.getElementById("image-container").style.display = "block";
+                    const img = new Image();
+                    img.src = event.imageData;
+                    $container.append(img);
+                },
+                /**
+                 * The server has saved the screenshot on the machine host.
+                 * @param response
+                 * @returns {boolean}
+                 */
+                onResponse: function ({serverResponse})
+                {
+                    const {message, success, urlPath} = serverResponse;
+
+                    if (!success)
+                    {
+                        console.error({lid: 3007}, "Something went wrong server-side", message, urlPath)
+                        return false;
+                    }
+                    console.log({lid: 3008}, message, urlPath)
+                    return true;
+                },
+                options   : {
+                    canvasHeight,
+                    canvasWidth,
+                }
+            }
+        }, `Taking screenshot...`);
+
+        return true;
+    }
+    catch (e)
+    {
+        console.error({lid: 4321}, e.message);
+    }
+
+    return false;
+};
+
+const init = () =>
+{
+    try
+    {
+        let $container = buildImageContainer();
+
+        anaLogger.validatePlugin(PLUGIN_NAME);
+        anaLogger.setOptions({
+            logToRemote: true,
+            logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors) to this url
+            logToRemoteBinaryUrl: "http://192.168.2.12/uploaded"                // To process screenshot data on this url
+            logToDom: true
+        });
+        
+        anaLogger.log({lid: 1232}, `AnaLogger set up to work with remote`);
+
+        document.getElementById("send-to-remote").addEventListener("click", () =>
+        {
+            anaLogger.log({lid: 1232}, `Sending a random number to the remote: ${Math.random()}`);
+        });
+
+        document.getElementById("take-screenshot").addEventListener("click", () =>
+        {
+            takeScreenshot($container)
+        });
+    }
+    catch (e)
+    {
+        anaLogger.error({lid: 4321}, e.message);
+    }
+};
+
+init();
 
 ```
 
-* Method 2 (May no longer be supported in the future)
-
-```javascript
-// Take a screenshot then upload to the server
-anaLogger.takeScreenshot({callback: (data) =>
- {
-     console.log(`Uploaded`)
- }});
-
-```
+<br/>
 
 ---
 
