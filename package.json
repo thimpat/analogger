@@ -87,7 +87,7 @@
     "chromium": "^3.0.3",
     "clonefile": "^3.1.0",
     "eslint": "^8.8.0",
-    "genserve": "^3.7.4",
+    "genserve": "^3.7.6",
     "glob": "^8.0.3",
     "html-to-image": "^1.10.8",
     "jsdom": "19.0.0",
