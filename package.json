@@ -80,6 +80,7 @@
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@thimpat/testutils": "^1.1.0",
+    "@types/node": "^18.11.18",
     "capture-console": "^1.0.1",
     "chai": "^4.3.6",
     "chai-arrays": "^2.2.0",
@@ -99,7 +100,7 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.22.3"
+    "to-esm": "^2.27.2"
   },
   "dependencies": {
     "@thimpat/libutils": "^1.9.5",
