@@ -5,6 +5,7 @@
   "main": "./src/ana-logger.cjs",
   "module": "./esm/src/ana-logger.mjs",
   "type": "commonjs",
+  "typings": "ana-logger.d.cts",
   "bin": {
     "analogger": "cli.cjs"
   },
@@ -21,6 +22,7 @@
   "browser": "./dist/analogger-browser.min.mjs",
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
+    "generate:dts": "tsc ./src/ana-logger.cjs --declaration --allowJs --emitDeclarationOnly --outDir .",
     "test": "npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
     "manual:check": "genserve.cmd start analogger-manual-check --port 9877 --dir ./demo --openPage ./demo",
     "demo:server": "genserve.cmd restart analogger-demo --port 9880 --dir ./",
