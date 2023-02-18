@@ -1089,6 +1089,10 @@ anaLogger.addPlugin("doSomething", doSomething);
 ## Changelog
 
 ##### current:
+*  Add startLogger method to automatically override the console
+
+
+##### 1.22.1:
 *  Fix screenshot endpoint
 *  Fix remote breaking in browser due to misconfiguration
 
