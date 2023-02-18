@@ -2119,7 +2119,6 @@ class ____AnaLogger
     {
         if (!____AnaLogger.instanceCount)
         {
-            console.error("No AnaLogger instance found");
             return null;
         }
         return ____AnaLogger.#instances[num];
