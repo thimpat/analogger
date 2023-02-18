@@ -6,7 +6,7 @@ const sinon = require("sinon");
 const spies = require("chai-spies");
 const assertArrays = require("chai-arrays");
 
-let alert;
+const jsDom = require("jsdom-global");
 
 // Arrange
 const myStub = {
@@ -16,18 +16,28 @@ const myStub = {
     },
 };
 
+let alert = null;
 
 chai.use(spies);
 chai.use(assertArrays);
 
-// sut
-const {anaLogger} = require("../src/ana-logger.cjs");
-const {LOG_CONTEXTS, LOG_TARGETS} = require("../models/jscode/contexts-def.cjs");
 const {sleep} = require("@thimpat/testutils");
-const {SYSTEM} = require("../src/constants.cjs");
+const {LOG_CONTEXTS, LOG_TARGETS} = require("../models/jscode/contexts-def.cjs");
 
-describe("AnaLogger", function ()
+// sut
+/** to-esm-all: remove **/
+const {SYSTEM} = require("../src/constants.cjs");
+const {anaLogger} = require("../src/ana-logger.cjs");
+/** to-esm-all: end-remove **/
+
+/** to-esm-esm: add
+ import {SYSTEM} from "../esm/constants.mjs";
+ import {anaLogger} from "../esm/ana-logger.mjs";
+ **/
+
+describe("AnaLogger for CommonJs", function ()
 {
+
     before(() =>
     {
         anaLogger.setContexts(LOG_CONTEXTS);
@@ -575,7 +585,7 @@ describe("AnaLogger", function ()
 
         before(function ()
         {
-            this.jsdom = require("jsdom-global")();
+            this.jsdom = jsDom();
 
             sandbox = sinon.createSandbox();
             sandbox
