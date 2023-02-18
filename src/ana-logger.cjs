@@ -227,6 +227,8 @@ class ____AnaLogger
     instanceId = "";
     instanceName = "";
 
+    static #instances = [];
+
     logIndex = 0;
     logCounter = 0;
 
@@ -291,8 +293,10 @@ class ____AnaLogger
         this.originalFormatFunction = this.format;
 
         this.instanceName = name;
-        ++____AnaLogger.instanceCount;
+
         this.instanceId = ____AnaLogger.instanceCount + "-" + Date.now();
+        ____AnaLogger.#instances[____AnaLogger.instanceCount] = this;
+        ++____AnaLogger.instanceCount;
 
         this.errorTargetHandler = this.onError.bind(this);
         this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this);
@@ -2101,6 +2105,58 @@ class ____AnaLogger
         }
     }
 
+    static generateInstance()
+    {
+        const analogger = new ____AnaLogger();
+        return analogger;
+    }
+
+    /**
+     * Returns an AnaLogger instance
+     * @returns {null}
+     */
+    static getInstance(num = 0)
+    {
+        if (!____AnaLogger.instanceCount)
+        {
+            console.error("No AnaLogger instance found");
+            return null;
+        }
+        return ____AnaLogger.#instances[num];
+    }
+
+    /**
+     * Returns first existing AnaLogger instance,
+     * otherwise create a new instance
+     * @returns {*|____AnaLogger}
+     */
+    static generateMainInstance()
+    {
+        const mainInstance = ____AnaLogger.getInstance();
+        if (!mainInstance)
+        {
+            return new ____AnaLogger();
+        }
+
+        return mainInstance;
+    }
+
+    /**
+     * Override console.log and console.error
+     */
+    static startLogger()
+    {
+        const active = ____AnaLogger.generateMainInstance();
+        active.applyPredefinedFormat(PREDEFINED_FORMATS.DEFAULT_FORMAT, {override: true});
+    }
+
+    static stopLogger()
+    {
+        const active = ____AnaLogger.generateMainInstance();
+        active.removeOverride();
+        active.removeOverrideError();
+    }
+
     convertToUrl({
                      protocol = DEFAULT.protocol,
                      host = DEFAULT.host,
@@ -2199,14 +2255,17 @@ class ____AnaLogger
 
 }
 
-const _AnaLogger = ____AnaLogger;
-module.exports.AnaLogger = _AnaLogger;
-
+// Export the class as default export
 const __AnaLogger = ____AnaLogger;
 module.exports = __AnaLogger;
 
-const ___anaLogger = new ____AnaLogger();
+// Export an instance
+const ___anaLogger = ____AnaLogger.generateMainInstance();
 module.exports.anaLogger = ___anaLogger;
+
+// Export the class as named export
+const _AnaLogger = ____AnaLogger;
+module.exports.AnaLogger = _AnaLogger;
 
 module.exports.DEFAULT_LOG_LEVELS = DEFAULT_LOG_LEVELS;
 module.exports.DEFAULT_LOG_CONTEXTS = DEFAULT_LOG_CONTEXTS;

@@ -108,6 +108,21 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 
 ---
 
+## Quick start
+
+### Start logging with AnaLogger
+
+```javascript
+const {anaLogger}  = require("analogger");
+AnaLogger.startLogger();
+```
+
+<br/>
+
+
+
+---
+
 
 ## API
 
@@ -1055,12 +1070,44 @@ anaLogger.addPlugin("doSomething", doSomething);
 
 ---
 
+## Package
 
+```
+📁 package                
+│
+└───📁 src
+│   │
+│   └─ 📝 ana-logger.cjs                         ⇽ AnaLogger Node version for CommonJs (60.1k)
+│   
+└───📁 esm
+│   │
+│   └─ 📝 ana-logger.mjs                         ⇽ AnaLogger Node version for ES Modules (62.0k)
+│   
+└───📁 browser (ESM)
+│   │─ 📝 ana-logger.mjs                         ⇽ AnaLogger browser version (62.0k)
+│   │─ 📝 html-to-image-plugin.mjs               ⇽ AnaLogger plugin (3.7k)
+│   └─ 📝 html-to-image.js                       ⇽ Original plugin minified (required for the above plugin to work)
+│ 
+└───📁 dist (minified)
+│   │─ 📝 analogger.min.css                      ⇽ Default Theme file (1.9k)
+│   │─ 📝 ana-light.min.css                      ⇽ Another Theme file (2.8k)
+│   │─ 📝 analogger-browser.min.mjs              ⇽ AnaLogger browser version (30.8k)
+│   │─ 📝 html-to-image-plugin.min.mjs           ⇽ AnaLogger plugin (30.8k)
+
+```
+
+<br/>
+
+---
 
 
 ## Changelog
 
 ##### current:
+*  Add startLogger method to automatically override the console
+
+
+##### 1.22.1:
 *  Fix screenshot endpoint
 *  Fix remote breaking in browser due to misconfiguration
 

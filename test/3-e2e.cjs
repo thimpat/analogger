@@ -19,7 +19,7 @@ let driver;
 /**
  * TEST CONFIGURATION FILE
  */
-const {waitForDriverCaptured, sleep, getContent} = require("@thimpat/testutils");
+const {sleep, getContent} = require("@thimpat/testutils");
 const path = require("path");
 
 async function init()
@@ -60,7 +60,7 @@ describe("The Browser", async function ()
 
     before(async function ()
     {
-        driver = await waitForDriverCaptured({driver: await init()});
+        driver = await init();
     });
 
     afterEach(async () =>

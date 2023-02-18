@@ -90,7 +90,7 @@ describe("In the Terminal", function ()
 
         describe("table", function ()
         {
-            it.skip("should display nothing when invoked with an empty array", function ()
+            it("should display nothing when invoked with an empty array", function ()
             {
                 const captured = capcon.captureStdio(function ()
                 {
@@ -98,7 +98,11 @@ describe("In the Terminal", function ()
                     anaLogger.table(arr);
                 });
 
-                expect(captured.stdout).to.be.empty;
+                expect(captured.stdout)
+                    .to.contain("┌─────────┐")
+                    .to.contain("│ (index) │")
+                    .to.contain("├─────────┤")
+                    .to.contain("└─────────┘");
             });
 
             it("should display an array of objects in a table", function ()

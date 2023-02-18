@@ -5,6 +5,7 @@
   "main": "./src/ana-logger.cjs",
   "module": "./esm/src/ana-logger.mjs",
   "type": "commonjs",
+  "typings": "ana-logger.d.cts",
   "bin": {
     "analogger": "cli.cjs"
   },
@@ -21,7 +22,9 @@
   "browser": "./dist/analogger-browser.min.mjs",
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
-    "test": "npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
+    "generate:dts": "tsc ./src/ana-logger.cjs --declaration --allowJs --emitDeclarationOnly --outDir .",
+    "build:test": "to-esm test/1-unit.cjs --output ./ --target esm --skipEsmResolution",
+    "test": "npm run build:test && npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
     "manual:check": "genserve.cmd start analogger-manual-check --port 9877 --dir ./demo --openPage ./demo",
     "demo:server": "genserve.cmd restart analogger-demo --port 9880 --dir ./",
     "open:browser:remote": "genserve.cmd restart analogger-demo-remote --port 9882 --dir ./demo/browser-remote --openPage ./index-remote.html",
@@ -43,7 +46,7 @@
     "build:plugins": "                                to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs --target browser --nmBrowserImported imported  --bundle-browser ./dist/html-to-image-plugin.min.mjs --update-all",
     "build:esm:browser": "                            to-esm src/ana-logger.cjs            --output browser/                       --config .toesm.cjs --target browser     --nmBrowserImported imported        --update-all",
     "build:esm:browser:minified": "                   to-esm src/ana-logger.cjs            --bundle dist/analogger-browser.min.mjs --config .toesm.cjs --target browser             --update-all      --bundle-browser ./dist/analogger-browser.min.mjs ",
-    "build:all": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins",
+    "build:all": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins && npm run build:test",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code - They don't need to have the AnaLogger library built to work!!!",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
@@ -80,6 +83,7 @@
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@thimpat/testutils": "^1.1.0",
+    "@types/node": "^18.11.18",
     "capture-console": "^1.0.1",
     "chai": "^4.3.6",
     "chai-arrays": "^2.2.0",
@@ -88,7 +92,7 @@
     "chromium": "^3.0.3",
     "clonefile": "^3.1.0",
     "eslint": "^8.8.0",
-    "genserve": "^3.7.6",
+    "genserve": "^5.4.7",
     "glob": "^8.0.3",
     "html-to-image": "^1.10.8",
     "jsdom": "19.0.0",
@@ -99,7 +103,7 @@
     "selenium-webdriver": "^4.1.1",
     "semantic-release": "^19.0.2",
     "sinon": "^13.0.1",
-    "to-esm": "^2.22.3"
+    "to-esm": "^2.27.2"
   },
   "dependencies": {
     "@thimpat/libutils": "^1.9.5",
