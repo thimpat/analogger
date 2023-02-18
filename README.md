@@ -113,8 +113,30 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 ### Start logging with AnaLogger
 
 ```javascript
-const {anaLogger}  = require("analogger");
+const {AnaLogger}  = require("analogger");
 AnaLogger.startLogger();
+
+// Use console method with new formatting
+console.log("something");
+```
+
+<br/>
+
+### Generate an AnaLogger instance
+
+```javascript
+const {analogger}  = require("analogger");
+analogger.log("something");
+```
+
+<br/>
+
+### Getting AnaLogger main instance
+
+```javascript
+const {AnaLogger}  = require("analogger");
+const myConsole = AnaLogger.getInstance(0);      // Retrieve first instance => (0)
+myConsole.log("something");
 ```
 
 <br/>
