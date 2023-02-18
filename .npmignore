@@ -106,3 +106,4 @@ dist/analogger-browser-demo.min.mjs
 /licensee/
 /lid-generator.cjs
 /demo-viewer.html
+/.to-esm.cjs
