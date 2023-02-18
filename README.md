@@ -108,6 +108,21 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 
 ---
 
+## Quick start
+
+### Start logging with AnaLogger
+
+```javascript
+const {anaLogger}  = require("analogger");
+AnaLogger.startLogger();
+```
+
+<br/>
+
+
+
+---
+
 
 ## API
 
