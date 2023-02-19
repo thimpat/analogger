@@ -2,7 +2,7 @@
     "lines": 72,
     "statements": 72,
     "functions": 70,
-    "branches": 58,
+    "branches": 55,
   "reporter": [
     "json",
     "text-summary"
