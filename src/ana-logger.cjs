@@ -621,26 +621,72 @@ class ____AnaLogger
      */
     onBuildLog({contextName, message = "", lid = "", symbol = ""} = {})
     {
-        // Time
-        const date = new Date();
-        let time = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
-
-        // Display content in columns
-        time = this.truncateMessage(time, {fit: this.options.timeLenMax});
-        contextName = this.truncateMessage(contextName, {
-            fit  : this.options.contextLenMax,
-            align: ____AnaLogger.ALIGN.RIGHT
-        });
-        lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
-
-        if (this.options.messageLenMax !== undefined)
+        try
         {
-            message = this.truncateMessage(message, {fit: this.options.messageLenMax});
+            let strResult = "";
+
+            const strs = message.split(/\n/g);
+
+            for (let i = 0; i < strs.length; ++i)
+            {
+                let message0 = strs[i];
+
+                // Time
+                const date = new Date();
+                let time = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
+
+                // Display content in columns
+                time = this.truncateMessage(time, {fit: this.options.timeLenMax});
+
+                if (i > 0)
+                {
+                    contextName = "";
+                    lid = "";
+                }
+                contextName = this.truncateMessage(contextName, {
+                    fit  : this.options.contextLenMax,
+                    align: ____AnaLogger.ALIGN.RIGHT
+                });
+                lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
+
+                if (this.options.messageLenMax !== undefined)
+                {
+                    message0 = this.truncateMessage(message0, {fit: this.options.messageLenMax});
+                }
+
+                symbol = this.truncateMessage(symbol, {fit: this.options.symbolLenMax});
+
+                if (i <= 0)
+                {
+                    strResult += `[${time}] ${contextName}: (${lid}) ${symbol} ${message0}`;
+                }
+                else
+                {
+                    // If last line empty, don't display it
+                    if (i < strs.length - 1)
+                    {
+                        strResult += "\n";
+                        strResult += `[${time}] ${contextName}   ${lid}     ${message0}`;
+                    }
+                    else
+                    {
+                        if (message0)
+                        {
+                            strResult += "\n";
+                            strResult += `[${time}] ${contextName}   ${lid}     ${message0}`;
+                        }
+                    }
+                }
+            }
+
+            return strResult;
+        }
+        catch (e)
+        {
+            console.rawError(e.message);
         }
 
-        symbol = this.truncateMessage(symbol, {fit: this.options.symbolLenMax});
-
-        return `[${time}] ${contextName}: (${lid}) ${symbol} ${message}`;
+        return "";
     }
 
     onErrorForUserTarget(context, ...args)
