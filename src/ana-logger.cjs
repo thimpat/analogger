@@ -199,6 +199,8 @@ function isNode()
 }
 
 const COMMON_METHODS = [
+    "alert",
+    "assert",
     "keepLogHistory",
     "getLogHistory",
     "truncateMessage",
@@ -213,6 +215,12 @@ const COMMON_METHODS = [
     "rawWarn",
     "rawError",
     "hasSeenLid",
+    "addToLogHistory",
+    "releaseLogHistory",
+    "resetLogHistory",
+    "setLogFormat",
+    "resetLogFormatter",
+    "getRawLogHistory",
 ];
 
 
