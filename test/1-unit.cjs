@@ -228,6 +228,62 @@ describe("AnaLogger for CommonJs", function ()
             expect(anaLogger.getLogHistory()).to.contain("C1: (123...)");
         });
 
+        it("should not show the time without the date by default", function ()
+        {
+            // Act
+            anaLogger.log({
+                context: LOG_CONTEXTS.C1,
+                lid    : 123456789233
+            }, "We should see some date here");
+
+            // If the log contain date + time, it should be 9 chars long
+            let res = anaLogger.getLogHistory();
+            let len = res.split("]")[0].length;
+
+            // Assert
+            expect(len).to.equal(9);
+        });
+
+        it("should show the date along with the time", function ()
+        {
+            anaLogger.setOptions({
+                enableDate: true
+            });
+
+            // Act
+            anaLogger.log({
+                context: LOG_CONTEXTS.C1,
+                lid    : 123456789233
+            }, "We should see some date here");
+
+            // If the log contain date + time, it should be 18 chars long
+            let res = anaLogger.getLogHistory();
+            let len = res.split("]")[0].length;
+
+            // Assert
+            expect(len).to.equal(18);
+        });
+
+        it("should not show the date", function ()
+        {
+            anaLogger.setOptions({
+                enableDate: false
+            });
+
+            // Act
+            anaLogger.log({
+                context: LOG_CONTEXTS.C1,
+                lid    : 123456789233
+            }, "We should see some date here");
+
+            // If the log contain date + time, it should be 9 chars long
+            let res = anaLogger.getLogHistory();
+            let len = res.split("]")[0].length;
+
+            // Assert
+            expect(len).to.equal(9);
+        });
+
 
     });
 
