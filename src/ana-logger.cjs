@@ -2036,7 +2036,18 @@ class ____AnaLogger
             return this.log(...args);
         }
 
-        const message = args.join(" | ");
+        let message;
+        if (args && ((args[0] && args[0].hasOwnProperty("lid")) || this.isContextValid(args[0])) )
+        {
+            const someContext = this.generateDefaultContext();
+            let context = this.convertToContext(args[0], someContext);
+
+            message = context.lid + ": " + args.slice(1).join(" | ");
+        }
+        else
+        {
+            message = args.join(" | ");
+        }
 
         alert(message);
     }
