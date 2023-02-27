@@ -1127,6 +1127,16 @@ anaLogger.addPlugin("doSomething", doSomething);
 ## Changelog
 
 ##### current:
+*  Add an option to show the date and time in logs
+*  Make the alert method display the lid when detected
+*  Keep format when displaying multiple lines for one entry
+
+
+##### 1.23.2:
+*  Remove the message 'No AnaLogger instance found'
+
+
+##### 1.23.0:
 *  Add startLogger method to automatically override the console
 
 
