@@ -274,6 +274,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | logToFile        | false       | string (File path)                | _write log to a file if running from Node_                                         |
 | logToRemote      | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
 | requiredLogLevel | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
+| enableDate       | false       | boolean                           | _Show date + time (instead of time only)_                                          |
 
 <br/>
 
