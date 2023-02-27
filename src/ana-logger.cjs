@@ -433,7 +433,7 @@ class ____AnaLogger
     resetLogger()
     {
         this.options = {};
-        this.options.timeLenMax = 10;
+        this.options.timeLenMax = 12;
         this.options.contextLenMax = 10;
         this.options.idLenMax = 5;
         this.options.lidLenMax = 6;
@@ -455,6 +455,7 @@ class ____AnaLogger
         this.options.port = undefined;
         this.options.pathname = undefined;
         this.options.binarypathname = undefined;
+        this.options.enableDate = undefined;
     }
 
     resetOptions()
@@ -481,6 +482,7 @@ class ____AnaLogger
                    requiredLogLevel = DEFAULT_LOG_LEVELS.LOG,
                    oneConsolePerContext = undefined,
                    silent = undefined,
+                   enableDate = undefined,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -513,6 +515,7 @@ class ____AnaLogger
             {hideLog: solveSilent},
             {oneConsolePerContext},
             {hideError},
+            {enableDate},
             {hideHookMessage},
             {hidePassingTests},
             {logToRemote},
@@ -640,8 +643,14 @@ class ____AnaLogger
                 let message0 = strs[i];
 
                 // Time
-                const date = new Date();
-                let time = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
+                const now = new Date();
+                let time = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
+
+                if (this.options.enableDate)
+                {
+                    let date = now.getFullYear().toString().slice(-2) + "-" + (now.getMonth() + 1).toString().padStart(2, "0") + "-" + now.getDate().toString().padStart(2, "0");
+                    time = date + " " + time;
+                }
 
                 // Display content in columns
                 time = this.truncateMessage(time, {fit: this.options.timeLenMax});
@@ -2037,7 +2046,7 @@ class ____AnaLogger
         }
 
         let message;
-        if (args && ((args[0] && args[0].hasOwnProperty("lid")) || this.isContextValid(args[0])) )
+        if (args && ((args[0] && args[0].hasOwnProperty("lid")) || this.isContextValid(args[0])))
         {
             const someContext = this.generateDefaultContext();
             let context = this.convertToContext(args[0], someContext);
