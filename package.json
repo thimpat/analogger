@@ -22,7 +22,7 @@
   "browser": "./dist/analogger-browser.min.mjs",
   "scripts": {
     "lint": "eslint.cmd \"src/**/*.{cjs,js}\"",
-    "generate:dts": "tsc ./src/ana-logger.cjs --declaration --allowJs --emitDeclarationOnly --outDir .",
+    "generate:dts": "tsc ./src/ana-logger.cjs --declaration --allowJs --emitDeclarationOnly --outDir . --target es2022",
     "build:test": "to-esm test/1-unit.cjs --output ./ --target esm --skipEsmResolution",
     "test": "npm run build:test && npm run build:demo && nyc --reporter=lcov --reporter=text-summary mocha --exit --sort",
     "manual:check": "genserve.cmd start analogger-manual-check --port 9877 --dir ./demo --openPage ./demo",
@@ -46,7 +46,7 @@
     "build:plugins": "                                to-esm src/html-to-image-plugin.cjs  --entrypoint ./src/ana-logger.cjs --output browser/ --config .toesm.cjs --target browser --nmBrowserImported imported  --bundle-browser ./dist/html-to-image-plugin.min.mjs --update-all",
     "build:esm:browser": "                            to-esm src/ana-logger.cjs            --output browser/                       --config .toesm.cjs --target browser     --nmBrowserImported imported        --update-all",
     "build:esm:browser:minified": "                   to-esm src/ana-logger.cjs            --bundle dist/analogger-browser.min.mjs --config .toesm.cjs --target browser             --update-all      --bundle-browser ./dist/analogger-browser.min.mjs ",
-    "build:all": "npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins && npm run build:test",
+    "build:all": "npm run generate:dts && npm run build:esm:terminal && npm run build:plugins && npm run build:esm:browser:minified && npm run copy:css && npm run copy-plugins:plugins && npm run build:test",
     "*** In the Browser-1 ****": "# ----------------------------------------------------------------------------------------------------------",
     "*** In the Browser-2 ****": "# Generate Demo code - They don't need to have the AnaLogger library built to work!!!",
     "*** In the Browser-3 ****": "# ----------------------------------------------------------------------------------------------------------",
