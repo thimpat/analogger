@@ -5,6 +5,7 @@ declare const __AnaLogger: typeof ____AnaLogger;
  * @class ____AnaLogger
  */
 declare class ____AnaLogger {
+    static "__#1@#instances": any[];
     static ALIGN: {
         LEFT: string;
         RIGHT: string;
@@ -16,6 +17,23 @@ declare class ____AnaLogger {
     };
     static instanceCount: number;
     static pluginTable: {};
+    static generateInstance(): ____AnaLogger;
+    /**
+     * Returns an AnaLogger instance
+     * @returns {null}
+     */
+    static getInstance(num?: number): null;
+    /**
+     * Returns first existing AnaLogger instance,
+     * otherwise create a new instance
+     * @returns {*|____AnaLogger}
+     */
+    static generateMainInstance(): any | ____AnaLogger;
+    /**
+     * Override console.log and console.error
+     */
+    static startLogger(): void;
+    static stopLogger(): void;
     constructor({ name }?: {
         name?: string;
     });
@@ -92,7 +110,7 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, protocol, host, port, pathname, binarypathname }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname }?: any): void;
     EOL: string;
     getOptions(): {
         hideHookMessage: boolean;
@@ -245,7 +263,7 @@ declare class ____AnaLogger {
      * @param done
      */
     uploadDataToRemote(raw: any, context?: any, done?: any): any;
-    stringifyEntry(arg: any): string;
+    stringifyEntry(arg: any): any;
     /**
      * If a variable is too complex for the logger, stringify it
      */
@@ -376,4 +394,5 @@ declare class ____AnaLogger {
      * @returns {boolean}
      */
     validatePlugin(name: any): boolean;
+    #private;
 }
