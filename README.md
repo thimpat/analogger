@@ -507,6 +507,8 @@ Use native console format after overrides.
 anaLogger.overrideConsole();
 console.log(`Example 1`);              // <= Will use new format
 console.rawLog(`Example 2`);           // <= Will use native format
+
+console.log({raw: true}, `Example 2`); // <= Will use native format
 ```
 
 <br/>
