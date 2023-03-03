@@ -1793,6 +1793,7 @@ class ____AnaLogger
             options.hasOwnProperty("target") ||
             options.hasOwnProperty("color") ||
             options.hasOwnProperty("contextName") ||
+            options.hasOwnProperty("raw") ||
             options.hasOwnProperty("lid");
     }
 
@@ -1885,6 +1886,12 @@ class ____AnaLogger
 
         const someContext = this.generateDefaultContext();
         let context = this.convertToContext(options, someContext);
+
+        if (context.raw)
+        {
+            this.#realConsoleLog(...args);
+            return;
+        }
 
         this.processOutput.apply(this, [context, ...args]);
     }
