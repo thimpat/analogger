@@ -1759,7 +1759,7 @@ class ____AnaLogger
                 }
             }
 
-            if (this.options.hideLog)
+            if (this.options.hideLog || context.hideLog || context.silent)
             {
                 return;
             }
