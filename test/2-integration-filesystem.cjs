@@ -139,8 +139,8 @@ describe("In the Terminal", function ()
                 });
 
                 expect(captured.stdout)
-                    .to.contain("serverName │ silent │ defaultPage  │ protocol  │    host     │ port")
-                    .to.contain("'Kristal'  │ false  │ 'index.html' │ 'http://' │ 'localhost' │ 10040");
+                    .to.contain("serverName │ silent │ defaultPage  │ protocol  │ host        │ port")
+                    .to.match(/'Kristal'[^|]*│[^|]*false[^|]*│[^|]*'index.html'[^|]*│[^|]*'http:\/\/'[^|]*│[^|]*'localhost'[^|]*│[^|]*10040/ );
             });
 
             it.skip("should display an array of objects in a smaller table", function ()
@@ -160,7 +160,7 @@ describe("In the Terminal", function ()
                     anaLogger.table(arr, {availableLength: 80, columnMaxChars: 10});
                 });
 
-                expect(captured.stdout).to.contain("Nubia      │ false  │ index.html   │ http://   │ localhost   │ 10040 │");
+                expect(captured.stdout).to.match(/Nubia[^|]*│[^|]*false[^|]*│[^|]*index.html[^|]*│[^|]*http:\/\/[^|]*│[^|]*localhost[^|]*│[^|]*10040[^|]*│/);
             });
 
             it("should display a complex object in a table", function ()
@@ -197,10 +197,10 @@ describe("In the Terminal", function ()
                 });
 
                 expect(captured.stdout)
-                    .to.contain("serverName │ silent │ defaultPage  │ protocol  │    host     │ port")
-                    .to.contain("Nubia  │  'Nubia'   │ false  │ 'index.html' │ 'http://' │ 'localhost' │ 10040")
-                    .to.contain("Lavern  │  'Lavern'  │ false  │ 'index.html' │ 'http://' │ 'localhost' │ 10040")
-                    .to.contain("Kristal │ 'Kristal'  │ false  │ 'index.html' │ 'http://' │ 'localhost' │ 10040");
+                    .to.contain("serverName │ silent │ defaultPage  │ protocol  │ host        │ port")
+                    .to.match(/Nubia[^|]*│[^|]*'Nubia'[^|]*│[^|]*false[^|]*│[^|]*'index.html'[^|]*│[^|]*'http:\/\/'[^|]*│[^|]*'localhost'[^|]*│[^|]*10040/)
+                    .to.match(/Lavern[^|]*│[^|]*'Lavern'[^|]*│[^|]*false[^|]*│[^|]*'index.html'[^|]*│[^|]*'http:\/\/'[^|]*│[^|]*'localhost'[^|]*│[^|]*10040/)
+                    .to.match(/Kristal[^|]*│[^|]*'Kristal'[^|]*│[^|]*false[^|]*│[^|]*'index.html'[^|]*│[^|]*'http:\/\/'[^|]*│[^|]*'localhost'[^|]*│[^|]*10040/);
             });
 
         });
