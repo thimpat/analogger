@@ -2,8 +2,6 @@
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-
-let fetch = require("node-fetch-cjs");
 /** to-esm-browser: end-remove **/
 
 // to-ansi is also used by the browser
