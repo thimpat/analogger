@@ -271,6 +271,10 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
 function zipLogFile(file, archive) {
     try {
         let zip;
+        if (!fs.existsSync(file)) {
+            return ;
+        }
+
         if (fs.existsSync(archive)) {
             zip = new AdmZip(archive);
         } else {
