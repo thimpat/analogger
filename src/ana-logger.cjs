@@ -7,6 +7,8 @@ const os = require("os");
 // to-ansi is also used by the browser
 const toAnsi = require("to-ansi");
 
+// Will be removed via to-esm config file (.toesm.cjs)
+const AdmZip = require("adm-zip");
 
 const DEFAULT = {
     moduleName: "analogger",
@@ -199,52 +201,86 @@ function getConsistentTimestamp() {
  * @param {string} filenamePrefix - The prefix of the filename (e.g., "demo").
  * @param {string} index - The index to match (e.g., "01", "02", "03").
  * @param {string} extension - The file extension (e.g., "log").
- * @param {function} callback - A callback function to handle the result.
+ * @param archiveName
+ * @param {function} deletionCallback - A callback function to handle the result.
  */
-function deleteFilesWithIndex(directory, filenamePrefix, index, extension, callback) {
+function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archiveName, deletionCallback) {
     fs.readdir(directory, (err, files) => {
         if (err) {
-            callback(err, null);
+            deletionCallback(err, null);
             return;
         }
 
         const deletedFiles = [];
         let filesProcessed = 0;
 
+        const removeFile = (filePath, callback) => {
+            if (!fs.existsSync(filePath)) {
+                callback(null, null);
+                return;
+            }
+            fs.unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error(`DELETION_FAILURE: Error deleting file ${filePath}: ${unlinkErr}`);
+                } else {
+                    deletedFiles.push(filePath);
+                }
+                filesProcessed++;
+                if (filesProcessed === files.length) {
+                    callback(null, deletedFiles);
+                }
+            });
+        };
+
         const processFile = (file) => {
             if (file.startsWith(filenamePrefix + ".") && file.endsWith(index + extension)) {
                 const filePath = path.join(directory, file);
 
                 if (fs.existsSync(filePath)) {
-                    fs.unlink(filePath, (unlinkErr) => {
-                        if (unlinkErr) {
-                            console.error(`DELETION_FAILURE: Error deleting file ${filePath}: ${unlinkErr}`);
-                        } else {
-                            deletedFiles.push(filePath);
-                        }
-                        filesProcessed++;
-                        if (filesProcessed === files.length) {
-                            callback(null, deletedFiles);
-                        }
-                    });
+                    if (archiveName) {
+                        zipLogFile(filePath, archiveName);
+                        removeFile(filePath, deletionCallback);
+                    } else {
+                        removeFile(filePath, deletionCallback);
+                    }
                 }
 
             } else {
                 filesProcessed++;
                 if (filesProcessed === files.length) {
-                    callback(null, deletedFiles);
+                    deletionCallback(null, deletedFiles);
                 }
             }
         };
 
         if (files.length === 0) {
-            callback(null, deletedFiles); // Handle empty directory
+            deletionCallback(null, deletedFiles); // Handle empty directory
         } else {
             files.forEach(processFile);
         }
     });
 }
 
+/**
+ * Adds a log file to a zip archive.
+ *
+ * @param {string} file - The path to the log file to be added to the archive.
+ * @param {string} archive - The path to the zip archive.
+ */
+function zipLogFile(file, archive) {
+    try {
+        let zip;
+        if (fs.existsSync(archive)) {
+            zip = new AdmZip(archive);
+        } else {
+            zip = new AdmZip();
+        }
+        zip.addLocalFile(file);
+        zip.writeZip(archive);
+    } catch (e) {
+        console.error(`ARCHIVE_FAILURE: ${e.message}`);
+    }
+}
 
 /**
  * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
@@ -1479,11 +1515,14 @@ class ____AnaLogger
                     indexStr = this.options.addArchiveIndex ? "." + this.options.logIndexArchive.toString().padStart(padding, "0") : "";
                     timeStamp = this.options.addArchiveTimestamp ? "." + getConsistentTimestamp() : "";
 
-                    // Deduce archive name
+                    // Deduce old log file name
                     const oldFileName = `${filePath}${timeStamp}${indexStr}${extension}`;
 
+                    // Deduce archive name
+                    const archiveFileName = this.options.compressArchives ? `${filePath}.zip` : "";
+
                     // Delete old archives
-                    deleteFilesWithIndex(dirname, basename, indexStr, extension, (error/*, deletedFiles*/) => {
+                    deleteFilesWithIndex(dirname, basename, indexStr, extension, archiveFileName, (error/*, deletedFiles*/) => {
                         if (error) {
                             console.error(`DELETION_FAILURE: Failed to delete some files`);
                         }

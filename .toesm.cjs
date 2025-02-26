@@ -1,4 +1,10 @@
 module.exports = {
+    replaceStart  : [
+        {
+            search: "const AdmZip = require(\"adm-zip\");",
+            replace: ""
+        }
+    ],
     replaceModules:
         {
             "node-fetch": {
