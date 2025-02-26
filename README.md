@@ -273,6 +273,10 @@ Display the browser native message box if run from it; otherwise, it displays th
 | logToDom         | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
 | logToFile        | false       | string (File path)                | _write log to a file if running from Node_                                         |
 | logToRemote      | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
+| logMaxSize      | 0           | number                            | _Set maximum size for the log file_                                                |
+| compressArchives      | false       | boolean                           | _Whether to archive and compress the logs after deleting an archive_               |
+| addArchiveTimestamp      | true        | boolean                           | _Whether to add a timestamp to the generated rotated logs_                         |
+| logMaxArchives      | 3           | number                            | _Maximum number of log files to use_                                               |
 | requiredLogLevel | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 | enableDate       | false       | boolean                           | _Show date + time (instead of time only)_                                          |
 
