@@ -444,6 +444,7 @@ class ____AnaLogger
         this.options.oneConsolePerContext = true;
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
+        this.options.logMaxSize = 0;
         this.options.logToRemote = undefined;
         this.options.logToRemoteUrl = undefined;
         this.options.logToRemoteBinaryUrl = undefined;
@@ -1364,6 +1365,19 @@ class ____AnaLogger
                     fs.mkdirSync(dir, { recursive: true });
                 }
                 fs.writeFileSync(this.options.logToFilePath, "");
+            }
+
+            // Check filesize doesn't exceed the limit set by the user
+            if (this.options.logMaxSize) {
+                const stats = fs.statSync(this.options.logToFilePath);
+                const fileSizeInBytes = stats.size;
+                if (fileSizeInBytes > this.options.logMaxSize) {
+                    const oldFileName = this.options.logToFilePath + ".old";
+                    if (fs.existsSync(oldFileName)) {
+                        fs.unlinkSync(oldFileName);
+                    }
+                    fs.writeFileSync(this.options.logToFilePath, "");
+                }
             }
             fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
         }
