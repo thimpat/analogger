@@ -236,13 +236,14 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
             if (file.startsWith(filenamePrefix + ".") && file.endsWith(index + extension)) {
                 const filePath = path.join(directory, file);
 
-                if (fs.existsSync(filePath)) {
-                    if (archiveName) {
-                        zipLogFile(filePath, archiveName);
-                        removeFile(filePath, deletionCallback);
-                    } else {
-                        removeFile(filePath, deletionCallback);
-                    }
+                if (archiveName)
+                {
+                    zipLogFile(filePath, archiveName);
+                    removeFile(filePath, deletionCallback);
+                }
+                else
+                {
+                    removeFile(filePath, deletionCallback);
                 }
 
             } else {
@@ -561,9 +562,14 @@ class ____AnaLogger
         this.options.logToDom = undefined;
         this.options.logToFile = undefined;
         this.options.logMaxSize = 0;
+        this.options.logMaxArchives = 3;
+        this.options.logIndexArchive = 0;
         this.options.logToRemote = undefined;
+        this.options.addArchiveTimestamp = true;
+        this.options.addArchiveIndex = true;
         this.options.logToRemoteUrl = undefined;
         this.options.logToRemoteBinaryUrl = undefined;
+        this.options.compressArchives = false;
         this.options.protocol = undefined;
         this.options.host = undefined;
         this.options.port = undefined;
@@ -594,6 +600,7 @@ class ____AnaLogger
                    logIndexArchive = 0,
                    addArchiveTimestamp = true,
                    addArchiveIndex = true,
+                   compressArchives = false,
                    logToRemote = undefined,
                    logToRemoteUrl = undefined,
                    logToRemoteBinaryUrl = undefined,
@@ -621,6 +628,7 @@ class ____AnaLogger
         this.options.logIndexArchive = logIndexArchive;
         this.options.addArchiveTimestamp = addArchiveTimestamp;
         this.options.addArchiveIndex = addArchiveIndex;
+        this.options.compressArchives = compressArchives;
 
         this.options.requiredLogLevel = requiredLogLevel;
 
