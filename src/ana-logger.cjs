@@ -166,6 +166,86 @@ const symbolNames = {
 // --------------------------------------------------
 // Helpers
 // --------------------------------------------------
+function getFilePathProperties(filePath) {
+    try {
+        const ext = path.extname(filePath);
+        const basename = path.basename(filePath, ext);
+        const dirname = path.dirname(filePath);
+        const fPath = filePath.slice(0, filePath.length - ext.length);
+        return {
+            extension: ext, filePath: fPath, basename, dirname
+        };
+    } catch (e) {
+        console.error("FILEPATH_EXT_FAILURE: ", e.message);
+    }
+    return {
+        extension: ".log", filePath
+    };
+}
+
+function getConsistentTimestamp() {
+    const now = new Date();
+
+    // ISO 8601 format with milliseconds and timezone offset
+    const isoString = now.toISOString();
+
+    return isoString.replace(/:/g, "-").replace(/\./g, "-");
+}
+
+/**
+ * Deletes all files in the given directory that match the specified filename prefix, index, and extension.
+ *
+ * @param {string} directory - The directory containing the files.
+ * @param {string} filenamePrefix - The prefix of the filename (e.g., "demo").
+ * @param {string} index - The index to match (e.g., "01", "02", "03").
+ * @param {string} extension - The file extension (e.g., "log").
+ * @param {function} callback - A callback function to handle the result.
+ */
+function deleteFilesWithIndex(directory, filenamePrefix, index, extension, callback) {
+    fs.readdir(directory, (err, files) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+
+        const deletedFiles = [];
+        let filesProcessed = 0;
+
+        const processFile = (file) => {
+            if (file.startsWith(filenamePrefix + ".") && file.endsWith(index + extension)) {
+                const filePath = path.join(directory, file);
+
+                if (fs.existsSync(filePath)) {
+                    fs.unlink(filePath, (unlinkErr) => {
+                        if (unlinkErr) {
+                            console.error(`DELETION_FAILURE: Error deleting file ${filePath}: ${unlinkErr}`);
+                        } else {
+                            deletedFiles.push(filePath);
+                        }
+                        filesProcessed++;
+                        if (filesProcessed === files.length) {
+                            callback(null, deletedFiles);
+                        }
+                    });
+                }
+
+            } else {
+                filesProcessed++;
+                if (filesProcessed === files.length) {
+                    callback(null, deletedFiles);
+                }
+            }
+        };
+
+        if (files.length === 0) {
+            callback(null, deletedFiles); // Handle empty directory
+        } else {
+            files.forEach(processFile);
+        }
+    });
+}
+
+
 /**
  * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
  * @returns {string}
@@ -473,6 +553,11 @@ class ____AnaLogger
                    hidePassingTests = undefined,
                    logToDom = undefined,
                    logToFile = undefined,
+                   logMaxSize = 0,
+                   logMaxArchives = 3,
+                   logIndexArchive = 0,
+                   addArchiveTimestamp = true,
+                   addArchiveIndex = true,
                    logToRemote = undefined,
                    logToRemoteUrl = undefined,
                    logToRemoteBinaryUrl = undefined,
@@ -494,6 +579,12 @@ class ____AnaLogger
         this.options.lidLenMax = lidLenMax;
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
+
+        this.options.logMaxSize = logMaxSize;
+        this.options.logMaxArchives = logMaxArchives;
+        this.options.logIndexArchive = logIndexArchive;
+        this.options.addArchiveTimestamp = addArchiveTimestamp;
+        this.options.addArchiveIndex = addArchiveIndex;
 
         this.options.requiredLogLevel = requiredLogLevel;
 
@@ -1372,17 +1463,38 @@ class ____AnaLogger
                 const stats = fs.statSync(this.options.logToFilePath);
                 const fileSizeInBytes = stats.size;
                 if (fileSizeInBytes > this.options.logMaxSize) {
-                    const oldFileName = this.options.logToFilePath + ".old";
-                    if (fs.existsSync(oldFileName)) {
-                        fs.unlinkSync(oldFileName);
+
+                    if (this.options.logIndexArchive < this.options.logMaxArchives) {
+                        ++this.options.logIndexArchive;
+                    } else {
+                        this.options.logIndexArchive = 1;
                     }
+
+                    // Extract the archive name without the extension
+                    const padding = this.options.logMaxArchives.toString().length + 1;
+                    const {filePath, extension, basename, dirname} = getFilePathProperties(this.options.logToFilePath);
+
+                    // Find index of the next archive
+                    let indexStr, timeStamp;
+                    indexStr = this.options.addArchiveIndex ? "." + this.options.logIndexArchive.toString().padStart(padding, "0") : "";
+                    timeStamp = this.options.addArchiveTimestamp ? "." + getConsistentTimestamp() : "";
+
+                    // Deduce archive name
+                    const oldFileName = `${filePath}${timeStamp}${indexStr}${extension}`;
+
+                    // Delete old archives
+                    deleteFilesWithIndex(dirname, basename, indexStr, extension, (error/*, deletedFiles*/) => {
+                        if (error) {
+                            console.error(`DELETION_FAILURE: Failed to delete some files`);
+                        }
+                    });
+
+                    fs.renameSync(this.options.logToFilePath, oldFileName);
                     fs.writeFileSync(this.options.logToFilePath, "");
                 }
             }
             fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
-        }
-        catch (e)
-        {
+        } catch (e) {
             /* istanbul ignore next */
             console.rawError("LOG_TO_FILE_FAILURE: ", e.message);
         }
