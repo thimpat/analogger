@@ -107,3 +107,5 @@ dist/analogger-browser-demo.min.mjs
 /lid-generator.cjs
 /demo-viewer.html
 /.to-esm.cjs
+/logs/
+*.log
