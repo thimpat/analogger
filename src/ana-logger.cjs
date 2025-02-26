@@ -447,7 +447,6 @@ class ____AnaLogger
         this.options.logToRemote = undefined;
         this.options.logToRemoteUrl = undefined;
         this.options.logToRemoteBinaryUrl = undefined;
-        this.options.logToDomlogToFile = undefined;
         this.options.protocol = undefined;
         this.options.host = undefined;
         this.options.port = undefined;
@@ -1357,6 +1356,15 @@ class ____AnaLogger
     {
         try
         {
+            if (!fs.existsSync(this.options.logToFilePath))
+            {
+                const dir = path.dirname(this.options.logToFilePath);
+                if (!fs.existsSync(dir))
+                {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                fs.writeFileSync(this.options.logToFilePath, "");
+            }
             fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
         }
         catch (e)
