@@ -1,8 +1,8 @@
 module.exports = {
     replaceStart  : [
         {
-            search: "const AdmZip = require(\"adm-zip\");",
-            replace: ""
+            search: "const tar = require('tar');",
+            replace: "return ;"
         }
     ],
     replaceModules:

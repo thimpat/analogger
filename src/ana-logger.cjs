@@ -2,15 +2,10 @@
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-const zlib = require('zlib');
-const tar = require('tar');
 /** to-esm-browser: end-remove **/
 
 // to-ansi is also used by the browser
 const toAnsi = require("to-ansi");
-
-// Will be removed via to-esm config file (.toesm.cjs)
-const AdmZip = require("adm-zip");
 
 const DEFAULT = {
     moduleName: "analogger",
@@ -274,6 +269,8 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
  */
 function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
     try {
+        const tar = require('tar');
+
         // Check if the input file exists
         if (!fs.existsSync(inputFile)) {
             return;
