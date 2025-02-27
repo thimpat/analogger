@@ -204,9 +204,10 @@ function getConsistentTimestamp() {
  * @param {string} index - The index to match (e.g., "01", "02", "03").
  * @param {string} extension - The file extension (e.g., "log").
  * @param archiveName
+ * @param compressionLevel
  * @param {function} deletionCallback - A callback function to handle the result.
  */
-function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archiveName, deletionCallback) {
+function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archiveName, compressionLevel, deletionCallback) {
     fs.readdir(directory, (err, files) => {
         if (err) {
             deletionCallback(err, null);
@@ -240,7 +241,7 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
 
                 if (archiveName)
                 {
-                    createTarGzArchiveSync(filePath, archiveName);
+                    createTarGzArchiveSync(filePath, archiveName, compressionLevel);
                     removeFile(filePath, deletionCallback);
                 }
                 else
@@ -259,7 +260,7 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
         if (files.length === 0) {
             deletionCallback(null, deletedFiles); // Handle empty directory
         } else {
-            files.forEach(processFile);
+            files.forEach(processFile, compressionLevel);
         }
     });
 }
@@ -269,8 +270,9 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
  *
  * @param {string} inputFile - The path to the log file to be added to the archive.
  * @param {string} archivePath - The path to the tar.gz archive.
+ * @param compressionLevel
  */
-function createTarGzArchiveSync(inputFile, archivePath) {
+function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
     try {
         // Check if the input file exists
         if (!fs.existsSync(inputFile)) {
@@ -286,7 +288,7 @@ function createTarGzArchiveSync(inputFile, archivePath) {
                 fs.copyFileSync(inputFile, destFilePath);
                 tar.c({
                     sync: true,
-                    gzip: true,
+                    gzip: { level: compressionLevel },
                     file: archivePath,
                     cwd: tempDir,
                     portable: true,
@@ -613,6 +615,7 @@ class ____AnaLogger
         this.options.logToRemoteUrl = undefined;
         this.options.logToRemoteBinaryUrl = undefined;
         this.options.compressArchives = false;
+        this.options.compressionLevel = 1;
         this.options.protocol = undefined;
         this.options.host = undefined;
         this.options.port = undefined;
@@ -644,6 +647,7 @@ class ____AnaLogger
                    addArchiveTimestamp = true,
                    addArchiveIndex = true,
                    compressArchives = false,
+                   compressionLevel = 1,
                    logToRemote = undefined,
                    logToRemoteUrl = undefined,
                    logToRemoteBinaryUrl = undefined,
@@ -672,6 +676,7 @@ class ____AnaLogger
         this.options.addArchiveTimestamp = addArchiveTimestamp;
         this.options.addArchiveIndex = addArchiveIndex;
         this.options.compressArchives = compressArchives;
+        this.options.compressionLevel = compressionLevel;
 
         this.options.requiredLogLevel = requiredLogLevel;
 
@@ -1573,7 +1578,7 @@ class ____AnaLogger
                     const archiveFileName = this.options.compressArchives ? `${filePath}.tar.gz` : "";
 
                     // Delete old archives
-                    deleteFilesWithIndex(dirname, basename, indexStr, extension, archiveFileName, (error/*, deletedFiles*/) => {
+                    deleteFilesWithIndex(dirname, basename, indexStr, extension, archiveFileName, this.options.compressionLevel, (error/*, deletedFiles*/) => {
                         if (error) {
                             console.error(`DELETION_FAILURE: Failed to delete some files`);
                         }
