@@ -2,7 +2,7 @@
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
-const tar = require('tar');
+const {c, x} = require('tar');
 /** to-esm-browser: end-remove **/
 
 
@@ -283,7 +283,7 @@ function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
             try {
                 const destFilePath = path.join(tempDir, path.basename(inputFile));
                 fs.copyFileSync(inputFile, destFilePath);
-                tar.c({
+                c({
                     sync: true,
                     gzip: { level: compressionLevel },
                     file: archivePath,
@@ -300,7 +300,7 @@ function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
         const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tar-gz-append-'));
 
         try {
-            tar.x({
+            x({
                 file: archivePath,
                 cwd: tempDir,
                 sync: true,
@@ -309,7 +309,7 @@ function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
             const destFilePath = path.join(tempDir, path.basename(inputFile));
             fs.copyFileSync(inputFile, destFilePath);
 
-            tar.c({
+            c({
                 gzip: true,
                 file: archivePath,
                 cwd: tempDir,
