@@ -6,6 +6,7 @@ anaLogger.setOptions({
     silent: false, lidLenMax: 8, logToRemote: true,
     logMaxSize: 1000,
     logMaxArchives: 5,
+    compressionLevel: 9,
     logToFile: "./logs/demo.log",
     compressArchives: true,
 });
