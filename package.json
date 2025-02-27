@@ -108,11 +108,11 @@
   },
   "dependencies": {
     "@thimpat/libutils": "^1.9.5",
-    "adm-zip": "^0.5.16",
     "commander": "^9.4.0",
     "flatted": "3.2.7",
     "node-fetch": "^3.2.10",
     "node-fetch-cjs": "npm:node-fetch@^2.6.7",
+    "tar": "^7.4.3",
     "to-ansi": "^1.4.3"
   }
 }
