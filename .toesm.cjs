@@ -1,10 +1,4 @@
 module.exports = {
-    replaceStart  : [
-        {
-            search: "const tar = require('tar');",
-            replace: "return ;"
-        }
-    ],
     replaceModules:
         {
             "node-fetch": {
