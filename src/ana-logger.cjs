@@ -2,6 +2,8 @@
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const zlib = require('zlib');
+const tar = require('tar');
 /** to-esm-browser: end-remove **/
 
 // to-ansi is also used by the browser
@@ -238,7 +240,7 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
 
                 if (archiveName)
                 {
-                    zipLogFile(filePath, archiveName);
+                    createTarGzArchiveSync(filePath, archiveName);
                     removeFile(filePath, deletionCallback);
                 }
                 else
@@ -263,26 +265,63 @@ function deleteFilesWithIndex(directory, filenamePrefix, index, extension, archi
 }
 
 /**
- * Adds a log file to a zip archive.
+ * Adds a log file to a tar.gz archive.
  *
- * @param {string} file - The path to the log file to be added to the archive.
- * @param {string} archive - The path to the zip archive.
+ * @param {string} inputFile - The path to the log file to be added to the archive.
+ * @param {string} archivePath - The path to the tar.gz archive.
  */
-function zipLogFile(file, archive) {
+function createTarGzArchiveSync(inputFile, archivePath) {
     try {
-        let zip;
-        if (!fs.existsSync(file)) {
-            return ;
+        // Check if the input file exists
+        if (!fs.existsSync(inputFile)) {
+            return;
         }
 
-        if (fs.existsSync(archive)) {
-            zip = new AdmZip(archive);
-        } else {
-            zip = new AdmZip();
+        // Create the archive if it doesn't exist, otherwise append
+        if (!fs.existsSync(archivePath)) {
+            // Create a new archive with the single file at root
+            const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tar-gz-init-'));
+            try {
+                const destFilePath = path.join(tempDir, path.basename(inputFile));
+                fs.copyFileSync(inputFile, destFilePath);
+                tar.c({
+                    sync: true,
+                    gzip: true,
+                    file: archivePath,
+                    cwd: tempDir,
+                    portable: true,
+                }, [path.basename(inputFile)]);
+            } finally {
+                fs.rmSync(tempDir, { recursive: true, force: true });
+            }
+            return;
         }
-        zip.addLocalFile(file);
-        zip.writeZip(archive);
-    } catch (e) {
+
+        // If archive exists, append
+        const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tar-gz-append-'));
+
+        try {
+            tar.x({
+                file: archivePath,
+                cwd: tempDir,
+                sync: true,
+            });
+
+            const destFilePath = path.join(tempDir, path.basename(inputFile));
+            fs.copyFileSync(inputFile, destFilePath);
+
+            tar.c({
+                gzip: true,
+                file: archivePath,
+                cwd: tempDir,
+                sync: true,
+                portable: true,
+            }, fs.readdirSync(tempDir));
+
+        } finally {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+    } catch (err) {
         console.error(`ARCHIVE_FAILURE: ${e.message}`);
     }
 }
@@ -1531,7 +1570,7 @@ class ____AnaLogger
                     const oldFileName = `${filePath}${timeStamp}${indexStr}${extension}`;
 
                     // Deduce archive name
-                    const archiveFileName = this.options.compressArchives ? `${filePath}.zip` : "";
+                    const archiveFileName = this.options.compressArchives ? `${filePath}.tar.gz` : "";
 
                     // Delete old archives
                     deleteFilesWithIndex(dirname, basename, indexStr, extension, archiveFileName, (error/*, deletedFiles*/) => {
