@@ -125,7 +125,19 @@ console.log("something");
 ### Generate an AnaLogger instance
 
 ```javascript
-const {analogger}  = require("analogger");
+// Get the class first
+const {AnaLogger}  = require("analogger");
+const analogger = new AnaLogger();
+analogger.log("something");
+```
+
+<br/>
+
+### Using main instance
+
+```javascript
+// Get the main instance directly
+const {anaLogger}  = require("analogger");
 analogger.log("something");
 ```
 
@@ -596,6 +608,41 @@ anaLogger.log({contextName: "WARN", lid: 100050, symbol: "raised_hand"}, "Test L
 
 <br/>
 
+#### Callbacks
+
+You can also set some callbacks to be called when a log is about to be displayed. 
+
+```javascript
+anaLogger.setDefaultContext({
+    /**
+     * Allow to modify the context before it is used
+     * @param context
+     */
+    onContext: function (context) {
+        context.lid = "MOD12345";
+    },
+    /**
+     * Allow to modify the raw message before it is displayed
+     * @param rawMessage
+     * @param extras
+     * @returns {string}
+     */
+    onMessage: function (rawMessage, extras) {
+        return rawMessage + " ↘";
+    },
+    /**
+     * Allow to modify the formatted message before it is displayed
+     * @param formattedMessage
+     * @param logCounter
+     * @returns {`${string}: ${string}`}
+     */
+    onOutput: function (formattedMessage, {logCounter}) {
+
+        return `${logCounter}: ${formattedMessage}`;
+    }
+});
+
+```
 
 ---
 
