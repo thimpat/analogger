@@ -18,7 +18,17 @@ anaLogger.setDefaultContext({
     "color": "#FF7F50",
     "logLevel": 1000,
     "name": "DEFAULT",
-    "id": 7
+    "id": 7,
+    onContext: function (context) {
+        context.lid = "MOD12345";
+    },
+    onMessage: function (rawMessage, extras) {
+        return rawMessage + " ↘";
+    },
+    onOutput: function (formattedMessage, {logCounter}) {
+
+        return `${logCounter}: ${formattedMessage}`;
+    }
 });
 
 anaLogger.setActiveTargets("localhost, api");
@@ -31,5 +41,5 @@ for (let i = 1; i < 100; ++i) {
     anaLogger.log({
         lid: "WEB35382",
         target: "localhost"
-    }, `${i}: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.`);
+    }, `${i}: Lorem Ipsum is simply dummy text.`);
 }
