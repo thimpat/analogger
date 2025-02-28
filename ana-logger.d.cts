@@ -287,10 +287,12 @@ declare class ____AnaLogger {
      * If the context contain a key onLogging that is a function,
      * execute
      * @param context
+     * @param data
      * @param extras
+     * @param callbackName
      * @returns {*}
      */
-    checkOnLogging(context: any, extras: any): any;
+    checkOnLogging(context: any, data: any, extras: any, callbackName: any): any;
     /**
      * Display log following template
      * @param context

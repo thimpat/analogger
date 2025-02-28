@@ -1870,20 +1870,25 @@ class ____AnaLogger
      * If the context contain a key onLogging that is a function,
      * execute
      * @param context
+     * @param data
      * @param extras
+     * @param callbackName
      * @returns {*}
      */
-    checkOnLogging(context, extras)
+    checkOnLogging(context, data, extras, callbackName )
     {
+        if (!callbackName) {
+            return ;
+        }
         try
         {
-            let callback = context.onLogging;
+            let callback = context[callbackName];
             if (typeof callback !== "function")
             {
                 return;
             }
 
-            return callback.call(this, context, extras);
+            return callback.call(this, data, extras);
         }
         catch (e)
         {
@@ -1901,6 +1906,7 @@ class ____AnaLogger
             let message = "";
             this.applySymbolByName(context);
 
+            this.checkOnLogging(context, context, arguments, "onContext");
             if (!this.isTargetAllowed(context.target))
             {
                 return;
@@ -1917,6 +1923,10 @@ class ____AnaLogger
             }
 
             // Clone arguments without the context (= the first argument passed) to generate the message
+            const newMessages = this.checkOnLogging(context, arguments && arguments.length > 1? arguments[1] : arguments, arguments,"onMessage");
+            if (newMessages !== undefined) {
+                arguments[1] = newMessages;
+            }
             let args = Array.prototype.slice.call(arguments, 1 /* => Ignore arguments[0] = context */);
 
             message = this.convertArgumentsToText(args);
@@ -1931,13 +1941,15 @@ class ____AnaLogger
 
             ++this.logCounter;
 
-            let proceedFurther;
-
-            proceedFurther = this.checkOnLogging(context, {message, text, args, logCounter: this.logCounter});
+            let proceedFurther = this.checkOnLogging(context, text, {message, args, logCounter: this.logCounter}, "onOutput");
             // If one of the plugins returns false, no further operation will follow
             if (proceedFurther === false)
             {
                 return;
+            }
+            else if (typeof proceedFurther === 'string' || proceedFurther instanceof String)
+            {
+                text = proceedFurther;
             }
 
             proceedFurther = this.checkPlugins(context, {message, text, args, logCounter: this.logCounter});
