@@ -576,8 +576,8 @@ The "Testing log 2" log will not appear in the console or the terminal.
 ### setDefaultContext()
 
 
-You can apply a default settings for every output with setDefaultContext 
-
+You can apply a default settings for every output with setDefaultContext.
+**All contexts inherit from the default context.**
 
 ##### Examples
 
