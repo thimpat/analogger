@@ -416,20 +416,13 @@ class ____AnaLogger
         hideHookMessage: false
     };
 
-    #realConsoleLog = console.log;
-    #realConsoleInfo = console.info;
-    #realConsoleWarn = console.warn;
-    #realConsoleError = console.error;
-    #realConsoleDebug = console.debug;
-    #realConsoleTable = console.table;
+    static Console = null;
 
     #overridenMap = {
         log  : false,
         info : false,
         warn : false,
         error: false,
-        debug: false,
-        table: false,
     };
 
     static ALIGN = {
@@ -468,10 +461,21 @@ class ____AnaLogger
 
         this.setOptions(this.options);
 
-        this.rawLog = this.#realConsoleLog;
-        this.rawInfo = this.#realConsoleInfo;
-        this.rawWarn = this.#realConsoleWarn;
-        this.rawError = this.#realConsoleError;
+        if (!____AnaLogger.Console) {
+            ____AnaLogger.Console = {
+                log: console.log,
+                info: console.info,
+                warn: console.warn,
+                error: console.error,
+                debug: console.debug,
+                table: console.table
+            }
+        }
+
+        this.rawLog = ____AnaLogger.Console.log;
+        this.rawInfo = ____AnaLogger.Console.info;
+        this.rawWarn = ____AnaLogger.Console.warn;
+        this.rawError = ____AnaLogger.Console.error;
 
         this.ALIGN = ____AnaLogger.ALIGN;
         this.ENVIRONMENT_TYPE = ____AnaLogger.ENVIRONMENT_TYPE;
@@ -775,7 +779,7 @@ class ____AnaLogger
             }
 
             /** to-esm-browser: add
-             this.#realConsoleLog("LogToFile is not supported in this environment. ")
+             ____AnaLogger.Console.log("LogToFile is not supported in this environment. ")
              **/
         }
 
@@ -1758,23 +1762,23 @@ class ____AnaLogger
         const contextLevel = context.contextLevel || DEFAULT_LOG_LEVELS.LOG;
         if (contextLevel >= DEFAULT_LOG_LEVELS.ERROR)
         {
-            this.#realConsoleError(...res);
+            ____AnaLogger.Console.error(...res);
         }
         else if (contextLevel >= DEFAULT_LOG_LEVELS.WARN)
         {
-            this.#realConsoleWarn(...res);
+            ____AnaLogger.Console.warn(...res);
         }
         else if (contextLevel >= DEFAULT_LOG_LEVELS.INFO)
         {
-            this.#realConsoleInfo(...res);
+            ____AnaLogger.Console.info(...res);
         }
         else if (contextLevel >= DEFAULT_LOG_LEVELS.LOG)
         {
-            this.#realConsoleLog(...res);
+            ____AnaLogger.Console.log(...res);
         }
         else if (contextLevel >= DEFAULT_LOG_LEVELS.DEBUG)
         {
-            this.#realConsoleDebug(...res);
+            ____AnaLogger.Console.debug(...res);
         }
 
     }
@@ -2125,7 +2129,7 @@ class ____AnaLogger
 
         if (context.raw)
         {
-            this.#realConsoleLog(...args);
+            ____AnaLogger.Console.log(...args);
             return;
         }
 
@@ -2161,7 +2165,7 @@ class ____AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.#realConsoleLog("AnaLogger: Hook placed on console.error");
+            ____AnaLogger.Console.log("AnaLogger: Hook placed on console.error");
         }
         this.#overridenMap.error = true;
         console.error = this.onDisplayError.bind(this);
@@ -2171,12 +2175,12 @@ class ____AnaLogger
     {
         try
         {
-            console.rawLog = this.#realConsoleLog;
-            console.raw = this.#realConsoleLog;
+            console.rawLog = ____AnaLogger.Console.log;
+            console.raw = ____AnaLogger.Console.log;
 
-            console.rawInfo = this.#realConsoleInfo;
-            console.rawWarn = this.#realConsoleWarn;
-            console.rawError = this.#realConsoleError;
+            console.rawInfo = ____AnaLogger.Console.info;
+            console.rawWarn = ____AnaLogger.Console.warn;
+            console.rawError = ____AnaLogger.Console.error;
 
             console.logHistory = this.logHistory;
 
@@ -2203,7 +2207,7 @@ class ____AnaLogger
     {
         if (!this.options.hideHookMessage)
         {
-            this.#realConsoleLog("AnaLogger: Hook placed on console.log");
+            ____AnaLogger.Console.log("AnaLogger: Hook placed on console.log");
         }
 
         [{log}, {info}, {warn},].forEach(function (methodObj)
@@ -2226,7 +2230,7 @@ class ____AnaLogger
 
     removeOverrideError()
     {
-        console.error = this.#realConsoleError;
+        console.error = ____AnaLogger.Console.error;
         this.#overridenMap.error = false;
     }
 
@@ -2234,19 +2238,19 @@ class ____AnaLogger
     {
         if (log)
         {
-            console.log = this.#realConsoleLog;
+            console.log = ____AnaLogger.Console.log;
             this.#overridenMap.log = false;
         }
 
         if (info)
         {
-            console.info = this.#realConsoleInfo;
+            console.info = ____AnaLogger.Console.info;
             this.#overridenMap.info = false;
         }
 
         if (warn)
         {
-            console.warn = this.#realConsoleWarn;
+            console.warn = ____AnaLogger.Console.warn;
             this.#overridenMap.warn = false;
         }
 
@@ -2271,13 +2275,13 @@ class ____AnaLogger
     {
         if (!this.#overridenMap.log)
         {
-            this.#realConsoleTable(...args);
+            ____AnaLogger.Console.table(...args);
             return;
         }
 
         const currentLog = console.log;
-        console.log = this.#realConsoleLog;
-        this.#realConsoleTable(...args);
+        console.log = ____AnaLogger.Console.log;
+        ____AnaLogger.Console.table(...args);
         console.log = currentLog;
     }
 
@@ -2424,8 +2428,7 @@ class ____AnaLogger
 
     static generateInstance()
     {
-        const analogger = new ____AnaLogger();
-        return analogger;
+        return new ____AnaLogger();
     }
 
     /**

@@ -6,6 +6,7 @@ declare const __AnaLogger: typeof ____AnaLogger;
  */
 declare class ____AnaLogger {
     static "__#1@#instances": any[];
+    static Console: any;
     static ALIGN: {
         LEFT: string;
         RIGHT: string;
@@ -54,22 +55,10 @@ declare class ____AnaLogger {
     originalFormatFunction: string;
     errorTargetHandler: any;
     errorUserTargetHandler: any;
-    rawLog: {
-        (...data: any[]): void;
-        (message?: any, ...optionalParams: any[]): void;
-    };
-    rawInfo: {
-        (...data: any[]): void;
-        (message?: any, ...optionalParams: any[]): void;
-    };
-    rawWarn: {
-        (...data: any[]): void;
-        (message?: any, ...optionalParams: any[]): void;
-    };
-    rawError: {
-        (...data: any[]): void;
-        (message?: any, ...optionalParams: any[]): void;
-    };
+    rawLog: any;
+    rawInfo: any;
+    rawWarn: any;
+    rawError: any;
     ALIGN: {
         LEFT: string;
         RIGHT: string;
