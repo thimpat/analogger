@@ -94,7 +94,7 @@
     "eslint": "^8.8.0",
     "genserve": "^5.4.7",
     "glob": "^8.0.3",
-    "html-to-image": "^1.10.8",
+    "html-to-image": "^1.11.13",
     "jsdom": "19.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^10.2.0",
