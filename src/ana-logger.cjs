@@ -2341,7 +2341,20 @@ class ____AnaLogger
         console.log = currentLog;
     }
 
-    takeScreenshot(context = {elementId: "body", quality: 0.95, canvasHeight: 480, canvasWidth: 640}) {
+    /**
+     * Takes a screenshot of the specified DOM element.
+     *
+     * @param {Object} context - The context for the screenshot.
+     * @param {string} context.selector - The CSS selector of the element to capture.
+     * @param {number} context.quality - The quality of the screenshot (0 to 1).
+     * @param {number} context.canvasHeight - The height of the canvas.
+     * @param {number} context.canvasWidth - The width of the canvas.
+     * @param {("Png"|"Jpeg"|"Svg"|"Blob"|"Canvas"|"PixelData")} context.imageType - The type of the image
+     * @param {number} context.width Width in pixels to be applied to DOM node before rendering.
+     * @param {number} context.height Height in pixels to be applied to the DOM node before rendering.
+     * @param {number} context.pixelRatio
+     */
+    takeScreenshot(context = {selector: "body", quality: 0.95, canvasHeight: 480, canvasWidth: 640}) {
         return new Promise((resolve, reject) => {
             if (!this.isBrowser()) {
                 return;
@@ -2355,9 +2368,9 @@ class ____AnaLogger
                 return;
             }
 
-            const {elementId, quality, canvasHeight, canvasWidth} = context;
+            const {selector, quality, canvasHeight, canvasWidth} = context;
 
-            const $div = document.querySelector(elementId);
+            const $div = document.querySelector(selector);
             const options = {
                 quality, canvasHeight, canvasWidth
             }
