@@ -5,7 +5,7 @@ declare const __AnaLogger: typeof ____AnaLogger;
  * @class ____AnaLogger
  */
 declare class ____AnaLogger {
-    static "__#1@#instances": any[];
+    static "__#2@#instances": any[];
     static Console: any;
     static ALIGN: {
         LEFT: string;
@@ -99,7 +99,7 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname }?: any): void;
     EOL: string;
     getOptions(): {
         hideHookMessage: boolean;
@@ -336,29 +336,10 @@ declare class ____AnaLogger {
     info(...args: any[]): void;
     warn(...args: any[]): void;
     table(...args: any[]): void;
-    /**
-     * Takes a screenshot of the specified DOM element.
-     *
-     * @param {Object} context - The context for the screenshot.
-     * @param {string} context.selector - The CSS selector of the element to capture.
-     * @param {number} context.quality - The quality of the screenshot (0 to 1).
-     * @param {number} context.canvasHeight - The height of the canvas.
-     * @param {number} context.canvasWidth - The width of the canvas.
-     * @param {("Png"|"Jpeg"|"Svg"|"Blob"|"Canvas"|"PixelData")} context.imageType - The type of the image
-     * @param {number} context.width Width in pixels to be applied to DOM node before rendering.
-     * @param {number} context.height Height in pixels to be applied to the DOM node before rendering.
-     * @param {number} context.pixelRatio
-     */
-    takeScreenshot(context?: {
-        selector: string;
-        quality: number;
-        canvasHeight: number;
-        canvasWidth: number;
-        imageType: ("Png" | "Jpeg" | "Svg" | "Blob" | "Canvas" | "PixelData");
-        width: number;
-        height: number;
-        pixelRatio: number;
-    }): Promise<any>;
+    /** to-esm-browser: add
+     **/
+    takeScreenshotWithImageCapture(): Promise<any>;
+    takeScreenshot(pluginOptions?: {}): void;
     alert(...args: any[]): void;
     assert(condition: any, expected?: boolean, ...args: any[]): boolean;
     /**
