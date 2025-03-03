@@ -113,7 +113,15 @@ import {anaLogger} from "./node_modules/analogger/dist/analogger-browser.min.mjs
 ### Start logging with AnaLogger
 
 ```javascript
+const {anaLogger}  = require("analogger");
+anaLogger.log("something");
+```
+
+### Start logging with AnaLogger and override the console
+
+```javascript
 const {AnaLogger}  = require("analogger");
+// This call will override the console methods
 AnaLogger.startLogger();
 
 // Use console method with new formatting
@@ -122,7 +130,9 @@ console.log("something");
 
 <br/>
 
-### Generate an AnaLogger instance
+### Generate another AnaLogger instance
+If you want to have different logger for with different purposes, you can create multiple instances.
+You may want to have a looger that writes to a file specific information, while another one sends its logs to a remote server.
 
 ```javascript
 // Get the class first
@@ -144,6 +154,8 @@ analogger.log("something");
 <br/>
 
 ### Getting AnaLogger main instance
+
+Now, that you have multiple instances, you may want to retrieve the main instance by calling the getInstance method.
 
 ```javascript
 const {AnaLogger}  = require("analogger");
@@ -414,8 +426,7 @@ anaLogger.log({lid: 1000}, `Example 1`)
 ```
 
 ```javascript
-// See in the screenshot section below how to enable the plugin
-anaLogger.lid({takeScreenshot: true, lid: 1000}, `Example 1`)
+anaLogger.lid({lid: 1000}, `Example 1`)
 ```
 
 ```shell
@@ -537,7 +548,7 @@ console.log({raw: true}, `Example 2`); // <= Will use native format
 
 #### Contexts
 
-A context allows grouping the logs by functionality by assigning them some colour.
+A context allows grouping the logs by functionality.
 
 
 ##### Examples
@@ -901,7 +912,7 @@ See: https://www.npmjs.com/package/remote-logging
 
 You can take a screenshot via the "html-to-image" plugin (integrated in the module).
 
-> **"html-to-image"** is an external npm package that this module uses to take screenshots.
+> **"html-to-image"** is an external npm package this module uses to take screenshots.
 
 <br/>
 
@@ -922,202 +933,18 @@ $> analogger --port 8754
 
 HTML (Client-Side)
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Demo</title>
-    <!-- Theme file available in node_modules/analogger/dist/ -->
-    <link rel="stylesheet" href="./analogger.min.css">
-    <style>
-        .analogger {
-            height: 340px;
-            width: 420px;
-        }
-
-        .image-container
-        {
-            display: block;
-            background: rgb(222, 199, 189);
-            position: absolute;
-            height: 100%;
-            left: 496px;
-            overflow: auto;
-            text-align: right;
-            right: 0;
-            top: 0;
-            bottom: 0;
-        }
-
-        .screenshot-container img
-        {
-            height: 340px;
-            width: 420px;
-        }
-    </style>
-</head>
-<body>
-
-<button id="send-to-remote" class="add-button">Send log to remote</button>
-<button id="take-screenshot" class="add-button">Take a screenshot</button>
-
-<!-- Client logging view (We'll be sending logs to both this view and the remote ) -->
-<div id="analogger" class="analogger">
-</div>
-
-<!-- This file is in the AnaLogger module_directory.  
-Note that you could use a version from the html-to-image module directly at:
-https://www.npmjs.com/package/html-to-image
- -->
-<script src="browser/html-to-image.js"></script>
-
-<!-- For this file, see 4. Link AnaLogger to the remote  -->
-<script type="module" src="./demo-remote.mjs"></script>
-
-</body>
-</html>
-```
-
 <br/>
 
 4. **Link AnaLogger to the remote**
 
 <br/>
 
-JavaScript (**./demo-remote.mjs**)
 ```javascript
 // Load the AnaLogger library ( Available in ./node_modules/analogger/browser/ )
 import {anaLogger} from "./browser/ana-logger.mjs";
 
-// Register plugin
-import {PLUGIN_NAME} from "./browser/html-to-image-plugin.mjs";
-
-/**
- * Create a container to draw the screenshot
- * @returns {HTMLDivElement}
- */
-const buildImageContainer = () =>
-{
-    const item = document.createElement("div");
-    document.body.appendChild(item);
-    item.classList.add("image-container");
-    item.id = "image-container";
-    return item;
-};
-
-/**
- * AnaLogger is about to trigger a screenshot using the html-to-image module
- * https://www.npmjs.com/package/html-to-image
- * @returns {boolean}
- */
-const takeScreenshot = ($container) =>
-{
-    try
-    {
-        document.getElementById("image-container").style.display = "none";
-        const box = document.body;
-
-        let canvasWidth = box.offsetWidth;
-        let canvasHeight = box.offsetHeight;
-
-        const desiredHeight = 380;
-        if (canvasHeight > desiredHeight)
-        {
-            canvasWidth = Math.floor(desiredHeight / canvasHeight * canvasWidth);
-            canvasHeight = desiredHeight;
-        }
-
-        // Trigger the plugin has its name is passed to the context
-        anaLogger.log({
-            lid                                : 1234,          // <= Random number
-            [PLUGIN_NAME] /** takeScreenshot */: {
-                /**
-                 * Tell the plugin from which div to generate the screenshot
-                 */
-                divSource: box,
-                /**
-                 * AnaLogger has called the plugin, and we have the data image,
-                 * however data have not been uploaded yet
-                 * @returns {boolean}
-                 * @param event
-                 */
-                onScreenshot: function displayScreenshotInDom(event)
-                {
-                    // Add image to DOM
-                    document.getElementById("image-container").style.display = "block";
-                    const img = new Image();
-                    img.src = event.imageData;
-                    $container.append(img);
-                },
-                /**
-                 * The server has saved the screenshot on the machine host.
-                 * @param response
-                 * @returns {boolean}
-                 */
-                onResponse: function ({serverResponse})
-                {
-                    const {message, success, urlPath} = serverResponse;
-
-                    if (!success)
-                    {
-                        console.error({lid: 3007}, "Something went wrong server-side", message, urlPath)
-                        return false;
-                    }
-                    console.log({lid: 3008}, message, urlPath)
-                    return true;
-                },
-                options   : {
-                    canvasHeight,
-                    canvasWidth,
-                }
-            }
-        }, `Taking screenshot...`);
-
-        return true;
-    }
-    catch (e)
-    {
-        console.error({lid: 4321}, e.message);
-    }
-
-    return false;
-};
-
-const init = () =>
-{
-    try
-    {
-        let $container = buildImageContainer();
-
-        anaLogger.validatePlugin(PLUGIN_NAME);
-        anaLogger.setOptions({
-            logToRemote: true,
-            logToRemoteUrl: "http://192.168.2.12:8754/analogger",               // To log standard entries (log, errors)
-            logToRemoteBinaryUrl: "http://192.168.2.12:8754/uploaded",          // To process screenshot data
-            logToDom: true
-        });
-        
-        anaLogger.log({lid: 1232}, `AnaLogger set up to work with remote`);
-
-        document.getElementById("send-to-remote").addEventListener("click", () =>
-        {
-            anaLogger.log({lid: 1232}, `Sending a random number to the remote: ${Math.random()}`);
-        });
-
-        document.getElementById("take-screenshot").addEventListener("click", () =>
-        {
-            takeScreenshot($container)
-        });
-    }
-    catch (e)
-    {
-        anaLogger.error({lid: 4321}, e.message);
-    }
-};
-
-init();
-
+anaLogger.setOptions({logToRemote: "http://localhost:8754/analogger", loadHtmlToImage: true});
+anaLogger.takeScreenshot({selector: "body"});
 ```
 
 <br/>
@@ -1154,22 +981,19 @@ anaLogger.addPlugin("doSomething", doSomething);
 │
 └───📁 src
 │   │
-│   └─ 📝 ana-logger.cjs                         ⇽ AnaLogger Node version for CommonJs (60.1k)
+│   └─ 📝 ana-logger.cjs                         ⇽ AnaLogger Node version for CommonJs
 │   
 └───📁 esm
 │   │
-│   └─ 📝 ana-logger.mjs                         ⇽ AnaLogger Node version for ES Modules (62.0k)
+│   └─ 📝 ana-logger.mjs                         ⇽ AnaLogger Node version for ES Modules
 │   
 └───📁 browser (ESM)
-│   │─ 📝 ana-logger.mjs                         ⇽ AnaLogger browser version (62.0k)
-│   │─ 📝 html-to-image-plugin.mjs               ⇽ AnaLogger plugin (3.7k)
-│   └─ 📝 html-to-image.js                       ⇽ Original plugin minified (required for the above plugin to work)
+│   │─ 📝 ana-logger.mjs                         ⇽ AnaLogger browser version
 │ 
 └───📁 dist (minified)
-│   │─ 📝 analogger.min.css                      ⇽ Default Theme file (1.9k)
-│   │─ 📝 ana-light.min.css                      ⇽ Another Theme file (2.8k)
-│   │─ 📝 analogger-browser.min.mjs              ⇽ AnaLogger browser version (30.8k)
-│   │─ 📝 html-to-image-plugin.min.mjs           ⇽ AnaLogger plugin (30.8k)
+│   │─ 📝 analogger.min.css                      ⇽ Default Theme file
+│   │─ 📝 ana-light.min.css                      ⇽ Another Theme file
+│   │─ 📝 analogger-browser.min.mjs              ⇽ AnaLogger browser version
 
 ```
 
