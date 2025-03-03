@@ -99,7 +99,7 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname, enableHtmlToImage }?: any): void;
     EOL: string;
     getOptions(): {
         hideHookMessage: boolean;
@@ -336,6 +336,12 @@ declare class ____AnaLogger {
     info(...args: any[]): void;
     warn(...args: any[]): void;
     table(...args: any[]): void;
+    takeScreenshot(context?: {
+        elementId: string;
+        quality: number;
+        canvasHeight: number;
+        canvasWidth: number;
+    }): Promise<any>;
     alert(...args: any[]): void;
     assert(condition: any, expected?: boolean, ...args: any[]): boolean;
     /**
