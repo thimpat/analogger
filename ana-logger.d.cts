@@ -99,7 +99,7 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname, enableHtmlToImage }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
     getOptions(): {
         hideHookMessage: boolean;
