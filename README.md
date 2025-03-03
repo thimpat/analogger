@@ -131,8 +131,8 @@ console.log("something");
 <br/>
 
 ### Generate another AnaLogger instance
-If you want to have different logger for with different purposes, you can create multiple instances.
-You may want to have a looger that writes to a file specific information, while another one sends its logs to a remote server.
+If you want to have different logger with different purposes, you can create multiple instances.
+You may want to have a logger that writes to a file specific information, while another one sends its logs to a remote server for instance.
 
 ```javascript
 // Get the class first
