@@ -37,7 +37,8 @@ anaLogger.log({lid: "WEB35382", target: "localhost"}, `Log with target`);
 anaLogger.log({lid: "WEB35382", color: "green", target: "localhost"}, `Log without target`);
 
 anaLogger.setContext("TEST", { color: "#5d8a6b", symbol: "email", name: "TEST" });
-anaLogger.log({contextName: "TEST", name: "TOTO", target: "localhost"}, `Test Log example TEST`);
+anaLogger.log({contextName: "TEST", target: "localhost"}, `Test Log example TEST`);
+anaLogger.log({contextName: "TEST", target: "localhost"}, `Test Log example TEST 2`);
 
 // Check archive
 for (let i = 1; i < 10; ++i) {
