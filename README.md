@@ -544,11 +544,38 @@ console.log({raw: true}, `Example 2`); // <= Will use native format
 ---
 
 
-### setContexts()
+### setContext()
+
+#### Context
+
+## Using `setContext` Method
+
+The `setContext` method allows you to register a custom context with your `AnaLogger` instance. 
+This context can then be used to provide specific formatting in your log messages.
+
+### Example
+
+```javascript
+// Define a context
+anaLogger.setContext('EMAIL_WORK', {
+    lid: 1234,
+    symbol: 'email',
+    color: 'orange'
+});
+
+// Use the logger with the new context
+anaLogger.log({lid: "EM1234", contextName: "EMAIL_WORK"}, 'This is a log message with the custom context.');
+anaLogger.log({lid: "EM1235", contextName: "EMAIL_WORK"}, 'This is another log message using the same formatting as the above.');
+
+```
+---
+
+
+### setContexts() 
 
 #### Contexts
 
-A context allows grouping the logs by functionality.
+Context allow grouping logs by functionality.
 
 
 ##### Examples
@@ -557,6 +584,7 @@ A context allows grouping the logs by functionality.
 const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 const DEFAULT_LOG_TARGETS = {ALL: "ALL", DEV1: "TOM", DEV2: "TIM", USER: "USER"};
 
+// LOG_CONTEXTS will be modified by setContexts
 anaLogger.setContexts(LOG_CONTEXTS);
 
 anaLogger.log(LOG_CONTEXTS.C1, `Test Log example C1`);
@@ -675,6 +703,7 @@ const LOG_TARGETS = ["GROUP1", "GROUP2", "TOM", "TIM"/*, "ALL", "USER"*/];
 // Contexts define how the log should be seen 
 const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 
+// LOG_CONTEXTS will be modified by setContexts
 anaLogger.setContexts(LOG_CONTEXTS);
 
 // Allowed targets = "ALL", "TOM", "TIM", "USER"
