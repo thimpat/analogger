@@ -938,7 +938,7 @@ class ____AnaLogger
         }
         catch (e)
         {
-            console.rawError(e.message);
+            ____AnaLogger.Console.error(`ANALOGGER_FAILURE_1001: ${e.message}`);
         }
 
         return "";
@@ -983,7 +983,7 @@ class ____AnaLogger
         }
         catch (e)
         {
-            console.rawError(e.message);
+            ____AnaLogger.Console.error(`ANALOGGER_FAILURE_1002: ${e.message}`);
         }
 
         return error.message;
@@ -1028,7 +1028,7 @@ class ____AnaLogger
         }
         catch (e)
         {
-            console.rawError(e);
+            ____AnaLogger.Console.error(`ANALOGGER_FAILURE_1003: ${e.message}`);
         }
 
     }
@@ -1648,7 +1648,7 @@ class ____AnaLogger
             fs.appendFileSync(this.options.logToFilePath, text + this.EOL);
         } catch (e) {
             /* istanbul ignore next */
-            console.rawError("LOG_TO_FILE_FAILURE: ", e.message);
+            ____AnaLogger.Console.error("LOG_TO_FILE_FAILURE: ", e.message);
         }
     }
 
@@ -1675,7 +1675,7 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            console.rawError("LOG_TO_REMOTE_FAILURE: ", e.message);
+            ____AnaLogger.Console.error("LOG_TO_REMOTE_FAILURE: ", e.message);
         }
     }
 
@@ -1717,7 +1717,7 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            console.rawError("BINARY_TO_REMOTE_FAILURE: ", e.message);
+            ____AnaLogger.Console.error("BINARY_TO_REMOTE_FAILURE: ", e.message);
         }
     }
 
@@ -2067,7 +2067,7 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            console.rawError("AnaLogger:", e.message);
+            ____AnaLogger.Console.error(`ANALOGGER_FAILURE_1004: ${e.message}`);
         }
     }
 
