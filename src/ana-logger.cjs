@@ -2093,6 +2093,68 @@ class ____AnaLogger
             options.hasOwnProperty("lid");
     }
 
+    stringToObject(str) {
+        try {
+            str = str.trim();
+
+            // Check for brackets and remove them if present
+            if (str.startsWith("{") && str.endsWith("}")) {
+                str = str.slice(1, -1).trim();
+            }
+
+            // If the string is empty, return an empty object
+            if (!str) {
+                return {};
+            }
+
+            const obj = {};
+            const keyValuePairs = str.split(",");
+
+            for (const pair of keyValuePairs) {
+                const parts = pair.trim().split(":");
+
+                if (parts.length < 2) {
+                    // Handle cases like "key5", "fd"
+                    if (parts.length===2) {
+                        const cleanedKey = parts[0].trim().replace(/^['"]|['"]$/g, "");
+                        const cleanedValue = parts[1].trim().replace(/^['"]|['"]$/g, "");
+                        obj[cleanedKey] = cleanedValue;
+                    }
+                    else if (parts.length===1 && Object.keys(obj).length > 0) {
+                        const lastKey = Object.keys(obj).pop();
+                        if (obj[lastKey] instanceof Array) {
+                            obj[lastKey].push(parts[0].trim().replace(/^['"]|['"]$/g, ""));
+                        }
+                        else {
+                            obj[lastKey] = [obj[lastKey], parts[0].trim().replace(/^['"]|['"]$/g, "")];
+                        }
+                    }
+                    continue;
+                }
+
+                const key = parts[0];
+                const value = parts.slice(1).join(":"); // Handle values with colons
+
+                // Remove leading/trailing quotes from keys and values
+                const cleanedKey = key.trim().replace(/^['"]|['"]$/g, "");
+                const cleanedValue = value.trim().replace(/^['"]|['"]$/g, "");
+
+                // Attempt to parse the value as a number if it's numeric
+                if (!isNaN(cleanedValue) && !isNaN(parseFloat(cleanedValue))) {
+                    obj[cleanedKey] = parseFloat(cleanedValue);
+                }
+                else {
+                    obj[cleanedKey] = cleanedValue;
+                }
+            }
+
+            return obj;
+        }
+        catch (error) {
+            return null;
+        }
+    }
+
     /**
      * Convert a string into a Context object if possible
      * TODO: To implement in next version
@@ -2106,6 +2168,20 @@ class ____AnaLogger
             if (str.toLowerCase().indexOf("lid:") !== 0)
             {
                 return str;
+            }
+
+            const obj = this.stringToObject(str);
+            if (obj) {
+                str = obj;
+            }
+        }
+
+        if (typeof str === 'object' && !Array.isArray(str) && str !== null) {
+            if (str.contextName) {
+                const obj =  this.#contexts[str.contextName];
+                if (obj) {
+                    str = Object.assign({}, obj, str);
+                }
             }
         }
 

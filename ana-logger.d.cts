@@ -295,6 +295,7 @@ declare class ____AnaLogger {
      * @returns {boolean}
      */
     isExtendedOptionsPassed(options: any): boolean;
+    stringToObject(str: any): {};
     /**
      * Convert a string into a Context object if possible
      * TODO: To implement in next version
