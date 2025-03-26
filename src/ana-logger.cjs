@@ -2067,7 +2067,8 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            ____AnaLogger.Console.error(`ANALOGGER_FAILURE_1004: ${e.message}`);
+            // Don't use the logger to avoid infinite loop
+            // Silently fail
         }
     }
 
