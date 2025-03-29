@@ -125,13 +125,17 @@ const symbolNames = {
     hammer_and_pick           : "⚒",
     hand                      : "✋",
     hearts                    : "♥",
+    identification_card       : "🆔",
     infinity                  : "♾",
     information               : "ℹ",
+    key                       : "🔑",
     left_right_arrow          : "↔",
     leftwards_arrow_with_hook : "↩",
+    lock                      : "🔒",
     male_sign                 : "♂",
     minus_sign                : "➖",
     no_entry                  : "⛔",
+    old_key                   : "🗝️",
     partly_sunny              : "⛅",
     pencil                    : "✏",
     phone                     : "☎",
@@ -144,6 +148,7 @@ const symbolNames = {
     relaxed                   : "☺",
     rewind                    : "⏪",
     scissors                  : "✂",
+    shield                    : "🛡️",
     snowman                   : "☃",
     spades                    : "♠",
     sparkles                  : "✨",
@@ -153,6 +158,7 @@ const symbolNames = {
     trademark                 : "™",
     triangle_with_vertical_bar: "⏯",
     umbrella                  : "☔",
+    unlock                    : "🔓",
     vertical_bars             : "⏸",
     watch                     : "⌚",
     white_frowning_face       : "☹",
@@ -162,7 +168,7 @@ const symbolNames = {
     wheelchair                : "♿",
     white_circle              : "⚪",
     writing_hand              : "✍",
-};
+}
 
 // --------------------------------------------------
 // Helpers
