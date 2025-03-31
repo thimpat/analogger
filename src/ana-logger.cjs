@@ -109,6 +109,9 @@ const symbolNames = {
     cloud_and_rain            : "⛈",
     clubs                     : "♣",
     coffee                    : "☕",
+    computer                 : "💻",
+    computer_disk             : "💽",
+    computer_mouse            : "🖱️",
     copyright                 : "©",
     cross                     : "❌",
     desktop_computer          : "🖥️",
@@ -124,6 +127,7 @@ const symbolNames = {
     female_sign               : "♀",
     fire                      : "🔥",
     fist                      : "✊",
+    floppy_disk              : "💾",
     fuel_pump                 : "⛽",
     gear                      : "⚙",
     hammer_and_pick           : "⚒",
@@ -144,6 +148,7 @@ const symbolNames = {
     partly_sunny              : "⛅",
     pencil                    : "✏",
     phone                     : "☎",
+    pile_of_poo              : "💩",
     plus_sign                 : "➕",
     question                  : "❔",
     radioactive               : "☢",
@@ -2134,8 +2139,7 @@ class ____AnaLogger
                     // Handle cases like "key5", "fd"
                     if (parts.length===2) {
                         const cleanedKey = parts[0].trim().replace(/^['"]|['"]$/g, "");
-                        const cleanedValue = parts[1].trim().replace(/^['"]|['"]$/g, "");
-                        obj[cleanedKey] = cleanedValue;
+                        obj[cleanedKey] = parts[1].trim().replace(/^['"]|['"]$/g, "");
                     }
                     else if (parts.length===1 && Object.keys(obj).length > 0) {
                         const lastKey = Object.keys(obj).pop();
