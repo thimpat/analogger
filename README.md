@@ -704,6 +704,12 @@ const LOG_TARGETS = ["GROUP1", "GROUP2", "TOM", "TIM"/*, "ALL", "USER"*/];
 // Contexts define how the log should be seen 
 const LOG_CONTEXTS = {STANDARD: null, TEST: {color: "#B18904", symbol: "⏰"}, C1: null, C2: null, C3: null, DEFAULT: {}}
 
+// Important. Set the default behaviour.
+// By default, no log will be displayed when the target is missing from `anaLogger.log`
+anaLogger.setDefaultContext({
+    target: DEFAULT_LOG_TARGETS.NONE // or "NONE" (value can be "ALL", "NONE", "USER")
+})
+
 // LOG_CONTEXTS will be modified by setContexts
 anaLogger.setContexts(LOG_CONTEXTS);
 
@@ -726,7 +732,7 @@ anaLogger.log({target: "TOM"}, `You will see this`);
 anaLogger.log({target: "TIM"}, `You will not see this`);
 anaLogger.log({target: "GROUP1"}, `You will see this`);
 
-// To work, we should have called `anaLogger.setTargets(["NonDefinedTarget"])`
+// By default, the system will not display logs for non-targeted users (@see setDefaultContext above)
 anaLogger.setActiveTarget("NonDefinedTarget");
 anaLogger.log({lid: "WEB35388"}, `You will not see this`);
 anaLogger.log({lid: "WEB35388", target: "NonDefinedTarget"}, `You will not see this`);
