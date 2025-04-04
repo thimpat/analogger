@@ -1303,6 +1303,11 @@ class ____AnaLogger
      */
     setActiveTargets(targets = null)
     {
+        if (targets === undefined || targets === null) {
+            this.activeTargets = [DEFAULT_LOG_TARGETS.ALL];
+            return;
+        }
+
         // If targets is a function, call it to get the actual targets
         if (typeof targets === "function") {
             targets = targets.call(this);
@@ -1397,6 +1402,11 @@ class ____AnaLogger
         }
 
         if (target === DEFAULT_LOG_TARGETS.ALL)
+        {
+            return true;
+        }
+
+        if (this.getActiveTarget() === DEFAULT_LOG_TARGETS.ALL)
         {
             return true;
         }
