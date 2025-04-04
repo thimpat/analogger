@@ -33,7 +33,8 @@ const {
 
 const DEFAULT_LOG_TARGETS = {
     ALL : "ALL",
-    USER: "USER"
+    USER: "USER",
+    NONE: "NONE"
 };
 
 const DEFAULT_LOG_LEVELS = {
@@ -469,10 +470,10 @@ class ____AnaLogger
     logCounter = 0;
 
     #contexts = [];
-    #targets = {};
+    #targets = {...DEFAULT_LOG_TARGETS};
     #levels = {};
 
-    activeTargets = [];
+    activeTargets = [Object.values(DEFAULT_LOG_TARGETS)];
 
     indexColor = 0;
 
@@ -1316,17 +1317,27 @@ class ____AnaLogger
             return;
         }
 
+        const filteredTargets = [];
         for (let i = 0; i < targets.length; ++i)
         {
-            targets[i] = targets[i].trim();
+            const target = targets[i].trim();
+            if (Object.values(this.#targets).includes(target)) {
+                filteredTargets.push(target);
+            }
         }
 
-        this.activeTargets = targets;
+        this.activeTargets = filteredTargets;
+    }
+
+    getActiveTargets()
+    {
+        return this.activeTargets;
     }
 
     getActiveTarget()
     {
-        return this.activeTargets;
+        const activeTargets = this.getActiveTargets() || [];
+        return activeTargets[0] || DEFAULT_LOG_TARGETS.NONE;
     }
 
     /**
@@ -1340,7 +1351,8 @@ class ____AnaLogger
         this.activeTargets = [];
         this.setActiveTargets(target);
         // In case of strings
-        this.activeTargets = [this.activeTargets[0]];
+        const activeTarget = this.activeTargets[0] || DEFAULT_LOG_TARGETS.NONE;
+        this.activeTargets = [activeTarget];
     }
 
     setLogLevel(name, level)
@@ -1365,6 +1377,11 @@ class ____AnaLogger
 
     isTargetAllowed(target)
     {
+        if (target === DEFAULT_LOG_TARGETS.NONE)
+        {
+            return false;
+        }
+
         // If target or activeTargets undefined, allow everything
         if (!target || !this.activeTargets || !this.activeTargets.length)
         {
@@ -2203,6 +2220,9 @@ class ____AnaLogger
                 if (obj) {
                     str = Object.assign({}, obj, str);
                 }
+            }
+            if (!str.target) {
+                str.target = this.getActiveTarget();
             }
         }
 

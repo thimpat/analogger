@@ -43,7 +43,7 @@ declare class ____AnaLogger {
     instanceName: string;
     logIndex: number;
     logCounter: number;
-    activeTargets: any[];
+    activeTargets: string[][];
     indexColor: number;
     format: string;
     keepLog: boolean;
@@ -181,13 +181,18 @@ declare class ____AnaLogger {
     getContexts(): readonly any[];
     setTargets(targetTable?: {}): void;
     addTargets(targets: any): void;
-    getTargets(): Readonly<{}>;
+    getTargets(): Readonly<{
+        ALL: string;
+        USER: string;
+        NONE: string;
+    }>;
     /**
      * Set one or more active targets
      * @param targets
      */
     setActiveTargets(targets?: any): void;
-    getActiveTarget(): any[];
+    getActiveTargets(): string[][];
+    getActiveTarget(): string | string[];
     /**
      * Set only one active target
      * NOTE: Kept for backward compatibility.
