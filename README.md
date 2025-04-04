@@ -690,8 +690,9 @@ anaLogger.setDefaultContext({
 
 #### Targets
 
-Targets allow defining some log categories. For example, they can be developers, roles, etc.
-setActiveTarget() allows hiding logs from other devs or roles.
+Targets allow filtering logs by targets. 
+For example, they can be developers, testers, roles, etc.
+and setActiveTarget() will ignore logs for non-targeted users.
 
 ##### Examples
 
@@ -712,21 +713,27 @@ anaLogger.setTargets("GROUP1", "GROUP2", "TOM", "TIM"/*, "ALL", "USER"*/);
 // Assign an active target
 anaLogger.setActiveTarget("TOM");                          // <- You are "TOM"
 
-// Seen as TOM
+// Seen because you're TOM
 anaLogger.log({target: "TOM"}, `Testing log 1`);           // You will see this
 
 // Not seen (only for TIM)
-anaLogger.log({target: "TOM"}, `Testing log 2`);           // You will not see this
+anaLogger.log({target: "MATT"}, `Testing log 2`);           // You will not see this
 
+// Here we set the allowed targets
+anaLogger.setTargets({TOM: "TOM", GROUP1: "GROUP1", GROUP2: "GROUP2"});
+anaLogger.setActiveTargets(["TOM", "GROUP1"]);
+anaLogger.log({target: "TOM"}, `You will see this`);
+anaLogger.log({target: "TIM"}, `You will not see this`);
+anaLogger.log({target: "GROUP1"}, `You will see this`);
 
-anaLogger.setActiveTarget(["TOM", "GROUP1"]);
-anaLogger.log({target: "TOM"}, `Testing log 3`);           // You will see this
-anaLogger.log({target: "TIM"}, `Testing log 4`);           // You will not see this
-anaLogger.log({target: "GROUP1"}, `Testing log 5`);        // You will see this
+// To work, we should have called `anaLogger.setTargets(["NonDefinedTarget"])`
+anaLogger.setActiveTarget("NonDefinedTarget");
+anaLogger.log({lid: "WEB35388"}, `You will not see this`);
+anaLogger.log({lid: "WEB35388", target: "NonDefinedTarget"}, `You will not see this`);
 
-// No target defined. Everybody sees this
+// No target defined the active target will see this
 anaLogger.log({context: null}, `Testing log 6`);           // You will see this    
-anaLogger.log(`Testing log 4`);                            // You will see this. No context = "ALL"
+anaLogger.log(`Testing log 4`);                            // You will see this
 
 
 ```
@@ -740,6 +747,7 @@ Examples:
 
 ```javascript
 anaLogger.setTargets({DEV1: "192.168.12.45", DEV: "192.168.12.46"});
+// or anaLogger.setTargets("192.168.12.45", "192.168.12.46")
 anaLogger.setActiveTarget(require('ip').address());   
 ```
 <br/>
@@ -749,6 +757,7 @@ anaLogger.setActiveTarget(require('ip').address());
 ```javascript
 // Example 2: File  
 anaLogger.setTargets({DEV1: "fg890234ru20u93r2303092pkid0293"});
+// or anaLogger.setTargets("fg890234ru20u93r2303092pkid0293")
 anaLogger.setActiveTarget(require('./something.json').key);
 ```
 
