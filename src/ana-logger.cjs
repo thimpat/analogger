@@ -2217,15 +2217,17 @@ class ____AnaLogger
             }
         }
 
-        if (typeof str === 'object' && !Array.isArray(str) && str !== null) {
-            if (str.contextName) {
-                const obj =  this.#contexts[str.contextName];
-                if (obj) {
-                    str = Object.assign({}, obj, str);
+        if (typeof str==="object" && !Array.isArray(str) && str!==null) {
+            if (this.isExtendedOptionsPassed(str)) {
+                if (str.contextName) {
+                    const obj = this.#contexts[str.contextName];
+                    if (obj) {
+                        str = Object.assign({}, obj, str);
+                    }
                 }
-            }
-            if (!str.target) {
-                str.target = this.getActiveTarget();
+                if (!str.target) {
+                    str.target = this.getActiveTarget();
+                }
             }
         }
 
@@ -2292,7 +2294,7 @@ class ____AnaLogger
     {
         options = this.extractContextFromInput(options);
         // If the first parameter is not of context format,
-        // We use the default context and display
+        // We use the default context
         if (!this.isExtendedOptionsPassed(options))
         {
             const defaultContext = this.generateDefaultContext();
