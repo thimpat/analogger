@@ -1303,6 +1303,11 @@ class ____AnaLogger
      */
     setActiveTargets(targets = null)
     {
+        // If targets is a function, call it to get the actual targets
+        if (typeof targets === "function") {
+            targets = targets.call(this);
+        }
+
         if (targets === null)
         {
             this.activeTargets = [DEFAULT_LOG_TARGETS.ALL];
@@ -1312,9 +1317,14 @@ class ____AnaLogger
         {
             targets = targets.split(",");
         }
-        else if (typeof targets === "object" || typeof targets === "function")
+        else if (typeof targets === "function")
         {
-            return;
+            // If targets is a closure, call it to get the actual targets
+            targets = targets.call(this);
+        }
+        else if (typeof targets === "object")
+        {
+            targets = Object.values(targets);
         }
         else if (!Array.isArray(targets))
         {
