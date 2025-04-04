@@ -16,6 +16,10 @@ anaLogger.log({lid: "WEB35382", color: "yellow"}, `Log with target`);
 anaLogger.log({contextName: "TEST"}, `Test Log example TEST`);
 anaLogger.log({contextName: "TEST"}, `Test Log example TEST 2`);
 
+anaLogger.log({lid: "WEB35380", color: "yellow"}, {MY: "TEST"}, `Log with target`);
+anaLogger.log({lid: "WEB35380", color: "yellow"}, {MY: "TEST"}, {MY: "TEST2"}, `Log with target`);
+anaLogger.log({MY: "TEST"}, {MY: "TEST2"}, `Log with target`);
+
 anaLogger.setDefaultContext({
     "contextName": "DEFAULT",
     "target": "USER",
@@ -38,23 +42,42 @@ anaLogger.setDefaultContext({
 
 anaLogger.setTargets({DEV1: "Me", DEV2: "You"});
 anaLogger.setActiveTarget("Me");
-anaLogger.log({lid: "WEB35382", color: "yellow"}, `Log with no target`);
+anaLogger.log({lid: "WEB35382", color: "yellow"}, `You should see this`);
 
-anaLogger.log({lid: "WEB35382", color: "yellow", target: "DEFAULT"}, `Log with target 1`);
-anaLogger.log({lid: "WEB35384", color: "yellow", target: "USER"}, `Log with non-existent target 2`);
-anaLogger.log({lid: "WEB35386", color: "yellow", target: undefined}, `Log with undefined target 3`);
-anaLogger.log({lid: "WEB35388", color: "yellow"}, `Log without target 4`);
-anaLogger.log({lid: "WEB35388", color: "yellow", target: "You"}, `Log without target 5`);
-anaLogger.log({lid: "WEB35388", color: "yellow", target: "Me"}, `Log without target 6`);
+anaLogger.log({lid: "WEB35384", color: "yellow", target: "DEFAULT"}, `You should not see this`);
+anaLogger.log({lid: "WEB35386", color: "yellow", target: "USER"}, `You should not see this`);
+anaLogger.log({lid: "WEB35388", color: "yellow", target: undefined}, `You should see this`);
+anaLogger.log({lid: "WEB35390", color: "yellow"}, `You should see this`);
+anaLogger.log({lid: "WEB35392", color: "yellow", target: "You"}, `You should not see this`);
+anaLogger.log({lid: "WEB35394", color: "yellow", target: "Me"}, `You should see this`);
 
+// To work, we should have called `anaLogger.setTargets(["NonDefinedTarget"])`
+anaLogger.setActiveTarget("NonDefinedTarget");
+anaLogger.log({lid: "WEB35396"}, `You cannot see this`);
+anaLogger.log({lid: "WEB35398", target: "NonDefinedTarget"}, `You cannot see this`);
+
+anaLogger.setTargets({DEV1: "NonDefinedTarget"});
+anaLogger.setActiveTarget("NonDefinedTarget");
+anaLogger.log({lid: "WEB35400", target: "NonDefinedTarget"}, `You should see this`);
+
+// Here we set the allowed targets
+anaLogger.setTargets({TOM: "TOM", GROUP1: "GROUP1", GROUP2: "GROUP2"});
+anaLogger.setActiveTargets(["TOM", "GROUP1"]);
+anaLogger.log({target: "TOM"}, `TOM can see this`);
+anaLogger.log({target: "TIM"}, `TIM shouldn't see this`);
+anaLogger.log({target: "GROUP1"}, `GROUP1 can see this`);
+
+// setActiveTargets here will work even if we set the targets before
 anaLogger.setActiveTargets("localhost, api");
 anaLogger.log({lid: "WEB35382", color: "yellow"}, `Log without target`);
 anaLogger.log({lid: "WEB35382", target: "localhost", color: "yellow"}, `Log with target`);
-anaLogger.log({lid: "WEB35382", target: "localhost"}, `Log with target`);
+anaLogger.log({lid: "WEB35382", target: "api"}, `Log with target`);
 anaLogger.log({lid: "WEB35382", color: "green", target: "localhost"}, `Log without target`);
 
+anaLogger.setTargets(["localhost", "api"]);
+anaLogger.setActiveTargets("localhost, api");
 anaLogger.log({contextName: "TEST", target: "localhost"}, `Test Log example TEST`);
-anaLogger.log({contextName: "TEST", target: "localhost"}, `Test Log example TEST 2`);
+anaLogger.log({contextName: "TEST", target: "api"}, `Test Log example TEST 2`);
 
 // Check archive
 for (let i = 1; i < 10; ++i) {
