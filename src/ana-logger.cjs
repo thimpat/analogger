@@ -1316,6 +1316,10 @@ class ____AnaLogger
         {
             return;
         }
+        else if (!Array.isArray(targets))
+        {
+            return ;
+        }
 
         const filteredTargets = [];
         for (let i = 0; i < targets.length; ++i)
@@ -1382,23 +1386,12 @@ class ____AnaLogger
             return false;
         }
 
-        // If target or activeTargets undefined, allow everything
-        if (!target || !this.activeTargets || !this.activeTargets.length)
-        {
-            return true;
-        }
-
         if (target === DEFAULT_LOG_TARGETS.ALL)
         {
             return true;
         }
 
-        if (this.activeTargets.includes(DEFAULT_LOG_TARGETS.ALL))
-        {
-            return true;
-        }
-
-        return this.activeTargets.includes(target);
+         return this.activeTargets.includes(target);
     }
 
 
