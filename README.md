@@ -731,6 +731,10 @@ anaLogger.setActiveTarget("NonDefinedTarget");
 anaLogger.log({lid: "WEB35388"}, `You will not see this`);
 anaLogger.log({lid: "WEB35388", target: "NonDefinedTarget"}, `You will not see this`);
 
+// Clear the active target, so we can see everything
+anaLogger.setActiveTarget(null);
+anaLogger.log({lid: "WEB35388"}, `You will see this`);
+
 // No target defined the active target will see this
 anaLogger.log({context: null}, `Testing log 6`);           // You will see this    
 anaLogger.log(`Testing log 4`);                            // You will see this
