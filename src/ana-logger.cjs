@@ -144,6 +144,7 @@ const symbolNames = {
     lock                      : "🔒",
     male_sign                 : "♂",
     minus_sign                : "➖",
+    money_bag                : "💰",
     no_entry                  : "⛔",
     old_key                   : "🗝️",
     partly_sunny              : "⛅",
