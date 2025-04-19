@@ -1,6 +1,6 @@
 {
   "name": "analogger",
-  "version": "1.36.1",
+  "version": "1.37.0",
   "description": "Js Logger",
   "main": "./src/ana-logger.cjs",
   "module": "./esm/src/ana-logger.mjs",
