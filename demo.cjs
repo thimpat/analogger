@@ -11,9 +11,60 @@ anaLogger.setOptions({
     compressArchives: true,
 });
 
+const LIDS = {
+    API35390: {
+        message: "API logging initialized",
+        contextName: "TEST",
+        color      : "green",
+        symbol     : "check"
+    },
+    API35391: {
+        message: "Error API logging initialized",
+    },
+    API65341: {
+        message: "The username doesn't match the userID: {{username1}} !== {{username2}}"
+    }
+};
+
+anaLogger.loadLids(LIDS);
+
+anaLogger.forceLid(true);
+anaLogger.forceResolveLineCall(true);
+anaLogger.forceResolveErrorLineCall(true);
+anaLogger.log({lid: "AAA65422"}, "There will be a lid generated for us here");
+anaLogger.log("There will be a lid generated for us here");
+anaLogger.log({}, "There will be a lid generated for us here");
+anaLogger.log({aaa: 1}, "There will be a lid generated for us here");
+
+anaLogger.log({lid: "API35390", color: "green"}, "API logging about to be initialized");
+// => [12:29:26]    DEFAULT: (API35390) ✔  API logging about to be initialized
+
+anaLogger.log(LIDS.API35390);
+// =>  [12:29:26]       TEST: (API35390) ✔  API logging initialized
+
+anaLogger.error(LIDS.API35391);
+// => [12:29:26]      ERROR: (API35391) ❌  Error API logging initialized
+
+anaLogger.log(LIDS.API65341, {username1: "test", username2: "test2"});
+// => [12:29:26]    DEFAULT: (API65341) ✔  The username doesn't match the userID: test !== test2
+
+anaLogger.log(LIDS.API65341, "Some other messages");
+// => [12:30:40]    DEFAULT: (API65341) ✔  The username doesn't match the userID: {{username1}} !== {{username2}}•Some other messages
+
+anaLogger.log({lid: "WEB35382", color: "yellow"}, `Some log message`);
+anaLogger.log({ lid: "WEB35382" });
+
+anaLogger.log({lid: "WEB35382", color: "yellow"}, `Log with template {{example1}}`);
+anaLogger.log({ lid: "WEB35382" }, {example1: "TEST"});
+anaLogger.log({ lid: "WEB35382" }, {example1: "TEST"}, "rrr");
+
+console.log(anaLogger.getLids());
+
 anaLogger.setContext("TEST", { color: "#5d8a6b", symbol: "email", name: "TEST", lid: "12222" });
 anaLogger.log({lid: "WEB35382", color: "yellow"}, `Log with target`);
+
 anaLogger.log({contextName: "TEST"}, `Test Log example TEST`);
+
 anaLogger.log({contextName: "TEST"}, `Test Log example TEST 2`);
 
 anaLogger.log({lid: "WEB35380", color: "yellow"}, {MY: "TEST"}, `Log with target`);
@@ -86,3 +137,4 @@ for (let i = 1; i < 10; ++i) {
         target: "localhost"
     }, `${i}: Lorem Ipsum is simply dummy text.`);
 }
+
