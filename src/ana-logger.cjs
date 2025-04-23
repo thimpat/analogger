@@ -516,6 +516,7 @@ class ____AnaLogger
     originalFormatFunction;
 
     static lidTable = {};
+    static lidTableOn = false;
 
     constructor({name = "default"} = {})
     {
@@ -575,14 +576,52 @@ class ____AnaLogger
         {
             const lidObj = lids[lid] || {};
             lidObj.lid = lid;
+            lidObj.callCount = 0;
+            lidObj.callTimes = [];
             ____AnaLogger.lidTable[lid] = lidObj;
         }
+        ____AnaLogger.lidTableOn = true;
     }
 
     loadLids(lids)
     {
         lids = lids || {};
         this.importLids(lids);
+    }
+
+    convertTimestampToDate(timestamp)
+    {
+        const date = new Date(timestamp); // Create a Date object from the timestamp
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+    }
+
+    getLids()
+    {
+        const clone = {...__AnaLogger.lidTable };
+        for (let lid in clone)
+        {
+            const lidObj = clone[lid] || {};
+            if (lidObj.callTimes.length)
+            {
+                lidObj.dates = [];
+                for (let j = 0; j < lidObj.callTimes.length; ++j)
+                {
+                    const callTime = lidObj.callTimes[j];
+                    const readableTime = this.convertTimestampToDate(callTime);
+                    lidObj.dates.push(readableTime);
+                }
+            }
+        }
+        return clone;
     }
 
     keepLogHistory()
@@ -2051,6 +2090,29 @@ class ____AnaLogger
         try
         {
             let message = "";
+
+            if (____AnaLogger.lidTableOn && context.lid) {
+                const lidObj = ____AnaLogger.lidTable[context.lid];
+
+                // If the lid is already in the table, we set the message if not existing
+                if (lidObj)
+                {
+                    context.message = context.message || lidObj.message;
+                    lidObj.callCount = lidObj.callCount || 0;
+                    ++lidObj.callCount;
+                    lidObj.callTimes.push(Date.now());
+                }
+                // If the lid is not already in the table, we register it
+                else {
+                    ____AnaLogger.lidTable[context.lid] = {
+                        message: argsWithoutContext[0],
+                        lid: context.lid,
+                        callCount: 1,
+                        callTimes: [Date.now()]
+                    }
+                }
+            }
+
             if (context.message) {
                 // If the context message is a template
                 if (this.isContextMessagePattern(context.message)) {
