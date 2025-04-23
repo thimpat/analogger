@@ -745,7 +745,7 @@ class ____AnaLogger
         for (let lid in lids)
         {
             const lidObj = lids[lid] || {};
-            lidObj.lid = lid;
+            lidObj.lid = lidObj.lid || lid;
             lidObj.callCount = 0;
             lidObj.callTimes = [];
             ____AnaLogger.lidTable[lid] = lidObj;
