@@ -515,6 +515,7 @@ class ____AnaLogger
 
     originalFormatFunction;
 
+    static lidTable = {};
 
     constructor({name = "default"} = {})
     {
@@ -566,6 +567,22 @@ class ____AnaLogger
     getId()
     {
         return this.instanceId;
+    }
+
+    importLids(lids)
+    {
+        for (let lid in lids)
+        {
+            const lidObj = lids[lid] || {};
+            lidObj.lid = lid;
+            ____AnaLogger.lidTable[lid] = lidObj;
+        }
+    }
+
+    loadLids(lids)
+    {
+        lids = lids || {};
+        this.importLids(lids);
     }
 
     keepLogHistory()
@@ -2007,18 +2024,50 @@ class ____AnaLogger
         }
     }
 
+    isContextMessagePattern(str) {
+        return /\{\{[^}]+}}/.test(str);
+    }
+
+    transformContextMessage(template, data)
+    {
+        let result = template;
+        for (const key in data)
+        {
+            const placeholder = `{{${key}}}`;
+            const value = data[key];
+            // Replace all occurrences of the placeholder with the value
+            result = result.replaceAll(placeholder, value);
+        }
+        return result;
+    }
+
     /**
      * Display log following template
      * @param context
+     * @param argsWithoutContext
      */
-    processOutput(context = {})
+    processOutput(context = {}, ...argsWithoutContext)
     {
         try
         {
             let message = "";
+            if (context.message) {
+                // If the context message is a template
+                if (this.isContextMessagePattern(context.message)) {
+                    // The context message second parameter should be an object that we will use to perform the replacement
+                    if (argsWithoutContext.length >= 1 && typeof argsWithoutContext[0] === "object") {
+                        context.message = this.transformContextMessage(context.message, argsWithoutContext[0]);
+                        // We remove the second parameter from the arguments
+                        argsWithoutContext.shift();
+                    }
+                }
+
+                // We add the context message as an arguments
+                argsWithoutContext.unshift(context.message);
+            }
             this.applySymbolByName(context);
 
-            this.checkOnLogging(context, context, arguments, "onContext");
+            this.checkOnLogging(context, context, argsWithoutContext, "onContext");
             if (!this.isTargetAllowed(context.target))
             {
                 return;
@@ -2034,12 +2083,12 @@ class ____AnaLogger
                 return;
             }
 
-            // Clone arguments without the context (= the first argument passed) to generate the message
-            const newMessages = this.checkOnLogging(context, arguments && arguments.length > 1? arguments[1] : arguments, arguments,"onMessage");
+            const newMessages = this.checkOnLogging(context, argsWithoutContext[0], arguments,"onMessage");
             if (newMessages !== undefined) {
                 arguments[1] = newMessages;
             }
-            let args = Array.prototype.slice.call(arguments, 1 /* => Ignore arguments[0] = context */);
+
+            let args = argsWithoutContext;
 
             message = this.convertArgumentsToText(args);
 
