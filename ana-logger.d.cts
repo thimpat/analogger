@@ -18,6 +18,8 @@ declare class ____AnaLogger {
     };
     static instanceCount: number;
     static pluginTable: {};
+    static lidTable: {};
+    static lidTableOn: boolean;
     static generateInstance(): ____AnaLogger;
     /**
      * Returns an AnaLogger instance
@@ -53,6 +55,7 @@ declare class ____AnaLogger {
         hideHookMessage: boolean;
     };
     originalFormatFunction: string;
+    forceLidOn: boolean;
     errorTargetHandler: any;
     errorUserTargetHandler: any;
     rawLog: any;
@@ -70,6 +73,15 @@ declare class ____AnaLogger {
     };
     getName(): string;
     getId(): string;
+    /**
+     * For the logger to generate a lid when none is specified
+     * @param lidOn
+     */
+    forceLid(lidOn?: boolean): void;
+    importLids(lids: any): void;
+    loadLids(lids: any): void;
+    convertTimestampToDate(timestamp: any): string;
+    getLids(): {};
     keepLogHistory(): void;
     releaseLogHistory(): void;
     resetLogHistory(): void;
@@ -287,11 +299,14 @@ declare class ____AnaLogger {
      * @returns {*}
      */
     checkOnLogging(context: any, data: any, extras: any, callbackName: any): any;
+    isContextMessagePattern(str: any): boolean;
+    transformContextMessage(template: any, data: any): any;
     /**
      * Display log following template
      * @param context
+     * @param argsWithoutContext
      */
-    processOutput(context?: {}, ...args: any[]): void;
+    processOutput(context?: {}, ...argsWithoutContext: any[]): void;
     /**
      * Check that a parameter uses the expected AnaLogger format.
      * For this, the first parameter should be an object that contains at least
@@ -300,14 +315,20 @@ declare class ____AnaLogger {
      * @returns {boolean}
      */
     isExtendedOptionsPassed(options: any): boolean;
-    stringToObject(str: any): {};
+    /**
+     * Convert a string to an object by parsing the string
+     * and identifying key-value pairs
+     * @param str
+     * @returns {{}|null}
+     */
+    stringToObject(str: any): {} | null;
     /**
      * Convert a string into a Context object if possible
      * TODO: To implement in next version
-     * @param str
      * @returns {string}
+     * @param input
      */
-    extractContextFromInput(str: any): string;
+    extractContextFromInput(input: any): string;
     listSymbols(): void;
     applySymbolByName(context: any): void;
     /**
