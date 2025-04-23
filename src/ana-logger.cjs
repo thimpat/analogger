@@ -666,6 +666,8 @@ class ____AnaLogger
     static lidTableOn = false;
 
     forceLidOn = false;
+    resolveLineCall = false;
+    resolveErrorLineCall = false;
 
     constructor({name = "default"} = {})
     {
@@ -726,6 +728,16 @@ class ____AnaLogger
     forceLid(lidOn = true)
     {
         this.forceLidOn = !!lidOn;
+    }
+
+    forceResolveLineCall(resolveLineCall = true)
+    {
+        this.resolveLineCall = !!resolveLineCall;
+    }
+
+    forceResolveErrorLineCall(resolveErrorLineCall = true)
+    {
+        this.resolveErrorLineCall = !!resolveErrorLineCall;
     }
 
     importLids(lids)
@@ -2263,6 +2275,7 @@ class ____AnaLogger
                 // If the lid is not already in the table, we register it
                 else {
                     ____AnaLogger.lidTable[context.lid] = {
+                        ...context,
                         message: argsWithoutContext[0],
                         lid: context.lid,
                         callCount: 1,
@@ -2609,6 +2622,14 @@ class ____AnaLogger
             return;
         }
 
+        if (this.resolveLineCall)
+        {
+            // If this.resolveErrorLineCall, the stack has already been set
+            if (!this.resolveErrorLineCall)
+            {
+                context.stack = getInvocationLine();
+            }
+        }
         this.processOutput.apply(this, [context, ...args]);
     }
 
@@ -2632,21 +2653,18 @@ class ____AnaLogger
                 return;
             }
 
-            if (!args || !args.length)
-            {
-                args = [options];
-            }
-
             const newLid = generateLid(this.options.lidLenMax);
             options = {lid: newLid};
-
         }
 
         const errorContext = this.generateErrorContext();
         let context = this.convertToContext(options, errorContext);
 
-        let args0 = Array.prototype.slice.call(arguments, 1);
-        this.log(context, ...args0);
+        if (this.resolveErrorLineCall)
+        {
+            context.stack = getInvocationLine();
+        }
+        this.log(context, ...args);
     }
 
     overrideError()

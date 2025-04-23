@@ -56,6 +56,8 @@ declare class ____AnaLogger {
     };
     originalFormatFunction: string;
     forceLidOn: boolean;
+    resolveLineCall: boolean;
+    resolveErrorLineCall: boolean;
     errorTargetHandler: any;
     errorUserTargetHandler: any;
     rawLog: any;
@@ -78,6 +80,8 @@ declare class ____AnaLogger {
      * @param lidOn
      */
     forceLid(lidOn?: boolean): void;
+    forceResolveLineCall(resolveLineCall?: boolean): void;
+    forceResolveErrorLineCall(resolveErrorLineCall?: boolean): void;
     importLids(lids: any): void;
     loadLids(lids: any): void;
     convertTimestampToDate(timestamp: any): string;
