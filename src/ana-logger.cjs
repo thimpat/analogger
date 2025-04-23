@@ -398,6 +398,153 @@ function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
     }
 }
 
+function getInvocationLine()
+{
+    try
+    {
+        const error = new Error();
+        const stack = error.stack;
+        let anaLoggerPossibleFileName = "ana-logger";
+        let isMinified = false;
+        let result = null;
+        let strippedOutStackTrace;
+        let errorText = [];
+
+        if (stack) {
+            const lines = stack.split('\n');
+            let fileName = null;
+            if (lines.length >= 3) {
+                let index = 0;
+                // Look for the reference of this line
+                for (let i = 0, l = lines.length; i < l; i++) {
+                    const line = lines[i];
+
+                    // We can't use the name if it's minified
+                    const parts = line.split(':');
+                    if (parts.length < 3) {
+                        errorText.push(line);
+                        continue;
+                    }
+
+                    index = i;
+
+                    fileName = parts[parts.length - 3];
+
+                    if (line.indexOf(anaLoggerPossibleFileName)=== -1) {
+                        // We're sure we can use this stacktrace
+                        break;
+                    }
+
+                    if (line.indexOf("getInvocationLine")=== -1) {
+                        // The file is minified
+                        // We're only partially sure we can use this stacktrace
+                        isMinified = true;
+                        // We try to extract the file name
+                        anaLoggerPossibleFileName = fileName.split(/[\\/]/).pop();
+                        break;
+                    }
+
+                    // We have no idea if the stacktrace will help us, but we leave the search
+                    break;
+                }
+
+                // Look for when the call was done exactly
+                for (let i = index + 1, l = lines.length; i < l; i++) {
+                    const lineStr = lines[i];
+                    if (lineStr.indexOf(fileName) > -1) {
+                        continue;
+                    }
+
+                    const parts = lineStr.split(':');
+                    if (parts.length < 3) {
+                        continue;
+                    }
+
+                    strippedOutStackTrace = errorText.join("\n") + lines.slice(i).join('\n');
+
+                    const col = parseInt(parts.pop());
+                    const line = parseInt(parts.pop());
+                    const file = parts.pop();
+                    let infoStr = parts.pop();
+                    let infoArr = infoStr.split(" ");
+
+                    let method = null;
+                    for (let j = 0; j < infoArr.length; j++) {
+                        const element = infoArr[j];
+                        if (!element) {
+                            continue;
+                        }
+
+                        if (element.indexOf("at")===0) {
+                            continue;
+                        }
+
+                        method = element;
+                        break;
+                    }
+
+                    result = {
+                        file,
+                        line,
+                        col,
+                        method,
+                        isMinified,
+                        stack: strippedOutStackTrace
+                    }
+
+                    break;
+                }
+
+                return result;
+            }
+        }
+    }
+    catch(err)
+    {
+
+    }
+
+    return null;
+}
+
+function generateLid(maxChars = 8)
+{
+    try
+    {
+        const line = getInvocationLine();
+        if (!line) {
+            return `LID${Date.now()}`;
+        }
+        const fun = line.method.split(".");
+        const id = fun[0].toUpperCase().substring(0, 3);
+        if (id.length >= maxChars) {
+            return id.substring(0, maxChars);
+        }
+
+        let combined1 = `${id}:${line.line}`;
+        if (combined1.length >= maxChars) {
+            combined1 = combined1.replaceAll(":", "");
+            return combined1.substring(0, maxChars);
+        }
+
+        let combined2 = `${id}:${line.line}:${line.col}`;
+        if (combined2.length > maxChars) {
+            const combined3 = combined2.substring(0, maxChars);
+            if (combined3.endsWith(":")) {
+                return `${id}${line.line}:${line.col}`.substring(0, maxChars);
+            }
+
+            return combined2.substring(0, maxChars);
+        }
+
+        return `${id}${line.line}:${line.col}`.substring(0, maxChars);
+    }
+    catch (e) {
+        return `ERR_LID${Date.now()}`;
+    }
+}
+
+
 /**
  * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
  * @returns {string}
@@ -518,6 +665,8 @@ class ____AnaLogger
     static lidTable = {};
     static lidTableOn = false;
 
+    forceLidOn = false;
+
     constructor({name = "default"} = {})
     {
         this.system = detectEnvironment();
@@ -568,6 +717,15 @@ class ____AnaLogger
     getId()
     {
         return this.instanceId;
+    }
+
+    /**
+     * For the logger to generate a lid when none is specified
+     * @param lidOn
+     */
+    forceLid(lidOn = true)
+    {
+        this.forceLidOn = !!lidOn;
     }
 
     importLids(lids)
@@ -2257,6 +2415,12 @@ class ____AnaLogger
             options.hasOwnProperty("lid");
     }
 
+    /**
+     * Convert a string to an object by parsing the string
+     * and identifying key-value pairs
+     * @param str
+     * @returns {{}|null}
+     */
     stringToObject(str) {
         try {
             str = str.trim();
@@ -2321,39 +2485,39 @@ class ____AnaLogger
     /**
      * Convert a string into a Context object if possible
      * TODO: To implement in next version
-     * @param str
      * @returns {string}
+     * @param input
      */
-    extractContextFromInput(str)
+    extractContextFromInput(input)
     {
-        if (typeof str === "string" || str instanceof String)
+        if (typeof input === "string" || input instanceof String)
         {
-            if (str.toLowerCase().indexOf("lid:") !== 0)
+            if (input.toLowerCase().indexOf("lid:") !== 0)
             {
-                return str;
+                return input;
             }
 
-            const obj = this.stringToObject(str);
+            const obj = this.stringToObject(input);
             if (obj) {
-                str = obj;
+                input = obj;
             }
         }
 
-        if (typeof str==="object" && !Array.isArray(str) && str!==null) {
-            if (this.isExtendedOptionsPassed(str)) {
-                if (str.contextName) {
-                    const obj = this.#contexts[str.contextName];
+        if (typeof input==="object" && !Array.isArray(input) && input!==null) {
+            if (this.isExtendedOptionsPassed(input)) {
+                if (input.contextName) {
+                    const obj = this.#contexts[input.contextName];
                     if (obj) {
-                        str = Object.assign({}, obj, str);
+                        input = Object.assign({}, obj, input);
                     }
                 }
-                if (!str.target) {
-                    str.target = this.getActiveTarget();
+                if (!input.target) {
+                    input.target = this.getActiveTarget();
                 }
             }
         }
 
-        return str;
+        return input;
     }
 
     listSymbols()
@@ -2415,13 +2579,25 @@ class ____AnaLogger
     log(options, ...args)
     {
         options = this.extractContextFromInput(options);
+
         // If the first parameter is not of context format,
         // We use the default context
         if (!this.isExtendedOptionsPassed(options))
         {
-            const defaultContext = this.generateDefaultContext();
-            this.processOutput.apply(this, [defaultContext, options, ...args]);
-            return;
+            if (!this.forceLidOn)
+            {
+                const defaultContext = this.generateDefaultContext();
+                this.processOutput.apply(this, [defaultContext, options, ...args]);
+                return;
+            }
+
+            if (!args || !args.length)
+            {
+                args = [options];
+            }
+
+            const newLid = generateLid(this.options.lidLenMax);
+            options = {lid: newLid};
         }
 
         const someContext = this.generateDefaultContext();
@@ -2449,9 +2625,21 @@ class ____AnaLogger
         // We use the error context and display
         if (!this.isExtendedOptionsPassed(options))
         {
-            const defaultContext = this.generateErrorContext();
-            this.processOutput.apply(this, [defaultContext, options, ...args]);
-            return;
+            if (!this.forceLidOn)
+            {
+                const defaultContext = this.generateErrorContext();
+                this.processOutput.apply(this, [defaultContext, options, ...args]);
+                return;
+            }
+
+            if (!args || !args.length)
+            {
+                args = [options];
+            }
+
+            const newLid = generateLid(this.options.lidLenMax);
+            options = {lid: newLid};
+
         }
 
         const errorContext = this.generateErrorContext();
