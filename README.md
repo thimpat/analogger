@@ -793,11 +793,178 @@ anaLogger.setActiveTarget(process.env.DEVELOPER);     // <= Assuming it has been
 <br/>
 
 > Note that two targets cannot be overridden: {ALL: "ALL", USER: "USER"}.
-The system always adds them to the allowed list, so they will still be set even if a call to setTargets() is empty.
+> The system always adds them to the allowed list, so they will still be set even if a call to setTargets() is empty.
 
 ```javascript
 // Two implicit targets "ALL" and "USER"  
 analogger.setTargets()
+```
+
+<br/>
+
+---
+
+### loadLids()
+
+#### Context
+
+## Using `loadLids` for Predefined Log Messages
+
+The `loadLids` method allows you to register a collection of predefined log message templates, identified by unique Log IDs (Lids). This promotes consistency and simplifies logging by allowing you to reference these templates instead of writing out full messages repeatedly.
+
+### Example
+
+With `loadLids`, you can define a set of log messages that can be reused throughout your application.
+Instead of scattered, repetitive messages, Log IDs (lid) offer clear, centralized definitions.
+
+```javascript
+// lids.js
+const LIDS = {
+    API35390: {
+        message: "API logging initialized",
+        contextName: "TEST",
+        color      : "green",
+        symbol     : "check"
+    },
+    API35391: {
+        message: "Error API logging initialized",
+    },
+    API65341: {
+        message: "The username doesn't match the userID: {{username1}} !== {{username2}}"
+    },
+    AUTH1001: {
+        message: "Authentication failed for user: {{username}}",
+        color: "red",
+        symbol: "alert"
+    },
+    DB205: {
+        message: "Database query took {{duration}}ms"
+    }
+};
+
+module.exports = LIDS;
+```
+
+
+```javascript
+// main.js
+const {anaLogger} = require("analogger");
+const ligs = require("./lids.js");
+anaLogger.loadLids(LIDS);
+
+anaLogger.log({lid: "API35390", color: "green"}, "API logging about to be initialized");
+// => DEFAULT: (API35390) ✔  API logging about to be initialized
+
+anaLogger.log(LIDS.API35390);
+// =>  TEST: (API35390) ✔  API logging initialized
+
+anaLogger.error(LIDS.API35391);
+// => ERROR: (API35391) ❌  Error API logging initialized
+
+anaLogger.log(LIDS.API65341, {username1: "test", username2: "test2"});
+// => DEFAULT: (API65341) ✔  The username doesn't match the userID: test !== test2
+
+anaLogger.log(LIDS.API65341, "Some other messages");
+// => DEFAULT: (API65341) ✔  The username doesn't match the userID: {{username1}} !== {{username2}}•Some other messages
+```
+
+<br/>
+
+---
+### getLids
+
+Returns all loaded lids
+
+```javascript
+const lids = anaLogger.getLids();
+
+{
+    API35390: {
+        message: 'API logging initialized',
+                contextName: 'TEST',
+                color: 'green',
+                symbol: 'check',
+                lid: 'API35390',
+                callCount: 2,
+                callTimes: [ 1745412629482, 1745412629504 ],
+                target: [ 'ALL', 'USER', 'NONE' ],
+                dates: [ '2025-04-23 13:50:29.482', '2025-04-23 13:50:29.504' ]
+    },
+    API35391: {
+        message: 'Error API logging initialized',
+                lid: 'API35391',
+                callCount: 1,
+                callTimes: [ 1745412629507 ],
+                target: [ 'ALL', 'USER', 'NONE' ],
+                dates: [ '2025-04-23 13:50:29.507' ]
+    },
+    API65341: {
+        message: "The username doesn't match the userID: {{username1}} !== {{username2}}",
+                lid: 'API65341',
+                callCount: 2,
+                callTimes: [ 1745412629509, 1745412629510 ],
+                target: [ 'ALL', 'USER', 'NONE' ],
+                dates: [ '2025-04-23 13:50:29.509', '2025-04-23 13:50:29.510' ]
+    },
+    WEB35382: {
+        message: 'Some log message',
+                lid: 'WEB35382',
+                callCount: 5,
+                callTimes: [
+            1745412629511,
+            1745412629512,
+            1745412629514,
+            1745412629515,
+            1745412629517
+        ],
+                dates: [
+            '2025-04-23 13:50:29.511',
+            '2025-04-23 13:50:29.512',
+            '2025-04-23 13:50:29.514',
+            '2025-04-23 13:50:29.515',
+            '2025-04-23 13:50:29.517'
+        ]
+    }
+}
+
+```
+
+
+
+<br/>
+
+---
+
+### forceLid(true);
+
+Force the system to generate the lid even if it is not defined
+
+```javascript
+anaLogger.forceLid(true);
+```
+
+<br/>
+
+---
+
+### forceResolveErrorLineCall(true);
+
+Add the stack trace to the error message context
+
+```javascript
+anaLogger.forceResolveErrorLineCall(true);
+```
+
+<br/>
+
+---
+
+### forceResolveLineCall(true);
+
+Add the stack trace to the log message context
+
+```javascript
+anaLogger.forceResolveLineCall(true);
 ```
 
 <br/>
