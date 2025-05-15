@@ -160,6 +160,7 @@ const symbolNames = {
     relaxed                   : "☺",
     rewind                    : "⏪",
     scissors                  : "✂",
+    settings                  : "⚙️",
     shield                    : "🛡️",
     screen_with_curl          : "📜",
     snowman                   : "☃",
