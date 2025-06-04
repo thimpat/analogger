@@ -395,7 +395,7 @@ function createTarGzArchiveSync(inputFile, archivePath, compressionLevel = 1) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
     } catch (err) {
-        console.error(`ARCHIVE_FAILURE: ${e.message}`);
+        console.error(`ARCHIVE_FAILURE: ${err.message}`);
     }
 }
 
