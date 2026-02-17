@@ -1,7 +1,5 @@
 
-[![Test workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)](https://github.com/thimpat/analogger/actions/workflows/test.yml)
 [![nycrc Coverage](https://img.shields.io/nycrc/thimpat/analogger?preferredThreshold=lines)](https://github.com/thimpat/analogger/blob/main/README.md)
-[![Version workflow](https://github.com/thimpat/analogger/actions/workflows/versioning.yml/badge.svg)](https://github.com/thimpat/analogger/actions/workflows/versioning.yml)
 [![npm version](https://badge.fury.io/js/analogger.svg)](https://www.npmjs.com/package/analogger)
 <img alt="semantic-release" src="https://img.shields.io/badge/semantic--release-19.0.2-e10079?logo=semantic-release">
 
@@ -287,23 +285,29 @@ Display the browser native message box if run from it; otherwise, it displays th
 ### setOptions()
 
 
-| **Options**         | **default** | **Expect**                        | **Description**                                                                    | 
-|---------------------|-------------|-----------------------------------|------------------------------------------------------------------------------------|
-| silent              | false       | boolean                           | _Hide logs from console (not errors)_                                              |
-| hideLog             | false       | boolean                           | _Same as above (silent has precedence over hideLog)_                               |              
-| hideError           | false       | boolean                           | _Hide errors from console_                                                         |              
-| hideHookMessage     | false       | boolean                           | _Hide the automatic message shown when some native console methods are overridden_ |
-| hidePassingTests    | false       | boolean                           | _Hide Live test results_                                                           |           
-| logToDom            | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
-| logToFile           | false       | string (File path)                | _write log to a file if running from Node_                                         |
-| logToRemote         | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
-| logMaxSize          | 0           | number                            | _Set maximum size for the log file_                                                |
-| compressArchives    | false       | boolean                           | _Whether to archive and compress the logs after deleting an archive_               |
-| compressionLevel    | 1           | number                            | _Archive compression level (0 to 9 with 0 = no compression)_                       |
-| addArchiveTimestamp | true        | boolean                           | _Whether to add a timestamp to the generated rotated logs_                         |
-| logMaxArchives      | 3           | number                            | _Maximum number of log files to use_                                               |
-| requiredLogLevel    | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
-| enableDate          | false       | boolean                           | _Show date + time (instead of time only)_                                          |
+| **Options**           | **default** | **Expect**                        | **Description**                                                                    | 
+|-----------------------|-------------|-----------------------------------|------------------------------------------------------------------------------------|
+| silent                | false       | boolean                           | _Hide logs from console (not errors)_                                              |
+| hideLog               | false       | boolean                           | _Same as above (silent has precedence over hideLog)_                               |              
+| hideError             | false       | boolean                           | _Hide errors from console_                                                         |              
+| hideHookMessage       | false       | boolean                           | _Hide the automatic message shown when some native console methods are overridden_ |
+| hidePassingTests      | false       | boolean                           | _Hide Live test results_                                                           |           
+| logToDom              | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
+| logToFile             | false       | string (File path)                | _write log to a file if running from Node_                                         |
+| logToRemote           | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
+| logMaxSize            | 0           | number                            | _Set maximum size for the log file_                                                |
+| compressArchives      | false       | boolean                           | _Whether to archive and compress the logs after deleting an archive_               |
+| compressionLevel      | 1           | number                            | _Archive compression level (0 to 9 with 0 = no compression)_                       |
+| addArchiveTimestamp   | true        | boolean                           | _Whether to add a timestamp to the generated rotated logs_                         |
+| logMaxArchives        | 3           | number                            | _Maximum number of log files to use_                                               |
+| requiredLogLevel      | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
+| enableDate            | false       | boolean                           | _Show date + time (instead of time only)_                                          |
+| logToLocalStorage     | false       | 	boolean                          | _Persist logs in browser localStorage_                                             |
+| logToLocalStorageMax	 | 50	         | number                            | _Max entries to keep in localStorage_                                              |
+| compressArchives      | 	false	     | boolean                           | _If true, rotates log files into a .tar.gz archive_                                |
+| compressionLevel      | 	1	         | number                            | _Gzip compression level (0-9)_                                                     |
+| addArchiveTimestamp   | 	true       | boolean                           | 	_Appends a consistent timestamp to rotated files_                                 |
+| forceLidOn            | 	false      | boolean                           | 	_Automatically generates a short hash LID if one isn't provided_                  |
 
 <br/>
 
@@ -1185,6 +1189,69 @@ anaLogger.addPlugin("doSomething", doSomething);
 
 
 
+```
+
+---
+
+[![Test workflow](https://github.com/thimpat/analogger/actions/workflows/test.yml/badge.svg)](https://github.com/thimpat/analogger/actions/workflows/test.yml)
+[![nycrc Coverage](https://img.shields.io/nycrc/thimpat/analogger?preferredThreshold=lines)](https://github.com/thimpat/analogger/blob/main/README.md)
+[![npm version](https://badge.fury.io/js/analogger.svg)](https://www.npmjs.com/package/analogger)
+
+Analogger is a highly customizable logger for Node and Browser environments. It logs to terminals, browser DOM, files, and remote servers.
+
+---
+
+## 🚀 New Features (v1.24+)
+
+### 💾 Local Storage Persistence (Browser)
+You can now persist logs in the browser's Local Storage. This is useful for debugging issues that occur across page refreshes.
+
+```javascript
+// Enable local storage logging
+anaLogger.setOptions({ 
+    logToLocalStorage: true, 
+    logToLocalStorageMax: 100 // Keep last 100 logs
+});
+
+// Restore logs from previous session after page reload
+anaLogger.restoreLogs();
+```
+
+🗄️ Advanced Log Rotation & Archiving (Node)
+Manage large log files with automatic rotation and .tar.gz compression.
+
+```javascript
+anaLogger.setOptions({
+    logToFile: "./app.log",
+    logMaxSize: 5 * 1024 * 1024, // 5MB
+    logMaxArchives: 5,
+    compressArchives: true,      // Archive rotated logs into .tar.gz
+    compressionLevel: 6,         // Gzip level (1-9)
+    addArchiveTimestamp: true    // Add ISO timestamps to filenames
+});
+```
+
+### New Helper Methods
+
+> restoreLogs()
+
+(Browser only) Reads the history from localStorage and re-prints the logs to the current console. Perfect for diagnosing crashes that trigger a page reload.
+
+> getLids()
+
+Returns a deep clone of all loaded Lids, including statistics like callCount, callTimes, and human-readable dates.
+
+> forceResolveLineCall(bool)
+
+When enabled, AnaLogger captures the exact file and line number where the log was called and attaches it to the context.
+
+### Manual LID strings
+
+If you don't want to pass objects, you can use a shorthand string format:
+
+```javascript
+// AnaLogger will parse this string as a context object
+anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 ```
 
 ---
