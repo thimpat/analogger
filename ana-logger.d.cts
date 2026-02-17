@@ -115,8 +115,9 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, logToLocalStorage, logToLocalStorageMax, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
+    updateOptions(options: any): void;
     getOptions(): {
         hideHookMessage: boolean;
     };
@@ -221,6 +222,8 @@ declare class ____AnaLogger {
     setLogLevels(levels: any): void;
     getLogLevels(): Readonly<{}>;
     isTargetAllowed(target: any): boolean;
+    getCurrentTime(): string;
+    getCurrentDate(): string;
     /**
      * Add many sections (columns) to a given DOM line
      * @param $line
@@ -266,6 +269,8 @@ declare class ____AnaLogger {
     }): void;
     writeLogToFile(text: any): void;
     writeLogToRemote(...data: any[]): any;
+    writeLogToLocalStorage(context: any, ...args: any[]): void;
+    restoreLogs(): void;
     /**
      * Send data to the registered remote server
      * @param raw

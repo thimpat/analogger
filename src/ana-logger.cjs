@@ -599,6 +599,7 @@ const COMMON_METHODS = [
     "setLogFormat",
     "resetLogFormatter",
     "getRawLogHistory",
+    "restoreLogs",
 ];
 
 
@@ -923,6 +924,8 @@ class ____AnaLogger
         this.options.pathname = undefined;
         this.options.binarypathname = undefined;
         this.options.enableDate = undefined;
+        this.options.logToLocalStorage = undefined;
+        this.options.logToLocalStorageMax = 50;
     }
 
     resetOptions()
@@ -935,6 +938,7 @@ class ____AnaLogger
                    idLenMax = 5,
                    lidLenMax = 6,
                    symbolLenMax = 2,
+                   enableTrace = true,
                    messageLenMax = undefined,
                    hideLog = undefined,
                    hideError = undefined,
@@ -957,6 +961,8 @@ class ____AnaLogger
                    oneConsolePerContext = undefined,
                    silent = undefined,
                    enableDate = undefined,
+                   logToLocalStorage = undefined,
+                   logToLocalStorageMax = 50,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -981,6 +987,9 @@ class ____AnaLogger
         this.options.compressionLevel = compressionLevel;
 
         this.options.requiredLogLevel = requiredLogLevel;
+        this.options.enableTrace = enableTrace;
+
+        this.options.logToLocalStorageMax = logToLocalStorageMax;
 
         if (loadHtmlToImage) {
             const code = getHtmlToImage();
@@ -1007,6 +1016,7 @@ class ____AnaLogger
             {hideHookMessage},
             {hidePassingTests},
             {logToRemote},
+            {logToLocalStorage},
         ].forEach((feature) =>
         {
             const key = Object.keys(feature)[0];
@@ -1089,6 +1099,10 @@ class ____AnaLogger
              **/
         }
 
+    }
+
+    updateOptions(options) {
+        this.setOptions({...this.options, ...options});
     }
 
     getOptions()
@@ -1642,6 +1656,26 @@ class ____AnaLogger
          return this.activeTargets.includes(target);
     }
 
+    // Get current time in HH:MM:SS format
+    getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Get current date in DD:MM:YY format
+    getCurrentDate() {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+        const year = String(now.getFullYear()).slice(-2); // Get last 2 digits of year
+
+        return `${day}-${month}-${year}`;
+    }
+
 
     // ------------------------------------------------
     // Logging methods
@@ -1654,20 +1688,41 @@ class ____AnaLogger
      */
     setColumns($line, context, text)
     {
-        let index = 0;
+        let index = 1;
+        let $addTime = false;
         for (let columnName in context)
         {
-            if (!["contextName", "symbol", "lid", "text"].includes(columnName))
+            if (!["contextName", "symbol", "lid", "text", "enableDate", "enableTime"].includes(columnName))
             {
                 continue;
             }
 
-            const colContent = context[columnName];
+            let colContent = context[columnName];
+            if (columnName === "enableDate") {
+                colContent = this.getCurrentDate() + " " + this.getCurrentTime();
+            }
+
+            if (columnName === "enableTime") {
+                colContent = this.getCurrentTime();
+            }
+
             const $col = document.createElement("span");
             $col.classList.add("analogger-col", `analogger-col-${columnName}`, `analogger-col-${index}`);
             ++index;
+
+            if (columnName !== "enableDate" && columnName !== "enableTime") {
             $col.textContent = colContent;
             $line.append($col);
+        }
+            else {
+                $col.textContent = `[${colContent}]`;
+                $addTime = $col;
+            }
+        }
+
+        if ($addTime) {
+            $addTime.classList.add("analogger-col", `analogger-col-time`, `analogger-col-0`);
+            $line.prepend($addTime);
         }
 
         let $col = document.createElement("span");
@@ -1955,6 +2010,91 @@ class ____AnaLogger
         {
             /* istanbul ignore next */
             ____AnaLogger.Console.error("LOG_TO_REMOTE_FAILURE: ", e.message);
+        }
+    }
+
+    writeLogToLocalStorage(context, ...args)
+    {
+        try
+        {
+            if (!this.isBrowser() || !window.localStorage)
+            {
+                return;
+            }
+
+            const key = `analogger_history_${this.instanceName}`;
+            let history = [];
+            try
+            {
+                const stored = localStorage.getItem(key);
+                if (stored)
+                {
+                    history = JSON.parse(stored);
+                }
+            }
+            catch (e)
+            {
+                history = [];
+            }
+
+            history.push({context, args});
+
+            const max = this.options.logToLocalStorageMax || 50;
+            if (history.length > max)
+            {
+                history = history.slice(history.length - max);
+            }
+
+            localStorage.setItem(key, JSON.stringify(history));
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            ____AnaLogger.Console.error("LOG_TO_LOCAL_STORAGE_FAILURE: ", e.message);
+        }
+    }
+
+    restoreLogs()
+    {
+        try
+        {
+            if (!this.isBrowser() || !window.localStorage)
+            {
+                return;
+            }
+
+            const key = `analogger_history_${this.instanceName}`;
+            const stored = localStorage.getItem(key);
+            if (!stored)
+            {
+                return;
+            }
+
+            const history = JSON.parse(stored);
+            if (!Array.isArray(history))
+            {
+                return;
+            }
+
+            // Temporarily disable logging to local storage to avoid infinite loop
+            const originalLogToLocalStorage = this.options.logToLocalStorage;
+            this.options.logToLocalStorage = false;
+
+            history.forEach((entry) =>
+            {
+                const {context, args} = entry;
+                if (context) {
+                    context.symbol = "floppy_disk";
+                }
+                this.processOutput(context, ...args);
+            });
+
+            this.options.logToLocalStorage = originalLogToLocalStorage;
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            ____AnaLogger.Console.error("RESTORE_LOGS_FAILURE: ", e.message);
         }
     }
 
@@ -2360,6 +2500,11 @@ class ____AnaLogger
                 this.writeLogToRemote(context, ...args);
             }
 
+            if (this.options.logToLocalStorage)
+            {
+                this.writeLogToLocalStorage(context, ...args);
+            }
+
             /* istanbul ignore next */
             if (this.isBrowser())
             {
@@ -2666,6 +2811,10 @@ class ____AnaLogger
             context.stack = getInvocationLine();
         }
         this.log(context, ...args);
+
+        if (this.options.enableTrace) {
+            console.trace(...args);
+        }
     }
 
     overrideError()
