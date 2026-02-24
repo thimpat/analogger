@@ -901,7 +901,7 @@ class ____AnaLogger
     resetLogger()
     {
         this.options = {};
-        this.options.timeLenMax = 12;
+        this.options.timeLenMax = 8;
         this.options.contextLenMax = 10;
         this.options.idLenMax = 5;
         this.options.lidLenMax = 6;
@@ -930,6 +930,7 @@ class ____AnaLogger
         this.options.pathname = undefined;
         this.options.binarypathname = undefined;
         this.options.enableDate = undefined;
+        this.options.enableMillisec = undefined;
         this.options.logToLocalStorage = undefined;
         this.options.logToLocalStorageMax = 50;
         this.options.logToLocalStorageSize = 10000;
@@ -947,6 +948,7 @@ class ____AnaLogger
     }
 
     setOptions({
+                   timeLenMax = undefined,
                    contextLenMax = 10,
                    idLenMax = 5,
                    lidLenMax = 6,
@@ -974,6 +976,7 @@ class ____AnaLogger
                    oneConsolePerContext = undefined,
                    silent = undefined,
                    enableDate = undefined,
+                   enableMillisec = undefined,
                    logToLocalStorage = undefined,
                    logToLocalStorageMax = 50,
                    logToLocalStorageSize = 10000,
@@ -996,6 +999,9 @@ class ____AnaLogger
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
 
+        this.options.enableMillisec = enableMillisec;
+        this.options.timeLenMax = timeLenMax;
+
         this.options.logMaxSize = logMaxSize;
         this.options.logMaxArchives = logMaxArchives;
         this.options.logIndexArchive = logIndexArchive;
@@ -1006,6 +1012,12 @@ class ____AnaLogger
 
         this.options.requiredLogLevel = requiredLogLevel;
         this.options.enableTrace = enableTrace;
+
+        this.options.enableMillisec = enableMillisec;
+        if (this.options.enableMillisec)
+        {
+            this.options.timeLenMax += 4;
+        }
 
         this.options.logToLocalStorageMax = logToLocalStorageMax;
         this.options.logToLocalStorageSize = logToLocalStorageSize;
@@ -1074,6 +1086,19 @@ class ____AnaLogger
                 this.options[key] = val;
             }
         });
+
+        if (this.options.enableDate && this.options.timeLenMax === undefined) {
+            this.options.timeLenMax = 17;
+        }
+
+        if (this.options.timeLenMax === undefined) {
+            if (this.options.enableDate) {
+                this.options.timeLenMax = 17;
+            }
+            else {
+                this.options.timeLenMax = 8;
+            }
+        }
 
         if (this.options.logToRemote && !this.options.logToRemoteUrl)
         {
@@ -1153,17 +1178,14 @@ class ____AnaLogger
     /**
      * Format inputs
      * @see Override {@link setLogFormat}
-     * @param contextName
-     * @param id
-     * @param message
-     * @param lid
-     * @param symbol
      * @returns {string}
+     * @param localContext
      */
-    onBuildLog({contextName, message = "", lid = "", symbol = ""} = {})
+    onBuildLog(localContext = {})
     {
         try
         {
+            let {contextName, message = "", lid = "", symbol = ""} = localContext;
             let strResult = "";
 
             const strs = message.split(/\n/g);
@@ -1176,14 +1198,22 @@ class ____AnaLogger
                 const now = new Date();
                 let time = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2) + ":" + ("0" + now.getSeconds()).slice(-2);
 
-                if (this.options.enableDate)
+                const enableMillisec = localContext.hasOwnProperty("enableMillisec") ? localContext.enableMillisec : this.options.enableMillisec;
+                if (enableMillisec)
+                {
+                    time += "," + ("00" + now.getMilliseconds()).slice(-3);
+                }
+
+                const enableDate = localContext.hasOwnProperty("enableDate") ? localContext.enableDate : this.options.enableDate;
+                if (enableDate)
                 {
                     let date = now.getFullYear().toString().slice(-2) + "-" + (now.getMonth() + 1).toString().padStart(2, "0") + "-" + now.getDate().toString().padStart(2, "0");
                     time = date + " " + time;
                 }
 
                 // Display content in columns
-                time = this.truncateMessage(time, {fit: this.options.timeLenMax});
+                const timeLenMax = localContext.hasOwnProperty("timeLenMax") ? localContext.timeLenMax : this.options.timeLenMax;
+                time = this.truncateMessage(time, {fit: timeLenMax});
 
                 if (i > 0)
                 {
@@ -1196,7 +1226,8 @@ class ____AnaLogger
                 });
                 lid = this.truncateMessage(lid, {fit: this.options.lidLenMax});
 
-                if (this.options.messageLenMax !== undefined)
+                const messageLenMax = localContext.hasOwnProperty("messageLenMax") ? localContext.messageLenMax : this.options.messageLenMax;
+                if (messageLenMax !== undefined)
                 {
                     message0 = this.truncateMessage(message0, {fit: this.options.messageLenMax});
                 }
@@ -2024,7 +2055,7 @@ class ____AnaLogger
                 return;
             }
 
-            if (this.remoteBuffer)
+            if (Array.isArray(this.remoteBuffer))
             {
                 this.remoteBuffer.push([...data]);
 

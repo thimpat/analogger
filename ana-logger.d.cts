@@ -117,7 +117,7 @@ declare class ____AnaLogger {
     isBrowser(): boolean;
     resetLogger(): void;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
     updateOptions(options: any): void;
     getOptions(): {
@@ -131,19 +131,10 @@ declare class ____AnaLogger {
     /**
      * Format inputs
      * @see Override {@link setLogFormat}
-     * @param contextName
-     * @param id
-     * @param message
-     * @param lid
-     * @param symbol
      * @returns {string}
+     * @param localContext
      */
-    onBuildLog({ contextName, message, lid, symbol }?: {
-        contextName: any;
-        message?: string;
-        lid?: string;
-        symbol?: string;
-    }): string;
+    onBuildLog(localContext?: {}): string;
     onErrorForUserTarget(context: any, ...args: any[]): void;
     onError(context: any, ...args: any[]): void;
     /**
