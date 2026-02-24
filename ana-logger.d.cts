@@ -115,9 +115,15 @@ declare class ____AnaLogger {
      * @returns {boolean}
      */
     isBrowser(): boolean;
+    /**
+     * Get a unique identifier generated once by the logger and saved in the local storage.
+     * @returns {string|null}
+     */
+    getUid(): string | null;
     resetLogger(): void;
+    remoteWaitCount: any;
     resetOptions(): void;
-    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, logUidToRemote, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
     updateOptions(options: any): void;
     getOptions(): {
@@ -262,7 +268,7 @@ declare class ____AnaLogger {
     }): void;
     writeLogToFile(text: any): void;
     writeLogToRemote(...data: any[]): void;
-    flushRemoteLogs(): void;
+    flushRemoteLogs(force?: boolean): void;
     performRemotePost(data: any): any;
     writeLogToLocalStorage(context: any, ...args: any[]): void;
     restoreLogs(): void;
