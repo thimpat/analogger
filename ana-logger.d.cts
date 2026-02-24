@@ -114,8 +114,10 @@ declare class ____AnaLogger {
      */
     isBrowser(): boolean;
     resetLogger(): void;
+    remoteBuffer: any[];
+    remoteTimer: NodeJS.Timeout;
     resetOptions(): void;
-    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
     updateOptions(options: any): void;
     getOptions(): {
@@ -268,7 +270,9 @@ declare class ____AnaLogger {
         args?: any;
     }): void;
     writeLogToFile(text: any): void;
-    writeLogToRemote(...data: any[]): any;
+    writeLogToRemote(...data: any[]): void;
+    flushRemoteLogs(): void;
+    performRemotePost(data: any): any;
     writeLogToLocalStorage(context: any, ...args: any[]): void;
     restoreLogs(): void;
     /**

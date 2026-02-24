@@ -927,6 +927,10 @@ class ____AnaLogger
         this.options.logToLocalStorage = undefined;
         this.options.logToLocalStorageMax = 50;
         this.options.logToLocalStorageSize = 10000;
+        this.options.logToRemoteMaxEntries = undefined;
+        this.options.logToRemoteDebounce = undefined;
+        this.remoteBuffer = [];
+        this.remoteTimer = null;
     }
 
     resetOptions()
@@ -965,6 +969,8 @@ class ____AnaLogger
                    logToLocalStorage = undefined,
                    logToLocalStorageMax = 50,
                    logToLocalStorageSize = 10000,
+                   logToRemoteMaxEntries = undefined,
+                   logToRemoteDebounce = undefined,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -993,6 +999,8 @@ class ____AnaLogger
 
         this.options.logToLocalStorageMax = logToLocalStorageMax;
         this.options.logToLocalStorageSize = logToLocalStorageSize;
+        this.options.logToRemoteMaxEntries = logToRemoteMaxEntries;
+        this.options.logToRemoteDebounce = logToRemoteDebounce;
 
         if (loadHtmlToImage) {
             const code = getHtmlToImage();
@@ -1993,14 +2001,65 @@ class ____AnaLogger
     {
         try
         {
+            if (this.options.logToRemoteMaxEntries === undefined && this.options.logToRemoteDebounce === undefined)
+            {
+                this.performRemotePost([...data]);
+                return;
+            }
+
+            this.remoteBuffer.push([...data]);
+
+            if (this.options.logToRemoteMaxEntries !== undefined && this.remoteBuffer.length >= this.options.logToRemoteMaxEntries)
+            {
+                this.flushRemoteLogs();
+                return;
+            }
+
+            if (this.options.logToRemoteDebounce !== undefined && !this.remoteTimer)
+            {
+                this.remoteTimer = setTimeout(() =>
+                {
+                    this.flushRemoteLogs();
+                }, this.options.logToRemoteDebounce);
+            }
+        }
+        catch (e)
+        {
+            /* istanbul ignore next */
+            ____AnaLogger.Console.error("LOG_TO_REMOTE_FAILURE: ", e.message);
+        }
+    }
+
+    flushRemoteLogs()
+    {
+        if (this.remoteTimer)
+        {
+            clearTimeout(this.remoteTimer);
+            this.remoteTimer = null;
+        }
+
+        if (this.remoteBuffer.length === 0)
+        {
+            return;
+        }
+
+        const dataToFlush = [...this.remoteBuffer];
+        this.remoteBuffer = [];
+
+        this.performRemotePost(dataToFlush);
+    }
+
+    performRemotePost(data)
+    {
+        try
+        {
             const urlDest = this.generateLogToRemoteUrl(this.options.logToRemoteUrl);
             if (!urlDest)
             {
                 return null;
             }
 
-            const entry = [...data];
-            const stringified = JSON.stringify(entry);
+            const stringified = JSON.stringify(data);
             fetch(urlDest, {
                 method : "post",
                 body   : stringified,
@@ -2012,7 +2071,7 @@ class ____AnaLogger
         catch (e)
         {
             /* istanbul ignore next */
-            ____AnaLogger.Console.error("LOG_TO_REMOTE_FAILURE: ", e.message);
+            ____AnaLogger.Console.error("REMOTE_POST_FAILURE: ", e.message);
         }
     }
 
