@@ -54,6 +54,8 @@ declare class ____AnaLogger {
     options: {
         hideHookMessage: boolean;
     };
+    remoteBuffer: any[];
+    remoteTimer: any;
     originalFormatFunction: string;
     forceLidOn: boolean;
     resolveLineCall: boolean;
@@ -114,8 +116,6 @@ declare class ____AnaLogger {
      */
     isBrowser(): boolean;
     resetLogger(): void;
-    remoteBuffer: any[];
-    remoteTimer: NodeJS.Timeout;
     resetOptions(): void;
     setOptions({ contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;

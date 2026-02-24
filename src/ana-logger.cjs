@@ -638,6 +638,9 @@ class ____AnaLogger
         hideHookMessage: false
     };
 
+    remoteBuffer = [];
+    remoteTimer = null;
+
     static Console = null;
 
     #overridenMap = {
@@ -686,6 +689,9 @@ class ____AnaLogger
 
         this.errorTargetHandler = this.onError.bind(this);
         this.errorUserTargetHandler = this.onErrorForUserTarget.bind(this);
+
+        this.remoteBuffer = [];
+        this.remoteTimer = null;
 
         this.setOptions(this.options);
 
@@ -2007,12 +2013,14 @@ class ____AnaLogger
                 return;
             }
 
-            this.remoteBuffer.push([...data]);
-
-            if (this.options.logToRemoteMaxEntries !== undefined && this.remoteBuffer.length >= this.options.logToRemoteMaxEntries)
+            if (this.remoteBuffer)
             {
-                this.flushRemoteLogs();
-                return;
+                this.remoteBuffer.push([...data]);
+                if (this.options.logToRemoteMaxEntries !== undefined && this.remoteBuffer.length >= this.options.logToRemoteMaxEntries)
+                {
+                    this.flushRemoteLogs();
+                    return;
+                }
             }
 
             if (this.options.logToRemoteDebounce !== undefined && !this.remoteTimer)
