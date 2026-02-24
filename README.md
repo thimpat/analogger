@@ -380,6 +380,37 @@ _The data received by your server may look like this:_
 
 
 <br/>
+
+##### Backend implementation example
+
+To receive remote logs from the frontend, you can implement a simple endpoint in your Node.js/Express-like backend:
+
+```javascript
+// Endpoint to receive remote logs from the frontend
+router.post("/api/logs", (req, res) => {
+    try {
+        const logs = req.body;
+        if (Array.isArray(logs)) {
+            if (logs.length > 0) {
+                for (const log of logs) {
+                    const context = log[0] || {};
+                    const message = log[1];
+                    anaLogger.log({
+                        lid: "REMOTE00",
+                        symbol: "airplane"
+                    }, `[${context.lid}][${context.contextName}] ${message}`);
+                }
+            }
+        }
+        res.json({ success: true });
+    } catch (error) {
+        anaLogger.error({ lid: "API10017" }, "Error processing remote logs:", error);
+        res.status(status.INTERNAL_SERVER_ERROR).json({ success: false, error: status[status.INTERNAL_SERVER_ERROR] });
+    }
+});
+```
+
+<br/>
 <br/>
 
 ---
