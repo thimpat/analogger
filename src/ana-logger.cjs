@@ -901,7 +901,7 @@ class ____AnaLogger
     resetLogger()
     {
         this.options = {};
-        this.options.timeLenMax = 8;
+        this.options.timeLenMax = 12;
         this.options.contextLenMax = 10;
         this.options.idLenMax = 5;
         this.options.lidLenMax = 6;
@@ -940,6 +940,7 @@ class ____AnaLogger
         this.options.logToRemoteMinSize = undefined;
         this.remoteBuffer = [];
         this.remoteTimer = null;
+        this.remoteWaitCount = 0;
     }
 
     resetOptions()
@@ -2061,7 +2062,7 @@ class ____AnaLogger
 
                 if (this.options.logToRemoteMaxEntries !== undefined && this.remoteBuffer.length >= this.options.logToRemoteMaxEntries)
                 {
-                    this.flushRemoteLogs();
+                    this.flushRemoteLogs(true);
                     return;
                 }
 
@@ -2070,7 +2071,7 @@ class ____AnaLogger
                     const currentSize = JSON.stringify(this.remoteBuffer).length;
                     if (currentSize >= this.options.logToRemoteMaxSize)
                     {
-                        this.flushRemoteLogs();
+                        this.flushRemoteLogs(true);
                         return;
                     }
                 }
@@ -2091,27 +2092,38 @@ class ____AnaLogger
         }
     }
 
-    flushRemoteLogs()
+    flushRemoteLogs(force = false)
     {
         if (this.remoteBuffer.length === 0)
         {
             return;
         }
 
-        if (this.options.logToRemoteMinSize !== undefined)
+        if (!force && this.options.logToRemoteMinSize !== undefined)
         {
             const currentSize = JSON.stringify(this.remoteBuffer).length;
             if (currentSize < this.options.logToRemoteMinSize)
             {
-                // If we haven't reached min size, and there's no timer, start one if debounce is set
-                if (this.options.logToRemoteDebounce !== undefined && !this.remoteTimer)
+                // If we haven't reached min size, increment wait count
+                this.remoteWaitCount = (this.remoteWaitCount || 0) + 1;
+
+                // If we've waited long enough (e.g. 1 consecutive skip), flush anyway
+                if (this.remoteWaitCount < 2)
                 {
-                    this.remoteTimer = setTimeout(() =>
+                    // If we haven't reached min size, and there's no timer, start one if debounce is set
+                    if (this.options.logToRemoteDebounce !== undefined)
                     {
-                        this.flushRemoteLogs();
-                    }, this.options.logToRemoteDebounce);
+                        if (this.remoteTimer)
+                        {
+                            clearTimeout(this.remoteTimer);
+                        }
+                        this.remoteTimer = setTimeout(() =>
+                        {
+                            this.flushRemoteLogs();
+                        }, this.options.logToRemoteDebounce);
+                    }
+                    return;
                 }
-                return;
             }
         }
 
@@ -2121,6 +2133,7 @@ class ____AnaLogger
             this.remoteTimer = null;
         }
 
+        this.remoteWaitCount = 0;
         const dataToFlush = [...this.remoteBuffer];
         this.remoteBuffer = [];
 
