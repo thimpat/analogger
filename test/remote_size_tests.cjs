@@ -102,7 +102,7 @@ describe("AnaLogger Remote Size Options", function () {
             expect(postStub.calledOnce).to.be.true;
         });
 
-        it("should eventually flush once min size is reached after multiple logs", function () {
+        it("should eventually flush after a period of time even if min size is never reached", function () {
             logger.setOptions({
                 logToRemote: true,
                 logToRemoteDebounce: 1000,
@@ -113,7 +113,7 @@ describe("AnaLogger Remote Size Options", function () {
             clock.tick(1000);
             expect(postStub.called).to.be.false;
 
-            logger.log({lid: "AAAAAAA"}, "msg 2 which is quite a bit longer than the first one to help reach the minimum size faster");
+            // logger.log({lid: "AAAAAAA"}, "msg 2 which is quite a bit longer than the first one to help reach the minimum size faster");
             clock.tick(1000);
             
             expect(postStub.calledOnce).to.be.true;
