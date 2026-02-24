@@ -926,6 +926,7 @@ class ____AnaLogger
         this.options.enableDate = undefined;
         this.options.logToLocalStorage = undefined;
         this.options.logToLocalStorageMax = 50;
+        this.options.logToLocalStorageSize = 10000;
     }
 
     resetOptions()
@@ -963,6 +964,7 @@ class ____AnaLogger
                    enableDate = undefined,
                    logToLocalStorage = undefined,
                    logToLocalStorageMax = 50,
+                   logToLocalStorageSize = 10000,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -990,6 +992,7 @@ class ____AnaLogger
         this.options.enableTrace = enableTrace;
 
         this.options.logToLocalStorageMax = logToLocalStorageMax;
+        this.options.logToLocalStorageSize = logToLocalStorageSize;
 
         if (loadHtmlToImage) {
             const code = getHtmlToImage();
@@ -2045,7 +2048,16 @@ class ____AnaLogger
                 history = history.slice(history.length - max);
             }
 
-            localStorage.setItem(key, JSON.stringify(history));
+            const maxSize = this.options.logToLocalStorageSize || 10000;
+            let serialized = JSON.stringify(history);
+
+            while (serialized.length > maxSize && history.length > 1)
+            {
+                history.shift();
+                serialized = JSON.stringify(history);
+            }
+
+            localStorage.setItem(key, serialized);
         }
         catch (e)
         {
