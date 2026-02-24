@@ -898,6 +898,29 @@ class ____AnaLogger
         return !this.isNode();
     }
 
+    /**
+     * Get a unique identifier generated once by the logger and saved in the local storage.
+     * @returns {string|null}
+     */
+    getUid()
+    {
+        if (!this.isBrowser() || typeof window === "undefined" || !window.localStorage)
+        {
+            return null;
+        }
+
+        const key = "analogger-uid";
+        let uid = window.localStorage.getItem(key);
+
+        if (!uid)
+        {
+            uid = "uid-" + Date.now() + "-" + Math.floor(Math.random() * 1000000);
+            window.localStorage.setItem(key, uid);
+        }
+
+        return uid;
+    }
+
     resetLogger()
     {
         this.options = {};
@@ -938,6 +961,7 @@ class ____AnaLogger
         this.options.logToRemoteDebounce = undefined;
         this.options.logToRemoteMaxSize = undefined;
         this.options.logToRemoteMinSize = undefined;
+        this.options.logUidToRemote = undefined;
         this.remoteBuffer = [];
         this.remoteTimer = null;
         this.remoteWaitCount = 0;
@@ -985,6 +1009,7 @@ class ____AnaLogger
                    logToRemoteDebounce = undefined,
                    logToRemoteMaxSize = undefined,
                    logToRemoteMinSize = undefined,
+                   logUidToRemote = undefined,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -1031,6 +1056,7 @@ class ____AnaLogger
         this.options.logToRemoteDebounce = logToRemoteDebounce;
         this.options.logToRemoteMaxSize = logToRemoteMaxSize;
         this.options.logToRemoteMinSize = logToRemoteMinSize;
+        this.options.logUidToRemote = logUidToRemote;
 
         if (loadHtmlToImage) {
             const code = getHtmlToImage();
@@ -1058,6 +1084,7 @@ class ____AnaLogger
             {hidePassingTests},
             {logToRemote},
             {logToLocalStorage},
+            {logUidToRemote},
         ].forEach((feature) =>
         {
             const key = Object.keys(feature)[0];
@@ -2627,6 +2654,12 @@ class ____AnaLogger
             let args = argsWithoutContext;
 
             message = this.convertArgumentsToText(args);
+
+            // Ensure UID is set early so it's available in history/context when requested
+            if (this.options.logUidToRemote)
+            {
+                context.uid = this.getUid();
+            }
 
             let output = "";
             let text = this.format({...context, message});
