@@ -302,6 +302,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | logMaxArchives        | 3           | number                            | _Maximum number of log files to use_                                               |
 | requiredLogLevel      | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 | enableDate            | false       | boolean                           | _Show date + time (instead of time only)_                                          |
+| enableMillisec       | false       | boolean                           | _Show milliseconds in the log time (e.g., 12:22:04,555)_                          |
 | logToLocalStorage     | false       | 	boolean                          | _Persist logs in browser localStorage_                                             |
 | logToLocalStorageMax	 | 50	         | number                            | _Max entries to keep in localStorage_                                             |
 | logToLocalStorageSize	 | 10000	     | number                            | _Max size in bytes for localStorage logs_                                         |
