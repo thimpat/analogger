@@ -108,7 +108,7 @@ describe("AnaLogger for CommonJs", function ()
 
         it("should throw an exception when called with no parameter", function ()
         {
-            chai.expect(() => anaLogger.setOptions()).to.throw("Cannot read properties of null (reading 'contextLenMax')");
+            chai.expect(() => anaLogger.setOptions()).to.throw("Cannot read properties of null (reading 'timeLenMax')");
         });
     });
 
@@ -233,7 +233,10 @@ describe("AnaLogger for CommonJs", function ()
             // Act
             anaLogger.log({
                 context: LOG_CONTEXTS.C1,
-                lid    : 123456789233
+                lid    : 123456789233,
+                timeLenMax: 8,
+                enableDate: true,
+                enableMillis: false
             }, "We should see some date here");
 
             // If the log contain date + time, it should be 9 chars long
