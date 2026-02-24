@@ -303,7 +303,10 @@ Display the browser native message box if run from it; otherwise, it displays th
 | requiredLogLevel      | "LOG"       | "LOG" / "INFO" / "WARN" / "ERROR" | _Define the log level from which the system can show a log entry_                  |
 | enableDate            | false       | boolean                           | _Show date + time (instead of time only)_                                          |
 | logToLocalStorage     | false       | 	boolean                          | _Persist logs in browser localStorage_                                             |
-| logToLocalStorageMax	 | 50	         | number                            | _Max entries to keep in localStorage_                                              |
+| logToLocalStorageMax	 | 50	         | number                            | _Max entries to keep in localStorage_                                             |
+| logToLocalStorageSize	 | 10000	     | number                            | _Max size in bytes for localStorage logs_                                         |
+| logToRemoteMaxEntries  | undefined   | number                            | _Number of entries to keep before relaying the data to the remote_                |
+| logToRemoteDebounce   | undefined   | number                            | _Time in ms between two posts where the data can be sent to the server_           |
 | compressArchives      | 	false	     | boolean                           | _If true, rotates log files into a .tar.gz archive_                                |
 | compressionLevel      | 	1	         | number                            | _Gzip compression level (0-9)_                                                     |
 | addArchiveTimestamp   | 	true       | boolean                           | 	_Appends a consistent timestamp to rotated files_                                 |
@@ -347,6 +350,13 @@ anaLogger.setOptions({logToRemote: true});
 
 // Use your remote server (You are responsible for the back-end implementation)
 anaLogger.setOptions({logToRemoteUrl: "http://your.server.com/data"});                  
+
+// Batch remote logs (Send when 10 entries are reached OR after 5 seconds)
+anaLogger.setOptions({
+    logToRemote: true,
+    logToRemoteMaxEntries: 10,
+    logToRemoteDebounce: 5000
+});
 ```
 
 > Your server must support the POST method.
@@ -1210,7 +1220,8 @@ You can now persist logs in the browser's Local Storage. This is useful for debu
 // Enable local storage logging
 anaLogger.setOptions({ 
     logToLocalStorage: true, 
-    logToLocalStorageMax: 100 // Keep last 100 logs
+    logToLocalStorageMax: 100, // Keep last 100 logs
+    logToLocalStorageSize: 50000 // Limit to 50KB
 });
 
 // Restore logs from previous session after page reload
