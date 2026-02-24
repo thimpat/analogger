@@ -935,6 +935,8 @@ class ____AnaLogger
         this.options.logToLocalStorageSize = 10000;
         this.options.logToRemoteMaxEntries = undefined;
         this.options.logToRemoteDebounce = undefined;
+        this.options.logToRemoteMaxSize = undefined;
+        this.options.logToRemoteMinSize = undefined;
         this.remoteBuffer = [];
         this.remoteTimer = null;
     }
@@ -977,6 +979,8 @@ class ____AnaLogger
                    logToLocalStorageSize = 10000,
                    logToRemoteMaxEntries = undefined,
                    logToRemoteDebounce = undefined,
+                   logToRemoteMaxSize = undefined,
+                   logToRemoteMinSize = undefined,
                    /** Remote - all optional **/
                    protocol = undefined,
                    host = undefined,
@@ -1005,8 +1009,15 @@ class ____AnaLogger
 
         this.options.logToLocalStorageMax = logToLocalStorageMax;
         this.options.logToLocalStorageSize = logToLocalStorageSize;
+
+        // Remote logging options
+        this.options.logToRemote = logToRemote;
+        this.options.logToRemoteUrl = logToRemoteUrl;
+        this.options.logToRemoteBinaryUrl = logToRemoteBinaryUrl;
         this.options.logToRemoteMaxEntries = logToRemoteMaxEntries;
         this.options.logToRemoteDebounce = logToRemoteDebounce;
+        this.options.logToRemoteMaxSize = logToRemoteMaxSize;
+        this.options.logToRemoteMinSize = logToRemoteMinSize;
 
         if (loadHtmlToImage) {
             const code = getHtmlToImage();
@@ -2007,7 +2018,7 @@ class ____AnaLogger
     {
         try
         {
-            if (this.options.logToRemoteMaxEntries === undefined && this.options.logToRemoteDebounce === undefined)
+            if (this.options.logToRemoteMaxEntries === undefined && this.options.logToRemoteDebounce === undefined && this.options.logToRemoteMaxSize === undefined)
             {
                 this.performRemotePost([...data]);
                 return;
@@ -2016,10 +2027,21 @@ class ____AnaLogger
             if (this.remoteBuffer)
             {
                 this.remoteBuffer.push([...data]);
+
                 if (this.options.logToRemoteMaxEntries !== undefined && this.remoteBuffer.length >= this.options.logToRemoteMaxEntries)
                 {
                     this.flushRemoteLogs();
                     return;
+                }
+
+                if (this.options.logToRemoteMaxSize !== undefined)
+                {
+                    const currentSize = JSON.stringify(this.remoteBuffer).length;
+                    if (currentSize >= this.options.logToRemoteMaxSize)
+                    {
+                        this.flushRemoteLogs();
+                        return;
+                    }
                 }
             }
 
@@ -2040,15 +2062,32 @@ class ____AnaLogger
 
     flushRemoteLogs()
     {
+        if (this.remoteBuffer.length === 0)
+        {
+            return;
+        }
+
+        if (this.options.logToRemoteMinSize !== undefined)
+        {
+            const currentSize = JSON.stringify(this.remoteBuffer).length;
+            if (currentSize < this.options.logToRemoteMinSize)
+            {
+                // If we haven't reached min size, and there's no timer, start one if debounce is set
+                if (this.options.logToRemoteDebounce !== undefined && !this.remoteTimer)
+                {
+                    this.remoteTimer = setTimeout(() =>
+                    {
+                        this.flushRemoteLogs();
+                    }, this.options.logToRemoteDebounce);
+                }
+                return;
+            }
+        }
+
         if (this.remoteTimer)
         {
             clearTimeout(this.remoteTimer);
             this.remoteTimer = null;
-        }
-
-        if (this.remoteBuffer.length === 0)
-        {
-            return;
         }
 
         const dataToFlush = [...this.remoteBuffer];
