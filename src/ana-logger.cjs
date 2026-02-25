@@ -1952,7 +1952,10 @@ class ____AnaLogger
 
     writeLogToDom(context, fullText, {addType = ADD_TYPE.BOTTOM, message = "", args = null} = {})
     {
-        this.$containers = this.$containers || document.querySelectorAll(this.options.logToDom);
+        if (!this.$containers || !this.$containers.length) {
+            this.$containers = document.querySelectorAll(this.options.logToDom);
+        }
+
         fullText = message || fullText;
 
         for (let i = 0; i < this.$containers.length; ++i)
