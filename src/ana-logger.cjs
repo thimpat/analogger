@@ -2733,9 +2733,11 @@ class ____AnaLogger
                 }
             }
 
-            if (this.options.hideLog || context.hideLog || context.silent)
-            {
-                return;
+            if (!(context.silent === false || context.hideLog === false)) {
+                if (this.options.hideLog || context.hideLog || context.silent)
+                {
+                    return;
+                }
             }
 
             this.writeToConsole(output, context);
