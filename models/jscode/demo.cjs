@@ -51,3 +51,14 @@ anaLogger.log({contextName: "WARN", lid: 100020, symbol: "raised_hand"}, "Test L
 
 anaLogger.log({contextName: "TEST2", lid: 100020, symbol: "raised_hand", color: "yellow"}, "Test Log example C4");
 anaLogger.log({contextName: "LOG"}, "Test Log example C4");
+
+
+anaLogger.setOptions({ only: /^API/ });
+
+anaLogger.log({ lid: "API_123" }, "This matches");
+anaLogger.log({ lid: "WEB_456" }, "This is blocked");
+
+anaLogger.setOptions({ only: "API" });
+
+anaLogger.log({ lid: "API_123" }, "This matches");
+anaLogger.log({ lid: "WEB_456" }, "This is blocked");
