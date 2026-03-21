@@ -718,9 +718,11 @@ class ____AnaLogger
 
         this.resetLogHistory();
 
-        // Tracks the last value seen for the local "only" option so we can
-        // clear the screen on the first match and print a separator when it changes.
-        this._localOnlyActive = undefined;
+        // Tracks the active local "only" filter across calls.
+        // _localOnlyFilter holds the raw value (for matching),
+        // _localOnlyLabel  holds the stringified form (for change-detection and separator text).
+        this._localOnlyFilter = undefined;
+        this._localOnlyLabel  = undefined;
     }
 
     getName()
@@ -2612,8 +2614,7 @@ class ____AnaLogger
     {
         const localOnly = context.only;
 
-        // Helper: test a lid string against a filter value using the same
-        // partial-string / regex / exact logic as the global "only" filter.
+        // Helper: test a lid string against a single filter entry.
         const lidMatchesFilter = (filter, lid) =>
         {
             if (filter instanceof RegExp)
@@ -2627,16 +2628,24 @@ class ____AnaLogger
             return filter === lid;
         };
 
+        // Helper: test a lid against a filter that may be a single value or an array.
+        const lidMatchesAny = (filter, lid) => Array.isArray(filter)
+            ? filter.some((f) => lidMatchesFilter(f, lid))
+            : lidMatchesFilter(filter, lid);
+
+        // Stable string label for a filter value (used for change-detection and separator text).
+        const toLabel = (filter) => Array.isArray(filter)
+            ? filter.map((f) => (f instanceof RegExp ? f.toString() : String(f))).join(", ")
+            : (filter instanceof RegExp ? filter.toString() : String(filter));
+
         const lid = context.lid || "";
 
         if (localOnly === undefined || localOnly === null)
         {
-            // This call carries no local only filter of its own.
-            // If a filter is already active from a previous call, enforce it:
-            // any lid that does not match the active filter is suppressed.
-            if (this._localOnlyActive !== undefined)
+            // No local only on this call. If a filter is already active, enforce it.
+            if (this._localOnlyFilter !== undefined)
             {
-                return lidMatchesFilter(this._localOnlyActive, lid);
+                return lidMatchesAny(this._localOnlyFilter, lid);
             }
 
             // No active filter at all – let the call through.
@@ -2645,24 +2654,18 @@ class ____AnaLogger
 
         // --- This call explicitly sets context.only ---
 
-        // Represent the filter as a stable, human-readable key.
-        // RegExp.toString() gives "/pattern/flags" which is unambiguous.
-        const onlyLabel = (localOnly instanceof RegExp)
-            ? localOnly.toString()
-            : String(localOnly);
-
-        // Check whether the current lid satisfies the new filter.
-        if (!lidMatchesFilter(localOnly, lid))
+        if (!lidMatchesAny(localOnly, lid))
         {
             // The lid doesn't match – suppress without clearing or printing a separator,
             // since the filter hasn't been "activated" by an accepted call yet.
             return false;
         }
 
-        // The lid matches. Decide whether to clear or print a separator.
-        if (this._localOnlyActive === undefined)
+        const onlyLabel = toLabel(localOnly);
+
+        if (this._localOnlyFilter === undefined)
         {
-            // First ever local-only match – clear the output channel.
+            // First ever match – clear the output channel.
             if (this.isBrowser())
             {
                 /* istanbul ignore next */
@@ -2676,9 +2679,9 @@ class ____AnaLogger
                 process.stdout.write("\x1bc");
             }
         }
-        else if (this._localOnlyActive !== onlyLabel)
+        else if (this._localOnlyLabel !== onlyLabel)
         {
-            // The filter value has changed – print a separator, no clear.
+            // Filter has changed – print a separator, no clear.
             const separator = `─── only switched to ${onlyLabel} ───`;
             if (this.isBrowser())
             {
@@ -2692,7 +2695,8 @@ class ____AnaLogger
             }
         }
 
-            this._localOnlyActive = onlyLabel;
+        this._localOnlyFilter = localOnly;   // raw value – used for matching
+        this._localOnlyLabel  = onlyLabel;   // string    – used for change detection
         return true;
     }
 
