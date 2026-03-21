@@ -717,6 +717,10 @@ class ____AnaLogger
         this.#initialiseDefault();
 
         this.resetLogHistory();
+
+        // Tracks the last value seen for the local "only" option so we can
+        // clear the screen on the first match and print a separator when it changes.
+        this._localOnlyActive = undefined;
     }
 
     getName()
@@ -2587,6 +2591,112 @@ class ____AnaLogger
     }
 
     /**
+     * Handle the local "only" option on a log context.
+     *
+     * Rules:
+     *  - If context.only is not set, do nothing.
+     *  - If context.only does NOT match context.lid (using the same partial-string /
+     *    regex logic as the global filter), the call is suppressed (returns false).
+     *  - On the very first matching call, the output channel is cleared:
+     *      • Browser  → console.clear()
+     *      • Node     → writes the terminal-reset sequence (\x1bc) to stdout
+     *  - On a subsequent matching call whose only value differs from the last seen
+     *    value, a separator line is printed instead of clearing.
+     *
+     * Returns false when the log entry should be suppressed, true otherwise.
+     *
+     * @param {object} context
+     * @returns {boolean}
+     */
+    #handleLocalOnly(context)
+    {
+        const localOnly = context.only;
+
+        // Helper: test a lid string against a filter value using the same
+        // partial-string / regex / exact logic as the global "only" filter.
+        const lidMatchesFilter = (filter, lid) =>
+        {
+            if (filter instanceof RegExp)
+            {
+                return filter.test(lid);
+            }
+            if (typeof filter === "string" || filter instanceof String)
+            {
+                return lid.includes(filter);
+            }
+            return filter === lid;
+        };
+
+        const lid = context.lid || "";
+
+        if (localOnly === undefined || localOnly === null)
+        {
+            // This call carries no local only filter of its own.
+            // If a filter is already active from a previous call, enforce it:
+            // any lid that does not match the active filter is suppressed.
+            if (this._localOnlyActive !== undefined)
+            {
+                return lidMatchesFilter(this._localOnlyActive, lid);
+            }
+
+            // No active filter at all – let the call through.
+            return true;
+        }
+
+        // --- This call explicitly sets context.only ---
+
+        // Represent the filter as a stable, human-readable key.
+        // RegExp.toString() gives "/pattern/flags" which is unambiguous.
+        const onlyLabel = (localOnly instanceof RegExp)
+            ? localOnly.toString()
+            : String(localOnly);
+
+        // Check whether the current lid satisfies the new filter.
+        if (!lidMatchesFilter(localOnly, lid))
+        {
+            // The lid doesn't match – suppress without clearing or printing a separator,
+            // since the filter hasn't been "activated" by an accepted call yet.
+            return false;
+        }
+
+        // The lid matches. Decide whether to clear or print a separator.
+        if (this._localOnlyActive === undefined)
+        {
+            // First ever local-only match – clear the output channel.
+            if (this.isBrowser())
+            {
+                /* istanbul ignore next */
+                ____AnaLogger.Console.clear
+                    ? ____AnaLogger.Console.clear()
+                    : (typeof console !== "undefined" && console.clear && console.clear());
+            }
+            else
+            {
+                // ANSI terminal reset: clears the screen and moves cursor to top.
+                process.stdout.write("\x1bc");
+            }
+        }
+        else if (this._localOnlyActive !== onlyLabel)
+        {
+            // The filter value has changed – print a separator, no clear.
+            const separator = `─── only switched to ${onlyLabel} ───`;
+            if (this.isBrowser())
+            {
+                /* istanbul ignore next */
+                ____AnaLogger.Console.log(`%c${separator}`, "color: #888; font-style: italic");
+            }
+            else
+            {
+                // Use the raw console so the separator bypasses all AnaLogger formatting.
+                ____AnaLogger.Console.log(separator);
+            }
+        }
+
+            this._localOnlyActive = onlyLabel;
+        return true;
+    }
+
+    /**
      * Display log following template
      * @param context
      * @param argsWithoutContext
@@ -2675,6 +2785,12 @@ class ____AnaLogger
                 if (!matchesFilter) {
                     return;
                 }
+            }
+
+            // Handle the per-call local "only" option.
+            if (!this.#handleLocalOnly(context))
+            {
+                return;
             }
 
             const newMessages = this.checkOnLogging(context, argsWithoutContext[0], arguments,"onMessage");
