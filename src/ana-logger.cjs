@@ -928,6 +928,7 @@ class ____AnaLogger
         this.options.contextLenMax = 10;
         this.options.idLenMax = 5;
         this.options.lidLenMax = 6;
+        this.options.only = undefined;
         this.options.messageLenMax = undefined;
         this.options.symbolLenMax = 60;
         this.options.hideHookMessage = undefined;
@@ -977,6 +978,7 @@ class ____AnaLogger
                    contextLenMax = 10,
                    idLenMax = 5,
                    lidLenMax = 6,
+                   only = undefined,
                    symbolLenMax = 2,
                    enableTrace = true,
                    messageLenMax = undefined,
@@ -1022,6 +1024,7 @@ class ____AnaLogger
         this.options.contextLenMax = contextLenMax;
         this.options.idLenMax = idLenMax;
         this.options.lidLenMax = lidLenMax;
+        this.options.only = only;
         this.options.messageLenMax = messageLenMax;
         this.options.symbolLenMax = symbolLenMax;
 
@@ -2613,7 +2616,7 @@ class ____AnaLogger
                         lid: context.lid,
                         callCount: 1,
                         callTimes: [Date.now()]
-                    }
+                    };
                 }
             }
 
@@ -2647,6 +2650,31 @@ class ____AnaLogger
             if (this.options.requiredLogLevel > context.logLevel)
             {
                 return;
+            }
+
+            // Check if global "only" filter is active
+            if (this.options.only !== undefined && this.options.only !== null) {
+                const onlyFilters = Array.isArray(this.options.only) ? this.options.only : [this.options.only];
+                // Check if current log matches one of the filters
+                const matchesFilter = onlyFilters.some((filter) => {
+                    const targetLid = context.lid || "";
+                    const targetOnly = context.only || "";
+
+                    if (filter instanceof RegExp) {
+                        return filter.test(targetLid) || filter.test(targetOnly);
+                    }
+
+                    // String partial match (e.g., "API" matches "API_123")
+                    if (typeof filter === "string") {
+                        return targetLid.includes(filter) || targetOnly.includes(filter);
+                    }
+
+                    return filter === targetLid || filter === targetOnly;
+                });
+
+                if (!matchesFilter) {
+                    return;
+                }
             }
 
             const newMessages = this.checkOnLogging(context, argsWithoutContext[0], arguments,"onMessage");
@@ -2771,6 +2799,7 @@ class ____AnaLogger
             options.hasOwnProperty("color") ||
             options.hasOwnProperty("contextName") ||
             options.hasOwnProperty("raw") ||
+            options.hasOwnProperty("only") ||
             options.hasOwnProperty("lid");
     }
 

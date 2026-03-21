@@ -123,7 +123,7 @@ declare class ____AnaLogger {
     resetLogger(): void;
     remoteWaitCount: any;
     resetOptions(): void;
-    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, logUidToRemote, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, only, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, logUidToRemote, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
     EOL: string;
     updateOptions(options: any): void;
     getOptions(): {
