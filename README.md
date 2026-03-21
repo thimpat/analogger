@@ -245,6 +245,19 @@ anaLogger.log({lid: 1236, symbol: "scissors"}, `I'am some log with some scissors
 
 <br/>
 
+#### Example 6: The "only" filter
+
+###### You can filter logs globally so that only specific identifiers are displayed. This supports exact strings, partial matches, or regular expressions.
+
+```javascript
+// Only show logs where the LID or context contains "API"
+anaLogger.setOptions({ only: "API" });
+
+anaLogger.log({ lid: "API_123" }, "This matches and will be seen");
+anaLogger.log({ lid: "WEB_456" }, "This is blocked and hidden");
+```
+
+
 ---
 
 ### listSymbols()
@@ -312,6 +325,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | compressionLevel      | 	1	         | number                            | _Gzip compression level (0-9)_                                                     |
 | addArchiveTimestamp   | 	true       | boolean                           | 	_Appends a consistent timestamp to rotated files_                                 |
 | forceLidOn            | 	false      | boolean                           | 	_Automatically generates a short hash LID if one isn't provided_                  |
+| only | undefined | string/Regex/Array | Filter logs to show only those matching specific IDs or patterns |
 
 <br/>
 
