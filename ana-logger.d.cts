@@ -75,6 +75,8 @@ declare class ____AnaLogger {
         NODE: string;
         OTHER: string;
     };
+    _localOnlyFilter: any;
+    _localOnlyLabel: string;
     getName(): string;
     getId(): string;
     /**
