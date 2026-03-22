@@ -89,5 +89,13 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     anaLogger.log({lid: "WEB_456", order: 35}, "I'm last");
     anaLogger.log({lid: "API_123", order: 2}, "I'm second");
 
+
+    // ---------------------------------------------------
+    // Check Max Seen
+    // ---------------------------------------------------
+    anaLogger.log({lid: "API", maxSeen: 1}, "I'm first");   // OK — seen 1 time
+    anaLogger.log({lid: "API", maxSeen: 1}, "I'm second");  // Warning — seen 2 times
+    anaLogger.log({lid: "API", maxSeen: 1}, "I'm third");   // Warning — seen 3 times
+
 }());
 
