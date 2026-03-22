@@ -305,6 +305,50 @@ When the limit is exceeded the following warning is printed to the console:
 > - Calls filtered out by `only`, targets, or log levels are not counted.
 > - `maxSeen` can be combined with `order` in the same context object.
 
+---
+
+#### Example 9: The "test" option and `report()`
+
+###### Attach an inline assertion to any log call. Pass `test: false` (or a function that returns `false`) and AnaLogger records a failure and emits a warning immediately. Call `report()` at any point to print a summary of all pass/fail results.
+
+```javascript
+anaLogger.log({lid: "API_1", test: false},      "I'm first");   // fails — boolean
+anaLogger.log({lid: "API_2", test: () => false}, "I'm second");  // fails — function
+anaLogger.log({lid: "API_3", test: true},        "I'm third");   // passes
+anaLogger.log({lid: "API_4", test: () => true},  "I'm fourth");  // passes
+
+anaLogger.report();
+```
+
+Failing calls emit an immediate warning:
+
+```
+! Test failed: [API_1] I'm first
+! Test failed: [API_2] I'm second
+```
+
+`report()` then prints a bordered summary. If any test failed the output is **bold red**; if all tests passed it is **bold green**:
+
+```
+================== ANALOGGER TEST RESULT ================
+  Total  : 4
+  Passed : 2
+  Failed : 2
+==========================================================
+```
+
+`report()` also returns the counts as an object, so you can assert on them programmatically:
+
+```javascript
+const {total, passed, failed} = anaLogger.report();
+```
+
+> **Notes:**
+> - `test` accepts a plain boolean or a zero-argument function — both are resolved to a boolean.
+> - Every call that carries a `test` key is recorded, whether it passes or fails.
+> - Calls without a `test` key are completely transparent and never appear in the report.
+> - Results accumulate across the lifetime of the instance. Call `anaLogger._testResults = []` to reset between suites if needed.
+
 
 ---
 
@@ -376,6 +420,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | only | undefined | string/Regex/Array | Filter logs to show only those matching specific IDs or patterns |
 | order | undefined | number | _Enforce call order — emits a console warning if a log with a lower order value appears after one with a higher value_ |
 | maxSeen | undefined | number | _Emits a console warning when the same lid is logged more times than this limit_ |
+| test | undefined | boolean / () => boolean | _Records a pass/fail result for the log call; emits a warning immediately on failure. Use_ `report()` _to see the full summary_ |
 
 <br/>
 
@@ -1399,6 +1444,7 @@ anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 *  Keep format when displaying multiple lines for one entry
 *  Add `order` option to detect and warn on out-of-sequence log calls
 *  Add `maxSeen` option to warn when a lid is logged more times than allowed
+*  Add `test` context option and `report()` method for inline assertions and test summaries
 
 
 ##### 1.23.2:
