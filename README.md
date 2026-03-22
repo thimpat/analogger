@@ -260,6 +260,30 @@ anaLogger.log({ lid: "WEB_456" }, "This is blocked and hidden");
 
 ---
 
+#### Example 7: The "order" option
+
+###### Enforce a call sequence by assigning an `order` number to each log entry. If a log with a lower order value appears after one with a higher value, AnaLogger emits a console warning. Calls without an `order` are transparent and do not affect the sequence.
+
+```javascript
+anaLogger.log({lid: "API",     order: 1},  "This matches");
+anaLogger.log({lid: "API_123", order: 2},  "This shows API_123");
+anaLogger.log({lid: "WEB_456", order: 35}, "This is blocked");
+```
+
+If the calls arrive out of sequence — for example, `API_123` (order 2) appearing after `WEB_456` (order 35) — the following warning is printed to the console:
+
+```
+! Order mismatch:  [API_123| order: 2] appeared after [WEB_456| order: 35]
+```
+
+> **Notes:**
+> - The check is per-instance, so different AnaLogger instances track their own sequences independently.
+> - Calls filtered out by `only`, targets, or log levels are not counted toward the sequence.
+> - Equal order values (non-decreasing) are always allowed; only strictly lower values trigger the warning.
+
+
+---
+
 ### listSymbols()
 
 Display the list of supported symbols.
@@ -326,6 +350,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | addArchiveTimestamp   | 	true       | boolean                           | 	_Appends a consistent timestamp to rotated files_                                 |
 | forceLidOn            | 	false      | boolean                           | 	_Automatically generates a short hash LID if one isn't provided_                  |
 | only | undefined | string/Regex/Array | Filter logs to show only those matching specific IDs or patterns |
+| order | undefined | number | _Enforce call order — emits a console warning if a log with a lower order value appears after one with a higher value_ |
 
 <br/>
 
@@ -1347,6 +1372,7 @@ anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 *  Add an option to show the date and time in logs
 *  Make the alert method display the lid when detected
 *  Keep format when displaying multiple lines for one entry
+*  Add `order` option to detect and warn on out-of-sequence log calls
 
 
 ##### 1.23.2:
