@@ -730,6 +730,10 @@ class ____AnaLogger
         // Tracks how many times each lid has been seen, keyed by lid string.
         // Used by the "maxSeen" context option.
         this._seenCount = {};
+
+        // Accumulates test results recorded by the "test" context option.
+        // Each entry is { lid, passed, message }.
+        this._testResults = [];
     }
 
     getName()
@@ -2295,6 +2299,7 @@ class ____AnaLogger
                     context.symbol = "floppy_disk";
                     delete context.order;
                     delete context.maxSeen;
+                    delete context.test;
                 }
                 this.processOutput(context, ...args);
             });
@@ -2661,6 +2666,85 @@ class ____AnaLogger
     }
 
     /**
+     * Evaluate the "test" context option and record the result.
+     * - If test is a function, it is called with no arguments and its return value is used.
+     * - If the resolved value is falsy a console warning is emitted immediately.
+     * - Every call (pass or fail) is appended to this._testResults for report().
+     *
+     * @param {object} context
+     * @param {string} message  — the log message, used in the test record
+     */
+    #checkTest(context, message)
+    {
+        if (!context.hasOwnProperty("test"))
+        {
+            return;
+        }
+
+        const lid        = context.lid || "";
+        const testVal    = context.test;
+        const passed     = typeof testVal === "function" ? !!testVal() : !!testVal;
+
+        this._testResults.push({lid, passed, message});
+
+        if (!passed)
+        {
+            ____AnaLogger.Console.warn(`! Test failed: [${lid}] ${message}`);
+        }
+    }
+
+    /**
+     * Print a summary of all test results collected via the "test" context option.
+     * If any test failed the banner and counts are printed in bold red (Node) or
+     * red CSS (browser); otherwise they are printed in green.
+     *
+     * Output format:
+     * ================== ANALOGGER TEST RESULT ================
+     *   Total  : N
+     *   Passed : N
+     *   Failed : N
+     * ==========================================================
+     */
+    report()
+    {
+        const total  = this._testResults.length;
+        const passed = this._testResults.filter((r) => r.passed).length;
+        const failed = total - passed;
+        const hasFailed = failed > 0;
+
+        const BORDER  = "================== ANALOGGER TEST RESULT ================";
+        const BORDER2 = "==========================================================";
+        const lines   = [
+            BORDER,
+            `  Total  : ${total}`,
+            `  Passed : ${passed}`,
+            `  Failed : ${failed}`,
+            BORDER2,
+        ];
+
+        if (this.isBrowser())
+        {
+            const style = hasFailed
+                ? "color: red; font-weight: bold;"
+                : "color: green; font-weight: bold;";
+            lines.forEach((line) => ____AnaLogger.Console.log(`%c${line}`, style));
+        }
+        else
+        {
+            lines.forEach((line) =>
+            {
+                const styled = toAnsi.getTextFromColor(line, {
+                    fg    : hasFailed ? "#FF0000" : "#00CC44",
+                    isBold: true,
+                });
+                ____AnaLogger.Console.log(styled);
+            });
+        }
+
+        return {total, passed, failed};
+    }
+
+    /**
      * Handle the local "only" option on a log context.
      *
      * Rules:
@@ -2879,6 +2963,9 @@ class ____AnaLogger
             let args = argsWithoutContext;
 
             message = this.convertArgumentsToText(args);
+
+            // Evaluate the "test" option and record the pass/fail result.
+            this.#checkTest(context, message);
 
             // Ensure UID is set early so it's available in history/context when requested
             if (this.options.logUidToRemote)

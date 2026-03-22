@@ -82,6 +82,7 @@ declare class ____AnaLogger {
         order: any;
     };
     _seenCount: {};
+    _testResults: any[];
     getName(): string;
     getId(): string;
     /**
@@ -318,6 +319,23 @@ declare class ____AnaLogger {
     checkOnLogging(context: any, data: any, extras: any, callbackName: any): any;
     isContextMessagePattern(str: any): boolean;
     transformContextMessage(template: any, data: any): any;
+    /**
+     * Print a summary of all test results collected via the "test" context option.
+     * If any test failed the banner and counts are printed in bold red (Node) or
+     * red CSS (browser); otherwise they are printed in green.
+     *
+     * Output format:
+     * ================== ANALOGGER TEST RESULT ================
+     *   Total  : N
+     *   Passed : N
+     *   Failed : N
+     * ==========================================================
+     */
+    report(): {
+        total: number;
+        passed: number;
+        failed: number;
+    };
     /**
      * Display log following template
      * @param context
