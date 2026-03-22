@@ -97,5 +97,13 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     anaLogger.log({lid: "API", maxSeen: 1}, "I'm second");  // Warning — seen 2 times
     anaLogger.log({lid: "API", maxSeen: 1}, "I'm third");   // Warning — seen 3 times
 
+    // ---------------------------------------------------
+    // Test
+    // ---------------------------------------------------
+    anaLogger.log({lid: "API_1", test: false},      "I'm first");   // fails — boolean
+    anaLogger.log({lid: "API_2", test: () => false}, "I'm second");  // fails — function
+    anaLogger.log({lid: "API_3", test: true},        "I'm third");   // passes
+    anaLogger.log({lid: "API_4", test: () => true},  "I'm fourth");  // passes
+    anaLogger.report();
 }());
 
