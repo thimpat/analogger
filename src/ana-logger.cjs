@@ -723,6 +723,9 @@ class ____AnaLogger
         // _localOnlyLabel  holds the stringified form (for change-detection and separator text).
         this._localOnlyFilter = undefined;
         this._localOnlyLabel  = undefined;
+
+        // Tracks the last seen "order" entry { lid, order } for order-mismatch detection.
+        this._lastOrderEntry = null;
     }
 
     getName()
@@ -2286,6 +2289,7 @@ class ____AnaLogger
                 const {context, args} = entry;
                 if (context) {
                     context.symbol = "floppy_disk";
+                    delete context.order;
                 }
                 this.processOutput(context, ...args);
             });
@@ -2593,6 +2597,38 @@ class ____AnaLogger
     }
 
     /**
+     * Check that log calls with an "order" property arrive in non-decreasing order.
+     * When a call with a lower order value appears after one with a higher order value,
+     * a warning is printed:
+     *   ! Order mismatch: [API_123| order: 2] appeared after [WEB_456| order: 35]
+     *
+     * @param {object} context
+     */
+    #checkOrder(context)
+    {
+        if (context.order === undefined || context.order === null)
+        {
+            return;
+        }
+
+        const currentOrder = context.order;
+        const currentLid   = context.lid || "";
+
+        if (this._lastOrderEntry !== null)
+        {
+            const {lid: prevLid, order: prevOrder} = this._lastOrderEntry;
+
+            if (currentOrder < prevOrder)
+            {
+                const msg = `! Order mismatch:  [${currentLid}| order: ${currentOrder}] appeared after [${prevLid}| order: ${prevOrder}]`;
+                ____AnaLogger.Console.warn(msg);
+            }
+        }
+
+        this._lastOrderEntry = {lid: currentLid, order: currentOrder};
+    }
+
+    /**
      * Handle the local "only" option on a log context.
      *
      * Rules:
@@ -2796,6 +2832,9 @@ class ____AnaLogger
             {
                 return;
             }
+
+            // Check that "order" values are non-decreasing across calls.
+            this.#checkOrder(context);
 
             const newMessages = this.checkOnLogging(context, argsWithoutContext[0], arguments,"onMessage");
             if (newMessages !== undefined) {

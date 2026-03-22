@@ -77,6 +77,10 @@ declare class ____AnaLogger {
     };
     _localOnlyFilter: any;
     _localOnlyLabel: string;
+    _lastOrderEntry: {
+        lid: any;
+        order: any;
+    };
     getName(): string;
     getId(): string;
     /**
