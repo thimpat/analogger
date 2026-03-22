@@ -726,6 +726,10 @@ class ____AnaLogger
 
         // Tracks the last seen "order" entry { lid, order } for order-mismatch detection.
         this._lastOrderEntry = null;
+
+        // Tracks how many times each lid has been seen, keyed by lid string.
+        // Used by the "maxSeen" context option.
+        this._seenCount = {};
     }
 
     getName()
@@ -2290,6 +2294,7 @@ class ____AnaLogger
                 if (context) {
                     context.symbol = "floppy_disk";
                     delete context.order;
+                    delete context.maxSeen;
                 }
                 this.processOutput(context, ...args);
             });
@@ -2629,6 +2634,33 @@ class ____AnaLogger
     }
 
     /**
+     * Check that a lid is not logged more times than its maxSeen limit.
+     * When the count exceeds the limit a warning is emitted:
+     *   ! MaxSeen exceeded: [API| maxSeen: 1] has been seen 2 time(s)
+     *
+     * @param {object} context
+     */
+    #checkMaxSeen(context)
+    {
+        if (context.maxSeen === undefined || context.maxSeen === null)
+        {
+            return;
+        }
+
+        const lid      = context.lid || "";
+        const maxSeen  = context.maxSeen;
+
+        this._seenCount[lid] = (this._seenCount[lid] || 0) + 1;
+        const count = this._seenCount[lid];
+
+        if (count > maxSeen)
+        {
+            const msg = `! MaxSeen exceeded: [${lid}| maxSeen: ${maxSeen}] has been seen ${count} time(s)`;
+            ____AnaLogger.Console.warn(msg);
+        }
+    }
+
+    /**
      * Handle the local "only" option on a log context.
      *
      * Rules:
@@ -2835,6 +2867,9 @@ class ____AnaLogger
 
             // Check that "order" values are non-decreasing across calls.
             this.#checkOrder(context);
+
+            // Check that a lid is not logged more times than its maxSeen limit.
+            this.#checkMaxSeen(context);
 
             const newMessages = this.checkOnLogging(context, argsWithoutContext[0], arguments,"onMessage");
             if (newMessages !== undefined) {

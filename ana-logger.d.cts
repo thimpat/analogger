@@ -81,6 +81,7 @@ declare class ____AnaLogger {
         lid: any;
         order: any;
     };
+    _seenCount: {};
     getName(): string;
     getId(): string;
     /**
