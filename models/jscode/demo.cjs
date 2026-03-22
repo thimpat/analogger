@@ -53,11 +53,11 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     anaLogger.log({contextName: "TEST2", lid: 100020, symbol: "raised_hand", color: "yellow"}, "Test Log example C4");
     anaLogger.log({contextName: "LOG"}, "Test Log example C4");
 
-// ---------------------------------------------------
-// Only clears the screen, so we won't see the previous log
-// ---------------------------------------------------
+    // ---------------------------------------------------
+    // Only clears the screen, so we won't see the previous log
+    // ---------------------------------------------------
 
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     anaLogger.log({lid: "API_001", only: ["API", "WEB"]}, "matches API");   // clears, prints
     anaLogger.log({lid: "WEB_002"}, "matches WEB – no only needed");         // enforced, prints
@@ -72,15 +72,22 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
 
     anaLogger.log({lid: "API", only: "API"}, "This matches");
     anaLogger.log({lid: "API", only: ""}, "This matches");
-// → clears terminal/browser, then prints the log
+    // → clears terminal/browser, then prints the log
 
     anaLogger.log({lid: "API_123"}, "This shows");
-// → no local only on this call, passes straight through
+    // → no local only on this call, passes straight through
 
     anaLogger.log({lid: "WEB_456", only: "API"}, "This is blocked");
-// → "WEB_456".includes("API") is false → suppressed silently
+    // → "WEB_456".includes("API") is false → suppressed silently
 
     anaLogger.log({lid: "WEB_456", only: null}, "Cancel the functionality");
+
+    // ---------------------------------------------------
+    // Check Orders
+    // ---------------------------------------------------
+    anaLogger.log({lid: "API", order: 1}, "I'm first");
+    anaLogger.log({lid: "WEB_456", order: 35}, "I'm last");
+    anaLogger.log({lid: "API_123", order: 2}, "I'm second");
 
 }());
 
