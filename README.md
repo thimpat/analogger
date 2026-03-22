@@ -281,6 +281,30 @@ If the calls arrive out of sequence — for example, `API_123` (order 2) appeari
 > - Calls filtered out by `only`, targets, or log levels are not counted toward the sequence.
 > - Equal order values (non-decreasing) are always allowed; only strictly lower values trigger the warning.
 
+---
+
+#### Example 8: The "maxSeen" option
+
+###### Limit how many times a given lid may be logged. Once the count exceeds `maxSeen`, every subsequent call emits a console warning. The limit and the counter are both tied to the lid string, so different lids track independently.
+
+```javascript
+anaLogger.log({lid: "API", maxSeen: 1}, "I'm first");   // OK — seen 1 time
+anaLogger.log({lid: "API", maxSeen: 1}, "I'm second");  // Warning — seen 2 times
+anaLogger.log({lid: "API", maxSeen: 1}, "I'm third");   // Warning — seen 3 times
+```
+
+When the limit is exceeded the following warning is printed to the console:
+
+```
+! MaxSeen exceeded: [API| maxSeen: 1] has been seen 2 time(s)
+! MaxSeen exceeded: [API| maxSeen: 1] has been seen 3 time(s)
+```
+
+> **Notes:**
+> - The counter is per-instance and per-lid — different lids each have their own count.
+> - Calls filtered out by `only`, targets, or log levels are not counted.
+> - `maxSeen` can be combined with `order` in the same context object.
+
 
 ---
 
@@ -351,6 +375,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | forceLidOn            | 	false      | boolean                           | 	_Automatically generates a short hash LID if one isn't provided_                  |
 | only | undefined | string/Regex/Array | Filter logs to show only those matching specific IDs or patterns |
 | order | undefined | number | _Enforce call order — emits a console warning if a log with a lower order value appears after one with a higher value_ |
+| maxSeen | undefined | number | _Emits a console warning when the same lid is logged more times than this limit_ |
 
 <br/>
 
@@ -1373,6 +1398,7 @@ anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 *  Make the alert method display the lid when detected
 *  Keep format when displaying multiple lines for one entry
 *  Add `order` option to detect and warn on out-of-sequence log calls
+*  Add `maxSeen` option to warn when a lid is logged more times than allowed
 
 
 ##### 1.23.2:
