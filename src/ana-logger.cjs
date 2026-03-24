@@ -3784,7 +3784,7 @@ class ____AnaLogger
                 else            onlyIn2.push(lid);
             }
 
-            // Build display rows: shared lids paired, then staggered exclusives
+            // Build display rows: shared lids paired, then each exclusive lid on its own row
             const rows = [];
             for (const lid of inBoth) {
                 rows.push({
@@ -3793,15 +3793,20 @@ class ____AnaLogger
                     msgRight: map2.get(lid)?.message ?? "",
                 });
             }
-            const maxOnly = Math.max(onlyIn1.length, onlyIn2.length);
-            for (let i = 0; i < maxOnly; i++) {
-                const l = onlyIn1[i] ?? "";
-                const r = onlyIn2[i] ?? "";
+            for (const lid of onlyIn1) {
                 rows.push({
-                    left: l, right: r,
-                    status: l && r ? "diff" : (l ? "left" : "right"),
-                    msgLeft : l ? (map1.get(l)?.message ?? "") : "",
-                    msgRight: r ? (map2.get(r)?.message ?? "") : "",
+                    left: lid, right: "",
+                    status: "left",
+                    msgLeft : map1.get(lid)?.message ?? "",
+                    msgRight: "",
+                });
+            }
+            for (const lid of onlyIn2) {
+                rows.push({
+                    left: "", right: lid,
+                    status: "right",
+                    msgLeft : "",
+                    msgRight: map2.get(lid)?.message ?? "",
                 });
             }
 
