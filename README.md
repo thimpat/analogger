@@ -1436,6 +1436,190 @@ anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 ---
 
 
+---
+
+## Snapshots
+
+Snapshots let you capture the set of log IDs (lids) seen at a specific point in time, persist them, and later compare two captures side by side. This is useful for regression checks — verifying that the same lids fire in two different runs, or that a code change does not add or remove unexpected log calls.
+
+Snapshots work in both **Node.js** (persisted as JSON files under `os.tmpdir()/analogger-snapshots/`) and the **browser** (persisted in `localStorage`).
+
+> `keepLogHistory()` must be called before any logging starts, as snapshots read from the in-memory log history.
+
+---
+
+### startSnapshotProcess()
+
+Marks the start of a snapshot window. Any subsequent `takeSnapshot()` call will only capture lids logged **from this point forward**, ignoring everything already in the history. Calling it again moves the window start to the current position.
+
+```javascript
+anaLogger.keepLogHistory();
+
+anaLogger.log({ lid: "BOOT_001" }, "application boot");  // excluded
+anaLogger.log({ lid: "BOOT_002" }, "config loaded");     // excluded
+
+anaLogger.startSnapshotProcess();
+
+anaLogger.log({ lid: "WEB_001" }, "request received");   // included
+anaLogger.log({ lid: "WEB_002" }, "response sent");      // included
+
+anaLogger.takeSnapshot("SNAP01");   // captures only WEB_001 and WEB_002
+```
+
+If `startSnapshotProcess()` is never called, `takeSnapshot()` captures the entire history.
+
+<br/>
+
+---
+
+### takeSnapshot()
+
+Captures all lids logged since the last `startSnapshotProcess()` (or since session start) and persists the snapshot under a unique ID.
+
+Returns the array of captured entries so you can inspect or assert on them programmatically.
+
+```javascript
+takeSnapshot(snapshotID, options?)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `snapshotID` | `string` | — | Unique label for this snapshot, e.g. `"SNAP01"` |
+| `options.messages` | `boolean` | `true` | Store the log message alongside each lid |
+| `options.context` | `boolean` | `true` | Store the full context object alongside each lid |
+
+```javascript
+anaLogger.keepLogHistory();
+anaLogger.log({ lid: "API_001" }, "initialised");
+anaLogger.log({ lid: "WEB_002" }, "request in");
+
+// Capture lids + messages + context (defaults)
+const entries = anaLogger.takeSnapshot("SNAP01");
+// entries = [{ lid: "API_001", message: "initialised", context: {...} }, ...]
+
+// Capture lids only (lighter footprint)
+anaLogger.takeSnapshot("SNAP02", { messages: false, context: false });
+```
+
+In Node.js the snapshot is written to a file and its path is logged:
+
+```
+[AnaLogger] Snapshot "SNAP01" saved - 2 lid(s) captured.
+[AnaLogger] Snapshot persisted to: /tmp/analogger-snapshots/analogger_snapshot_default_SNAP01.json
+```
+
+Because the file lives in `os.tmpdir()`, snapshots persist across Node process restarts — you can take `SNAP01` in one run and compare it in a later one.
+
+<br/>
+
+---
+
+### compareSnapshots()
+
+Loads two previously saved snapshots and prints a side-by-side diff table using `console.table`, which gives automatic column alignment in both Node.js terminals and browser devtools.
+
+```javascript
+compareSnapshots(snapshotID1, snapshotID2, displayOpts?)
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `snapshotID1` | `string` | — | ID of the first snapshot |
+| `snapshotID2` | `string` | — | ID of the second snapshot |
+| `displayOpts[0].messages` | `boolean` | `false` | Show a message column for snapshot 1 |
+| `displayOpts[1].messages` | `boolean` | `false` | Show a message column for snapshot 2 |
+
+Returns `{ onlyInSnap1, onlyInSnap2, inBoth }` for programmatic use, or `null` if either snapshot is not found.
+
+#### Basic comparison (lids only)
+
+```javascript
+anaLogger.compareSnapshots("SNAP01", "SNAP02");
+```
+
+```
+Snapshot comparison: "SNAP01"  vs  "SNAP02"
+  SNAP01 captured at 09:04:28 - 3 lid(s)
+  SNAP02 captured at 09:04:31 - 4 lid(s)
+
+┌─────────┬─────────┬─────────┐
+│ (index) │  SNAP01 │  SNAP02 │
+├─────────┼─────────┼─────────┤
+│    0    │ API_001 │ API_001 │
+│    1    │ WEB_002 │ WEB_002 │
+│    2    │ DB_003  │         │
+│    3    │         │ WEB_004 │
+└─────────┴─────────┴─────────┘
+```
+
+#### With message columns
+
+```javascript
+anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }]);
+```
+
+```
+┌─────────┬─────────┬──────────────────────┬─────────┬──────────────────────┐
+│ (index) │  SNAP01 │   SNAP01 message     │  SNAP02 │   SNAP02 message     │
+├─────────┼─────────┼──────────────────────┼─────────┼──────────────────────┤
+│    0    │ API_001 │ 'initialised'        │ API_001 │ 'initialised'        │
+│    1    │ WEB_002 │ 'request in'         │         │                      │
+│    2    │         │                      │ WEB_004 │ 'new endpoint added' │
+└─────────┴─────────┴──────────────────────┴─────────┴──────────────────────┘
+```
+
+You can also enable messages for only one side:
+
+```javascript
+// Messages only for SNAP02
+anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: false }, { messages: true }]);
+```
+
+In the browser, `compareSnapshots` also injects a colour-coded HTML widget into the `#analogger` DOM container (or `document.body` as a fallback): lids present in both snapshots are shown in neutral, snap1-only rows are highlighted in red, and snap2-only rows in green.
+
+#### Using the return value
+
+```javascript
+const { onlyInSnap1, onlyInSnap2, inBoth } = anaLogger.compareSnapshots("SNAP01", "SNAP02");
+
+if (onlyInSnap2.length > 0) {
+    console.warn("New lids appeared in SNAP02:", onlyInSnap2);
+}
+```
+
+#### Full workflow example
+
+```javascript
+const { anaLogger } = require("analogger");
+
+anaLogger.keepLogHistory();
+
+// --- First run (or first phase) ---
+anaLogger.startSnapshotProcess();
+anaLogger.log({ lid: "API_001" }, "initialised");
+anaLogger.log({ lid: "WEB_002" }, "request received");
+anaLogger.log({ lid: "DB_003"  }, "query executed");
+anaLogger.takeSnapshot("SNAP01");
+
+// --- Second run (or second phase, e.g. after a code change) ---
+anaLogger.startSnapshotProcess();
+anaLogger.log({ lid: "API_001" }, "initialised");
+anaLogger.log({ lid: "WEB_002" }, "request received");
+// DB_003 is gone, WEB_004 is new
+anaLogger.log({ lid: "WEB_004" }, "cache hit");
+anaLogger.takeSnapshot("SNAP02");
+
+// --- Compare ---
+const diff = anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }]);
+// diff.onlyInSnap1 => ["DB_003"]   (removed)
+// diff.onlyInSnap2 => ["WEB_004"]  (added)
+// diff.inBoth      => ["API_001", "WEB_002"]
+```
+
+<br/>
+
+---
+
 ## Changelog
 
 ##### current:
@@ -1445,6 +1629,9 @@ anaLogger.log("lid: USR_LOGIN, color: purple", "User logged in");
 *  Add `order` option to detect and warn on out-of-sequence log calls
 *  Add `maxSeen` option to warn when a lid is logged more times than allowed
 *  Add `test` context option and `report()` method for inline assertions and test summaries
+*  Add `startSnapshotProcess()` to mark the start of a snapshot window
+*  Add `takeSnapshot(id, opts?)` to capture lids at a point in time; persists to `localStorage` (browser) or `os.tmpdir()` (Node); returns captured entries
+*  Add `compareSnapshots(id1, id2, displayOpts?)` to diff two snapshots side by side using `console.table`; optional message columns via `[{ messages: true }, { messages: true }]`
 
 
 ##### 1.23.2:
