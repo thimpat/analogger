@@ -2607,6 +2607,14 @@ class ____AnaLogger
     }
 
     /**
+     * Resets the order tracking.
+     */
+    resetOrder()
+    {
+        this._lastOrderEntry = null;
+    }
+
+    /**
      * Check that log calls with an "order" property arrive in non-decreasing order.
      * When a call with a lower order value appears after one with a higher order value,
      * a warning is printed:
@@ -2616,6 +2624,11 @@ class ____AnaLogger
      */
     #checkOrder(context)
     {
+        if (context.resetOrder)
+        {
+            this.resetOrder();
+        }
+
         if (context.order === undefined || context.order === null)
         {
             return;
