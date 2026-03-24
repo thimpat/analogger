@@ -320,6 +320,10 @@ declare class ____AnaLogger {
     isContextMessagePattern(str: any): boolean;
     transformContextMessage(template: any, data: any): any;
     /**
+     * Resets the order tracking.
+     */
+    resetOrder(): void;
+    /**
      * Print a summary of all test results collected via the "test" context option.
      * If any test failed the banner and counts are printed in bold red (Node) or
      * red CSS (browser); otherwise they are printed in green.
