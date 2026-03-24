@@ -100,10 +100,18 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     // ---------------------------------------------------
     // Test
     // ---------------------------------------------------
-    anaLogger.log({lid: "API_1", test: false},      "I'm first");   // fails — boolean
-    anaLogger.log({lid: "API_2", test: () => false}, "I'm second");  // fails — function
-    anaLogger.log({lid: "API_3", test: true},        "I'm third");   // passes
-    anaLogger.log({lid: "API_4", test: () => true},  "I'm fourth");  // passes
-    anaLogger.report();
+    // anaLogger.log({lid: "API_1", test: false},      "I'm first");   // fails — boolean
+    // anaLogger.log({lid: "API_2", test: () => false}, "I'm second");  // fails — function
+    // anaLogger.log({lid: "API_3", test: true},        "I'm third");   // passes
+    // anaLogger.log({lid: "API_4", test: () => true},  "I'm fourth");  // passes
+    // anaLogger.report();
+
+    // ---------------------------------------------------
+    // SnapShots
+    // ---------------------------------------------------
+    // anaLogger.takeSnapshot("SNAP01", {messages: true});
+    anaLogger.takeSnapshot("SNAP02", {messages: true});
+    anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }] );
+
 }());
 
