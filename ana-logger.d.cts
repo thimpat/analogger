@@ -424,6 +424,69 @@ declare class ____AnaLogger {
     alert(...args: any[]): void;
     assert(condition: any, expected?: boolean, ...args: any[]): boolean;
     /**
+     * Mark the start of a snapshot window.
+     * When called, any subsequent takeSnapshot() will only capture lids logged
+     * from this point forward, ignoring everything already in the history.
+     * Calling it again moves the window start to the current position.
+     *
+     * @example
+     * anaLogger.keepLogHistory();
+     * anaLogger.log({ lid: "WEB0001" }, "boot");   // excluded
+     * anaLogger.startSnapshotProcess();
+     * anaLogger.log({ lid: "WEB0002" }, "step 1"); // included
+     * anaLogger.takeSnapshot("SNAP01");             // captures only WEB0002
+     */
+    startSnapshotProcess(): void;
+    _snapshotWindowStart: number;
+    /**
+     * Capture all lids logged since the last startSnapshotProcess() (or since the
+     * beginning of the session if startSnapshotProcess was never called) into a
+     * named snapshot stored in localStorage / temp file.
+     *
+     * @param {string} snapshotID                            - unique label, e.g. "SNAP01"
+     * @param {{ messages?: boolean, context?: boolean }} [opts]
+     *   messages: true  - also store the log message per lid  (default: true)
+     *   context:  true  - also store the full context object  (default: true)
+     * @returns {object[]} The array of snapshot entries that were saved
+     *
+     * @example
+     * anaLogger.keepLogHistory();
+     * anaLogger.log({ lid: "WEB0001" }, "step 1");
+     * const entries = anaLogger.takeSnapshot("SNAP01");
+     * anaLogger.log({ lid: "WEB0002" }, "step 2");
+     * anaLogger.takeSnapshot("SNAP02", { messages: false, context: false });
+     */
+    takeSnapshot(snapshotID: string, opts?: {
+        messages?: boolean;
+        context?: boolean;
+    }): object[];
+    /**
+     * Compare two previously saved snapshots and print a side-by-side diff table
+     * showing which lids are shared, present only in snap1, or only in snap2.
+     *
+     * @param {string} snapshotID1
+     * @param {string} snapshotID2
+     * @param {[{ messages?: boolean }, { messages?: boolean }]} [displayOpts]
+     *   Optional per-snapshot display options.
+     *   displayOpts[0].messages = true  - add a message column for snapshotID1
+     *   displayOpts[1].messages = true  - add a message column for snapshotID2
+     * @returns {{ onlyInSnap1: string[], onlyInSnap2: string[], inBoth: string[] } | null}
+     *
+     * @example
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02");
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }]);
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: false }]);
+     */
+    compareSnapshots(snapshotID1: string, snapshotID2: string, displayOpts?: [{
+        messages?: boolean;
+    }, {
+        messages?: boolean;
+    }]): {
+        onlyInSnap1: string[];
+        onlyInSnap2: string[];
+        inBoth: string[];
+    } | null;
+    /**
      * Set standard Analogger format
      * @example
      * // Output Example

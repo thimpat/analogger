@@ -3566,6 +3566,385 @@ class ____AnaLogger
         return false;
     }
 
+    // ─── Snapshot storage ─────────────────────────────────────────────────────
+    // Browser  → localStorage
+    // Node.js  → os.tmpdir()/analogger-snapshots/<key>.json   (persists across runs)
+
+    /**
+     * Resolve the file path used to persist a snapshot in Node.js.
+     * The directory is created on first use.
+     * @param {string} key  – storage key, e.g. "analogger_snapshot_default_SNAP01"
+     * @returns {string}    – absolute file path
+     */
+    #_snapshotFilePath(key) {
+        /** to-esm-browser: remove **/
+        const dir = path.join(os.tmpdir(), "analogger-snapshots");
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        // Sanitise the key so it is always a safe filename
+        const safeName = key.replace(/[^a-zA-Z0-9_\-]/g, "_") + ".json";
+        return path.join(dir, safeName);
+        /** to-esm-browser: end-remove **/
+    }
+
+    #_snapshotGet(key) {
+        // Browser path
+        try {
+            if (this.isBrowser() && typeof localStorage !== "undefined") {
+                return localStorage.getItem(key);
+            }
+        } catch (e) {}
+
+        // Node.js path – read from temp file
+        /** to-esm-browser: remove **/
+        try {
+            const filePath = this.#_snapshotFilePath(key);
+            if (fs.existsSync(filePath)) {
+                return fs.readFileSync(filePath, "utf8");
+            }
+        } catch (e) {
+            console.error("[AnaLogger] snapshot read error:", e.message);
+        }
+        /** to-esm-browser: end-remove **/
+
+        return null;
+    }
+
+    #_snapshotSet(key, value) {
+        // Browser path
+        try {
+            if (this.isBrowser() && typeof localStorage !== "undefined") {
+                localStorage.setItem(key, value);
+                return;
+            }
+        } catch (e) {}
+
+        // Node.js path – write to temp file
+        /** to-esm-browser: remove **/
+        try {
+            const filePath = this.#_snapshotFilePath(key);
+            fs.writeFileSync(filePath, value, "utf8");
+            console.log(`[AnaLogger] Snapshot persisted to: ${filePath}`);
+        } catch (e) {
+            console.error("[AnaLogger] snapshot write error:", e.message);
+        }
+        /** to-esm-browser: end-remove **/
+    }
+
+    #_snapshotKey(snapshotID) {
+        return `analogger_snapshot_${this.instanceName || "default"}_${snapshotID}`;
+    }
+
+    /**
+     * Harvest lid entries from the current log history.
+     * Only entries logged after the last startSnapshotProcess() call are included
+     * when a snapshot window is active.
+     * @param {{ messages?: boolean, context?: boolean }} opts
+     * @returns {object[]}
+     */
+    #_harvestSnapshot(opts = {}) {
+        const { messages = true, context: includeContext = true } = opts;
+        const fullHistory = this.getRawLogHistory ? this.getRawLogHistory() : (this.logHistory || []);
+
+        // If a snapshot window is active, slice from the marker index
+        const history = this._snapshotWindowStart !== undefined
+            ? fullHistory.slice(this._snapshotWindowStart)
+            : fullHistory;
+
+        /** Deduplicate by lid - keep the last occurrence */
+        const seen = new Map();
+        for (const entry of history) {
+            const ctx = entry.context || {};
+            const lid = ctx.lid;
+            if (!lid) continue;
+            const record = { lid };
+            if (messages)       record.message = entry.message ?? "";
+            if (includeContext) record.context = { ...ctx };
+            seen.set(lid, record);
+        }
+        return Array.from(seen.values());
+    }
+
+    /**
+     * Mark the start of a snapshot window.
+     * When called, any subsequent takeSnapshot() will only capture lids logged
+     * from this point forward, ignoring everything already in the history.
+     * Calling it again moves the window start to the current position.
+     *
+     * @example
+     * anaLogger.keepLogHistory();
+     * anaLogger.log({ lid: "WEB0001" }, "boot");   // excluded
+     * anaLogger.startSnapshotProcess();
+     * anaLogger.log({ lid: "WEB0002" }, "step 1"); // included
+     * anaLogger.takeSnapshot("SNAP01");             // captures only WEB0002
+     */
+    startSnapshotProcess() {
+        const history = this.getRawLogHistory ? this.getRawLogHistory() : (this.logHistory || []);
+        this._snapshotWindowStart = history.length;
+        console.log(
+            `[AnaLogger] Snapshot window started at history index ${this._snapshotWindowStart}.`
+        );
+    }
+
+    /**
+     * Capture all lids logged since the last startSnapshotProcess() (or since the
+     * beginning of the session if startSnapshotProcess was never called) into a
+     * named snapshot stored in localStorage / temp file.
+     *
+     * @param {string} snapshotID                            - unique label, e.g. "SNAP01"
+     * @param {{ messages?: boolean, context?: boolean }} [opts]
+     *   messages: true  - also store the log message per lid  (default: true)
+     *   context:  true  - also store the full context object  (default: true)
+     * @returns {object[]} The array of snapshot entries that were saved
+     *
+     * @example
+     * anaLogger.keepLogHistory();
+     * anaLogger.log({ lid: "WEB0001" }, "step 1");
+     * const entries = anaLogger.takeSnapshot("SNAP01");
+     * anaLogger.log({ lid: "WEB0002" }, "step 2");
+     * anaLogger.takeSnapshot("SNAP02", { messages: false, context: false });
+     */
+    takeSnapshot(snapshotID, opts = {}) {
+        try {
+            if (!snapshotID || typeof snapshotID !== "string") {
+                console.warn("[AnaLogger] takeSnapshot: snapshotID must be a non-empty string.");
+                return [];
+            }
+
+            const { messages = true, context: includeContext = true } = opts;
+            const entries = this.#_harvestSnapshot({ messages, context: includeContext });
+
+            const payload = {
+                snapshotID,
+                timestamp : Date.now(),
+                options   : { messages, context: includeContext },
+                entries,
+            };
+
+            this.#_snapshotSet(this.#_snapshotKey(snapshotID), JSON.stringify(payload));
+
+            console.log(
+                `[AnaLogger] Snapshot "${snapshotID}" saved - ${entries.length} lid(s) captured.`
+            );
+
+            return entries;
+        } catch (e) {
+            console.error("[AnaLogger] takeSnapshot error:", e.message);
+            return [];
+        }
+    }
+
+    /**
+     * Compare two previously saved snapshots and print a side-by-side diff table
+     * showing which lids are shared, present only in snap1, or only in snap2.
+     *
+     * @param {string} snapshotID1
+     * @param {string} snapshotID2
+     * @param {[{ messages?: boolean }, { messages?: boolean }]} [displayOpts]
+     *   Optional per-snapshot display options.
+     *   displayOpts[0].messages = true  - add a message column for snapshotID1
+     *   displayOpts[1].messages = true  - add a message column for snapshotID2
+     * @returns {{ onlyInSnap1: string[], onlyInSnap2: string[], inBoth: string[] } | null}
+     *
+     * @example
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02");
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }]);
+     * anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: false }]);
+     */
+    compareSnapshots(snapshotID1, snapshotID2, displayOpts = []) {
+        try {
+            const raw1 = this.#_snapshotGet(this.#_snapshotKey(snapshotID1));
+            const raw2 = this.#_snapshotGet(this.#_snapshotKey(snapshotID2));
+
+            if (!raw1) console.warn(`[AnaLogger] compareSnapshots: snapshot "${snapshotID1}" not found.`);
+            if (!raw2) console.warn(`[AnaLogger] compareSnapshots: snapshot "${snapshotID2}" not found.`);
+            if (!raw1 || !raw2) return null;
+
+            const snap1 = JSON.parse(raw1);
+            const snap2 = JSON.parse(raw2);
+
+            // Resolve per-snapshot message display flags
+            const showMsg1 = !!(displayOpts[0] && displayOpts[0].messages);
+            const showMsg2 = !!(displayOpts[1] && displayOpts[1].messages);
+
+            const map1 = new Map(snap1.entries.map((e) => [e.lid, e]));
+            const map2 = new Map(snap2.entries.map((e) => [e.lid, e]));
+            const allLids = new Set([...map1.keys(), ...map2.keys()]);
+
+            const inBoth  = [];
+            const onlyIn1 = [];
+            const onlyIn2 = [];
+
+            for (const lid of allLids) {
+                const in1 = map1.has(lid);
+                const in2 = map2.has(lid);
+                if (in1 && in2) inBoth.push(lid);
+                else if (in1)   onlyIn1.push(lid);
+                else            onlyIn2.push(lid);
+            }
+
+            // Build display rows: shared lids paired, then staggered exclusives
+            const rows = [];
+            for (const lid of inBoth) {
+                rows.push({
+                    left: lid, right: lid, status: "both",
+                    msgLeft : map1.get(lid)?.message ?? "",
+                    msgRight: map2.get(lid)?.message ?? "",
+                });
+            }
+            const maxOnly = Math.max(onlyIn1.length, onlyIn2.length);
+            for (let i = 0; i < maxOnly; i++) {
+                const l = onlyIn1[i] ?? "";
+                const r = onlyIn2[i] ?? "";
+                rows.push({
+                    left: l, right: r,
+                    status: l && r ? "diff" : (l ? "left" : "right"),
+                    msgLeft : l ? (map1.get(l)?.message ?? "") : "",
+                    msgRight: r ? (map2.get(r)?.message ?? "") : "",
+                });
+            }
+
+            this.#_renderSnapshotTable(
+                snapshotID1, snapshotID2, rows, snap1, snap2,
+                { showMsg1, showMsg2 }
+            );
+
+            return { onlyInSnap1: onlyIn1, onlyInSnap2: onlyIn2, inBoth };
+        } catch (e) {
+            console.error("[AnaLogger] compareSnapshots error:", e.message);
+            return null;
+        }
+    }
+
+    // ─── Snapshot table renderers ─────────────────────────────────────────────
+
+    #_renderSnapshotTable(id1, id2, rows, snap1, snap2, { showMsg1 = false, showMsg2 = false } = {}) {
+        const ts = (snap) =>
+            snap.timestamp ? new Date(snap.timestamp).toLocaleTimeString() : "-";
+
+        // ── Header ───────────────────────────────────────────────────────────
+        console.log(`\nSnapshot comparison: "${id1}"  vs  "${id2}"`);
+        console.log(`  ${id1} captured at ${ts(snap1)} - ${snap1.entries.length} lid(s)`);
+        console.log(`  ${id2} captured at ${ts(snap2)} - ${snap2.entries.length} lid(s)\n`);
+
+        // ── console.table (auto-aligned in Node and browser devtools) ────────
+        // Column keys are the snapshot IDs so headers are self-documenting.
+        // Message columns are appended only when requested.
+        const msgKey1 = `${id1} message`;
+        const msgKey2 = `${id2} message`;
+
+        const tableData = rows.length
+            ? rows.map((r) => {
+                const row = { [id1]: r.left, [id2]: r.right };
+                if (showMsg1) row[msgKey1] = r.msgLeft;
+                if (showMsg2) row[msgKey2] = r.msgRight;
+                return row;
+            })
+            : [(() => {
+                const row = { [id1]: "(empty)", [id2]: "(empty)" };
+                if (showMsg1) row[msgKey1] = "";
+                if (showMsg2) row[msgKey2] = "";
+                return row;
+            })()];
+
+        console.table(tableData);
+
+        // ── Browser HTML widget (progressive enhancement) ────────────────────
+        if (typeof document !== "undefined") {
+            this.#_renderSnapshotHtml(id1, id2, rows, snap1, snap2, ts, { showMsg1, showMsg2 });
+        }
+    }
+
+    #_renderSnapshotHtml(id1, id2, rows, snap1, snap2, ts, { showMsg1 = false, showMsg2 = false } = {}) {
+        try {
+            const C = {
+                both: "#1e293b", bothBg: "#f8fafc",
+                left: "#7f1d1d", leftBg: "#fef2f2",
+                right: "#14532d", rightBg: "#f0fdf4",
+                msg: "#475569", msgBg: "#f8fafc",
+                header: "#1e40af", border: "#e2e8f0",
+            };
+
+            const sharedCount = snap1.entries.filter(e => snap2.entries.some(e2 => e2.lid === e.lid)).length;
+            const only1Count  = snap1.entries.length - sharedCount;
+            const only2Count  = snap2.entries.length - sharedCount;
+
+            // Total visible columns: lid1, [msg1], sym, lid2, [msg2]
+            const totalCols = 3 + (showMsg1 ? 1 : 0) + (showMsg2 ? 1 : 0);
+            const td = (extra = "") =>
+                `padding:4px 10px;font-family:monospace;font-size:12px;border-bottom:1px solid ${C.border};${extra}`;
+            const tdMsg = (extra = "") =>
+                `padding:4px 10px;font-size:11px;color:${C.msg};border-bottom:1px solid ${C.border};max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${extra}`;
+            const thStyle = `padding:5px 10px;text-align:left;background:#f1f5f9;font-size:11px;color:#475569;border-bottom:2px solid ${C.border}`;
+
+            const mkRow = (row) => {
+                const lBg = row.status === "left"  ? C.leftBg  : C.bothBg;
+                const rBg = row.status === "right" ? C.rightBg : C.bothBg;
+                const lCl = row.status === "left"  ? C.left    : row.status === "right" ? "#94a3b8" : C.both;
+                const rCl = row.status === "right" ? C.right   : row.status === "left"  ? "#94a3b8" : C.both;
+                const sym = row.status === "both" ? "=" : row.status === "left" ? "◀" : row.status === "right" ? "▶" : "≠";
+
+                return `<tr>
+                    <td style="${td(`background:${lBg};color:${lCl}`)}">${row.left  || ""}</td>
+                    ${showMsg1 ? `<td style="${tdMsg(`background:${lBg}`)}" title="${(row.msgLeft  || "").replace(/"/g, "&quot;")}">${row.msgLeft  || ""}</td>` : ""}
+                    <td style="width:20px;text-align:center;border-bottom:1px solid ${C.border};color:#94a3b8;font-size:10px">${sym}</td>
+                    <td style="${td(`background:${rBg};color:${rCl}`)}">${row.right || ""}</td>
+                    ${showMsg2 ? `<td style="${tdMsg(`background:${rBg}`)}" title="${(row.msgRight || "").replace(/"/g, "&quot;")}">${row.msgRight || ""}</td>` : ""}
+                </tr>`;
+            };
+
+            const html = `
+<div id="analogger-snapshot-cmp" style="
+    font-family:system-ui,sans-serif;font-size:13px;
+    border:1px solid ${C.border};border-radius:8px;overflow:hidden;
+    max-width:${showMsg1 || showMsg2 ? "820px" : "520px"};margin:12px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+  <div style="background:${C.header};color:#fff;padding:8px 14px;font-weight:600">
+    Snapshot diff &mdash;
+    <code style="font-size:12px">${id1}</code>
+    <span style="opacity:.7"> vs </span>
+    <code style="font-size:12px">${id2}</code>
+  </div>
+  <div style="display:flex;background:#e2e8f0;font-size:11px;color:#64748b;padding:3px 0">
+    <span style="flex:1;padding-left:10px">${id1} &middot; ${ts(snap1)} &middot; ${snap1.entries.length} lids</span>
+    <span style="width:20px"></span>
+    <span style="flex:1;padding-left:10px">${id2} &middot; ${ts(snap2)} &middot; ${snap2.entries.length} lids</span>
+  </div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="${thStyle}">${id1}</th>
+        ${showMsg1 ? `<th style="${thStyle};color:#94a3b8;font-style:italic">message</th>` : ""}
+        <th style="width:20px;background:#f1f5f9;border-bottom:2px solid ${C.border}"></th>
+        <th style="${thStyle}">${id2}</th>
+        ${showMsg2 ? `<th style="${thStyle};color:#94a3b8;font-style:italic">message</th>` : ""}
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.length
+          ? rows.map(mkRow).join("")
+          : `<tr><td colspan="${totalCols}" style="padding:10px;color:#94a3b8;text-align:center">(no lids in either snapshot)</td></tr>`}
+    </tbody>
+  </table>
+  <div style="background:#f8fafc;padding:5px 10px;font-size:11px;color:#64748b;display:flex;gap:16px">
+    <span>&#x2714; ${sharedCount} shared</span>
+    <span style="color:${C.left}">&#x25C4; ${only1Count} only in ${id1}</span>
+    <span style="color:${C.right}">&#x25BA; ${only2Count} only in ${id2}</span>
+  </div>
+</div>`;
+
+            const $old = document.getElementById("analogger-snapshot-cmp");
+            if ($old) $old.remove();
+
+            const $mount = document.querySelector("#analogger") || document.body;
+            const $wrapper = document.createElement("div");
+            $wrapper.innerHTML = html;
+            $mount.appendChild($wrapper.firstElementChild);
+        } catch (e) {
+            // Non-fatal - plain-text already printed
+        }
+    }
+
     /**
      * Set default targets, contexts and log levels
      * @returns {boolean}
