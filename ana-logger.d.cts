@@ -324,6 +324,20 @@ declare class ____AnaLogger {
      */
     resetOrder(): void;
     /**
+     * Reset the maxSeen counter for one or more lids so they can be logged
+     * up to their maxSeen limit again from scratch.
+     *
+     * @param {string|string[]} lids  - A single lid string or an array of lid strings to reset.
+     *                                  Pass nothing (or an empty array) to reset ALL lid counters.
+     * @returns {string[]} The list of lids that were actually reset.
+     *
+     * @example
+     * anaLogger.resetMaxSeen(["API_1"]);          // reset one lid
+     * anaLogger.resetMaxSeen(["API_1", "API_3"]); // reset several lids
+     * anaLogger.resetMaxSeen();                   // reset every lid counter
+     */
+    resetMaxSeen(lids: string | string[]): string[];
+    /**
      * Print a summary of all test results collected via the "test" context option.
      * If any test failed the banner and counts are printed in bold red (Node) or
      * red CSS (browser); otherwise they are printed in green.

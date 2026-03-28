@@ -2679,6 +2679,45 @@ class ____AnaLogger
     }
 
     /**
+     * Reset the maxSeen counter for one or more lids so they can be logged
+     * up to their maxSeen limit again from scratch.
+     *
+     * @param {string|string[]} lids  - A single lid string or an array of lid strings to reset.
+     *                                  Pass nothing (or an empty array) to reset ALL lid counters.
+     * @returns {string[]} The list of lids that were actually reset.
+     *
+     * @example
+     * anaLogger.resetMaxSeen(["API_1"]);          // reset one lid
+     * anaLogger.resetMaxSeen(["API_1", "API_3"]); // reset several lids
+     * anaLogger.resetMaxSeen();                   // reset every lid counter
+     */
+    resetMaxSeen(lids)
+    {
+        // Normalise: no argument → reset everything
+        if (lids === undefined || lids === null)
+        {
+            const all = Object.keys(this._seenCount);
+            this._seenCount = {};
+            return all;
+        }
+
+        // Accept a bare string as well as an array
+        const targets = Array.isArray(lids) ? lids : [lids];
+        const reset   = [];
+
+        for (const lid of targets)
+        {
+            if (Object.prototype.hasOwnProperty.call(this._seenCount, lid))
+            {
+                delete this._seenCount[lid];
+                reset.push(lid);
+            }
+        }
+
+        return reset;
+    }
+
+    /**
      * Evaluate the "test" context option and record the result.
      * - If test is a function, it is called with no arguments and its return value is used.
      * - If the resolved value is falsy a console warning is emitted immediately.
