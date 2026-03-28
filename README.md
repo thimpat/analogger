@@ -418,6 +418,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | addArchiveTimestamp   | 	true       | boolean                           | 	_Appends a consistent timestamp to rotated files_                                 |
 | forceLidOn            | 	false      | boolean                           | 	_Automatically generates a short hash LID if one isn't provided_                  |
 | only | undefined | string/Regex/Array | Filter logs to show only those matching specific IDs or patterns |
+| resetMaxSeen | 	undefined |	array | Resets maxSeen counters |
 | resetOrder | 	undefined |	boolean | Resets the internal tracking for the order sequence |
 | order | undefined | number | _Enforce call order — emits a console warning if a log with a lower order value appears after one with a higher value_ |
 | maxSeen | undefined | number | _Emits a console warning when the same lid is logged more times than this limit_ |
