@@ -8,15 +8,15 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     anaLogger.setContexts(LOG_CONTEXTS);
     anaLogger.setTargets(LOG_TARGETS);
     anaLogger.setActiveTarget(LOG_TARGETS.DEV3);
-    anaLogger.setOptions({logToDom: ".analogger"});
-    anaLogger.setOptions({silent: true});
+    anaLogger.setOptions({logToDom: ".analogger", keepBreadcrumb: true});
+    anaLogger.setOptions({...anaLogger.getOptions(), silent: true});
 
     console.log("==========================");
     anaLogger.log(LOG_CONTEXTS.C1, "You should not see this C1");
     anaLogger.log(LOG_CONTEXTS.C2, "You should not see this C2");
     anaLogger.log(LOG_CONTEXTS.C3, "You should not see this C3");
 
-    anaLogger.setOptions({silent: false, hideError: false, logToFile: "./logme.log"});
+    anaLogger.setOptions({...anaLogger.getOptions(), silent: false, hideError: false, logToFile: "./logme.log"});
     anaLogger.log(LOG_CONTEXTS.C1, "You should see this C100");
     anaLogger.log(LOG_CONTEXTS.C2, "You should see this C200");
     anaLogger.log(LOG_CONTEXTS.C3, "You should see this C300");
@@ -112,6 +112,23 @@ const {anaLogger} = require("../../src/ana-logger.cjs");
     // anaLogger.takeSnapshot("SNAP01", {messages: true});
     anaLogger.takeSnapshot("SNAP02", {messages: true});
     anaLogger.compareSnapshots("SNAP01", "SNAP02", [{ messages: true }, { messages: true }] );
+
+
+    // ---------------------------------------------------
+    // Breadcrumps
+    // ---------------------------------------------------
+    // Off by default — zero memory cost, breadcrumb prints "(empty)"
+    anaLogger.log({lid: "API_1", breadcrumb: true});
+    // Breadcrumb: (empty)
+
+    // Enable it once
+    anaLogger.setOptions({...anaLogger.getOptions(), keepBreadcrumb: true });
+
+    anaLogger.log({contextName: "LOG",  lid: 100020, symbol: "cross"},       "...");
+    anaLogger.log({contextName: "INFO", lid: 100024, symbol: "no_entry"},    "...");
+    anaLogger.log({contextName: "WARN", lid: 100040, symbol: "raised_hand"}, "...");
+    anaLogger.log({lid: "API_2", breadcrumb: true}, "aaa");
+    // Breadcrumb: 100020 => 100024 => 100040 => API_1
 
 }());
 

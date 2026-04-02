@@ -397,6 +397,7 @@ Display the browser native message box if run from it; otherwise, it displays th
 | hideError             | false       | boolean                           | _Hide errors from console_                                                         |              
 | hideHookMessage       | false       | boolean                           | _Hide the automatic message shown when some native console methods are overridden_ |
 | hidePassingTests      | false       | boolean                           | _Hide Live test results_                                                           |           
+| keepBreadcrumb      | false       | boolean                           | _Show brief history graph_                                                           |
 | logToDom              | false       | string (DOM Selector)             | _display log in a DOM container_                                                   |
 | logToFile             | false       | string (File path)                | _write log to a file if running from Node_                                         |
 | logToRemote           | undefined   | string (URL)                      | _Send log to a remote (more info in the next version)_                             |
