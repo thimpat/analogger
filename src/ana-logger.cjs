@@ -734,6 +734,10 @@ class ____AnaLogger
         // Accumulates test results recorded by the "test" context option.
         // Each entry is { lid, passed, message }.
         this._testResults = [];
+
+        // Ordered list of lid values seen so far.
+        // Used by the "breadcrumb" context option to print the history path.
+        this._breadcrumbHistory = [];
     }
 
     getName()
@@ -980,6 +984,7 @@ class ____AnaLogger
         this.options.logToRemoteMaxSize = undefined;
         this.options.logToRemoteMinSize = undefined;
         this.options.logUidToRemote = undefined;
+        this.options.keepBreadcrumb = false;
         this.remoteBuffer = [];
         this.remoteTimer = null;
         this.remoteWaitCount = 0;
@@ -1035,7 +1040,8 @@ class ____AnaLogger
                    port = undefined,
                    pathname = undefined,
                    binarypathname = undefined,
-                   loadHtmlToImage = false
+                   loadHtmlToImage = false,
+                   keepBreadcrumb = undefined
                } = null)
     {
         this.options.contextLenMax = contextLenMax;
@@ -1105,6 +1111,7 @@ class ____AnaLogger
             {logToRemote},
             {logToLocalStorage},
             {logUidToRemote},
+            {keepBreadcrumb},
         ].forEach((feature) =>
         {
             const key = Object.keys(feature)[0];
@@ -2718,6 +2725,68 @@ class ____AnaLogger
     }
 
     /**
+     * Reset the breadcrumb history so the trail starts fresh.
+     */
+    resetBreadcrumb()
+    {
+        this._breadcrumbHistory = [];
+    }
+
+    /**
+     * Handle the "breadcrumb" context option.
+     *
+     * When context.breadcrumb is true the method:
+     *   1. Appends the current context.lid (if any) to the history.
+     *   2. Prints the full trail as:   lid1 => lid2 => ... => lidN
+     *   3. Returns true to signal that normal log output should be skipped.
+     *
+     * For every other log call (no breadcrumb flag) the lid is silently
+     * appended to the history so the trail always stays up-to-date.
+     *
+     * @param {object} context
+     * @returns {boolean}  true when the call was a breadcrumb display call.
+     */
+    #handleBreadcrumb(context)
+    {
+        const lid = context.lid !== undefined && context.lid !== null && context.lid !== ""
+            ? String(context.lid)
+            : null;
+
+        if (!context.breadcrumb)
+        {
+            // Regular log call — just record the lid if the feature is enabled.
+            if (lid && this.options.keepBreadcrumb)
+            {
+                this._breadcrumbHistory.push(lid);
+            }
+            return false;
+        }
+
+        // breadcrumb: true — append the current lid (if any) and print the trail.
+        // Works even if keepBreadcrumb was just enabled: we record the current lid
+        // so it at least appears in the trail.
+        if (lid && this.options.keepBreadcrumb)
+        {
+            this._breadcrumbHistory.push(lid);
+        }
+
+        const trail = this._breadcrumbHistory.join(" => ") || "(empty)";
+        const label = "Breadcrumb: ";
+
+        if (this.isBrowser())
+        {
+            ____AnaLogger.Console.log(`%c${label}${trail}`, "color: #888; font-style: italic");
+        }
+        else
+        {
+            const styled = toAnsi.getTextFromColor(`${label}${trail}`, {fg: "#888888"});
+            ____AnaLogger.Console.log(styled);
+        }
+
+        return true;
+    }
+
+    /**
      * Evaluate the "test" context option and record the result.
      * - If test is a function, it is called with no arguments and its return value is used.
      * - If the resolved value is falsy a console warning is emitted immediately.
@@ -2953,6 +3022,16 @@ class ____AnaLogger
                 argsWithoutContext.unshift(context.message);
             }
             this.applySymbolByName(context);
+
+            // Handle the "breadcrumb" option — track lid history and, when
+            // breadcrumb:true, print the trail then skip normal output.
+            // Must run before any filtering (target, logLevel, only) so that:
+            //   a) lids are always recorded regardless of active filters, and
+            //   b) a breadcrumb display call is never silently suppressed.
+            if (this.#handleBreadcrumb(context))
+            {
+                return;
+            }
 
             this.checkOnLogging(context, context, argsWithoutContext, "onContext");
             if (!this.isTargetAllowed(context.target))

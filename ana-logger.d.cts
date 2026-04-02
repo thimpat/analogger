@@ -83,6 +83,7 @@ declare class ____AnaLogger {
     };
     _seenCount: {};
     _testResults: any[];
+    _breadcrumbHistory: any[];
     getName(): string;
     getId(): string;
     /**
@@ -131,7 +132,7 @@ declare class ____AnaLogger {
     resetLogger(): void;
     remoteWaitCount: any;
     resetOptions(): void;
-    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, only, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, logUidToRemote, protocol, host, port, pathname, binarypathname, loadHtmlToImage }?: any): void;
+    setOptions({ timeLenMax, contextLenMax, idLenMax, lidLenMax, only, symbolLenMax, enableTrace, messageLenMax, hideLog, hideError, hideHookMessage, hidePassingTests, logToDom, logToFile, logMaxSize, logMaxArchives, logIndexArchive, addArchiveTimestamp, addArchiveIndex, compressArchives, compressionLevel, logToRemote, logToRemoteUrl, logToRemoteBinaryUrl, loopback, requiredLogLevel, oneConsolePerContext, silent, enableDate, enableMillisec, logToLocalStorage, logToLocalStorageMax, logToLocalStorageSize, logToRemoteMaxEntries, logToRemoteDebounce, logToRemoteMaxSize, logToRemoteMinSize, logUidToRemote, protocol, host, port, pathname, binarypathname, loadHtmlToImage, keepBreadcrumb }?: any): void;
     EOL: string;
     updateOptions(options: any): void;
     getOptions(): {
@@ -337,6 +338,10 @@ declare class ____AnaLogger {
      * anaLogger.resetMaxSeen();                   // reset every lid counter
      */
     resetMaxSeen(lids: string | string[]): string[];
+    /**
+     * Reset the breadcrumb history so the trail starts fresh.
+     */
+    resetBreadcrumb(): void;
     /**
      * Print a summary of all test results collected via the "test" context option.
      * If any test failed the banner and counts are printed in bold red (Node) or
