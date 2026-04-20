@@ -3133,12 +3133,12 @@ class ____AnaLogger
                 return;
             }
 
-            if (this.options.logToRemote)
+            if (this.options.logToRemote && context.logToRemote !== false)
             {
                 this.writeLogToRemote(context, ...args);
             }
 
-            if (this.options.logToLocalStorage)
+            if (this.options.logToLocalStorage && context.logToLocalStorage !== false)
             {
                 this.writeLogToLocalStorage(context, ...args);
             }
@@ -3148,7 +3148,7 @@ class ____AnaLogger
             {
                 context.environnment = ____AnaLogger.ENVIRONMENT_TYPE.BROWSER;
                 /* istanbul ignore next */
-                if (this.options.logToDom)
+                if (this.options.logToDom && context.logToDom !== false)
                 {
                     /* istanbul ignore next */
                     this.writeLogToDom(context, text, {message, args,});
@@ -3167,7 +3167,7 @@ class ____AnaLogger
                     isReversed : context.reversed
                 });
 
-                if (this.options.logToFile)
+                if (this.options.logToFile && context.logToFile !== false)
                 {
                     this.writeLogToFile(text);
                 }
